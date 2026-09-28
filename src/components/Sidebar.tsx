@@ -202,9 +202,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <div className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between h-full text-slate-700 select-none overflow-hidden">
       {/* 1. Header Box: Brand / School / Church Info */}
       <div className="p-3.5 border-b border-slate-100 shrink-0">
-        <div className="p-2.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70 flex items-center justify-between gap-2.5">
+        <div className="p-2.5 rounded-2xl bg-teal-50/80 border border-teal-200/80 flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-white border border-emerald-200 flex items-center justify-center p-1 shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-white border border-teal-200 flex items-center justify-center p-1 shadow-xs shrink-0">
               <img
                 src={settings?.logo || DEFAULT_CHURCH_LOGO}
                 alt="Logo"
@@ -218,7 +218,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <h2 className="text-xs font-black text-slate-800 tracking-tight truncate leading-tight">
                 {shortCode}
               </h2>
-              <p className="text-[10px] text-emerald-700 font-bold truncate">
+              <p className="text-[10px] text-teal-700 font-bold truncate">
                 ID: {settings?.header_title?.substring(0, 14) || '20104523'}
               </p>
             </div>
@@ -260,10 +260,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         onSelectTab(item.id as NavTab);
                         if (onCloseMobile) onCloseMobile();
                       }}
+                      style={isActive ? { backgroundColor: settings?.warna_tema || '#0d9488' } : undefined}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${
                         isActive
-                          ? 'bg-[#00a859] hover:bg-[#00914c] text-white font-bold shadow-xs'
-                          : 'text-slate-600 hover:text-emerald-800 hover:bg-emerald-50/60 font-semibold'
+                          ? 'bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-xs'
+                          : 'text-slate-600 hover:text-teal-800 hover:bg-teal-50/70 font-semibold'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">

@@ -318,7 +318,30 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
   if (appSettings.jemaat_card_width === 'CONTAINED') widthClass = 'max-w-7xl mx-auto px-1 sm:px-3';
 
   // Dynamic Banner Background
-  let bannerBgClass = 'bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 border-indigo-500/50 shadow-xl shadow-indigo-900/20';
+  let bannerBgClass = 'bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-800 border-teal-500/50 shadow-xl shadow-teal-900/20';
+  switch (appSettings.jemaat_banner_bg) {
+    case 'GRADIENT_EMERALD':
+      bannerBgClass = 'bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-800 border-teal-500/50 shadow-xl shadow-teal-900/20';
+      break;
+    case 'GRADIENT_INDIGO':
+      bannerBgClass = 'bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 border-indigo-500/50 shadow-xl shadow-indigo-900/20';
+      break;
+    case 'GRADIENT_PURPLE':
+      bannerBgClass = 'bg-gradient-to-r from-purple-900 via-purple-800 to-slate-900 border-purple-500/50 shadow-xl shadow-purple-900/20';
+      break;
+    case 'GRADIENT_GOLD':
+      bannerBgClass = 'bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-900 border-amber-500/50 shadow-xl shadow-amber-900/20';
+      break;
+    case 'OCEAN_BLUE':
+      bannerBgClass = 'bg-gradient-to-r from-cyan-900 via-teal-800 to-blue-900 border-cyan-500/50 shadow-xl shadow-cyan-900/20';
+      break;
+    case 'OBSIDIAN_NIGHT':
+      bannerBgClass = 'bg-gradient-to-r from-slate-950 via-slate-900 to-zinc-950 border-slate-700 shadow-xl';
+      break;
+    default:
+      bannerBgClass = 'bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-800 border-teal-500/50 shadow-xl shadow-teal-900/20';
+      break;
+  }
 
   const displayPhoto = photoPreview || jemaatData?.foto || currentUser.foto || DEFAULT_CHURCH_LOGO;
 
@@ -411,15 +434,15 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
       {/* 2. Modal/Card Edit Profil Data Diri */}
       {isEditing && (
-        <div className={`rounded-3xl ${theme.cardClass} p-6 transition-all duration-300 space-y-5 border-2 border-indigo-500/50 shadow-2xl animate-fade-in`}>
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <UserIcon className="w-5 h-5 text-indigo-400" />
+        <div className={`rounded-3xl bg-white p-6 transition-all duration-300 space-y-5 border-2 border-teal-200 text-slate-800 shadow-xl animate-fade-in`}>
+          <div className="flex items-center justify-between border-b border-teal-100 pb-3">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <UserIcon className="w-5 h-5 text-teal-600" />
               <span>Formulir Perubahan Data Profil Jemaat</span>
             </h3>
             <button
               onClick={() => setIsEditing(false)}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -427,8 +450,8 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
             {/* FOTO PROFIL OPTION */}
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
-              <label className="block text-xs font-bold text-slate-300">Ganti Foto Profil:</label>
+            <div className="p-4 rounded-2xl bg-teal-50/50 border border-teal-200 space-y-3">
+              <label className="block text-xs font-bold text-slate-700">Ganti Foto Profil:</label>
               
               <div className="flex items-center gap-2">
                 <button
@@ -436,8 +459,8 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   onClick={() => setPhotoMode('OFFLINE')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     photoMode === 'OFFLINE'
-                      ? 'bg-indigo-600 text-white shadow'
-                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                      ? 'bg-teal-600 text-white shadow'
+                      : 'bg-white border border-teal-200 text-slate-600 hover:text-teal-700'
                   }`}
                 >
                   <Upload className="w-3.5 h-3.5" />
@@ -448,8 +471,8 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   onClick={() => setPhotoMode('ONLINE')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     photoMode === 'ONLINE'
-                      ? 'bg-indigo-600 text-white shadow'
-                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                      ? 'bg-teal-600 text-white shadow'
+                      : 'bg-white border border-teal-200 text-slate-600 hover:text-teal-700'
                   }`}
                 >
                   <LinkIcon className="w-3.5 h-3.5" />
@@ -463,9 +486,9 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoFileUpload}
-                    className="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+                    className="block w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-600 file:text-white hover:file:bg-teal-500 cursor-pointer"
                   />
-                  <p className="text-[10px] text-slate-400 mt-1">Pilih file foto dari perangkat (JPG, PNG, max 2MB).</p>
+                  <p className="text-[10px] text-slate-500 mt-1">Pilih file foto dari perangkat (JPG, PNG, max 2MB).</p>
                 </div>
               ) : (
                 <div>
@@ -477,21 +500,21 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                       setPhotoPreview(e.target.value);
                     }}
                     placeholder="https://example.com/foto.jpg"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-teal-200 text-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   />
                 </div>
               )}
 
               {photoPreview && (
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800">
-                  <span className="text-xs text-slate-400">Preview Foto:</span>
+                <div className="flex items-center gap-3 pt-2 border-t border-teal-200">
+                  <span className="text-xs text-slate-500 font-semibold">Preview Foto:</span>
                   <img
                     src={photoPreview}
                     alt="Preview"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                     }}
-                    className="w-12 h-12 rounded-xl object-cover border border-indigo-500"
+                    className="w-12 h-12 rounded-xl object-cover border border-teal-400"
                   />
                 </div>
               )}
@@ -500,58 +523,58 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
             {/* INPUT FIELD PROFILE */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="space-y-1.5">
-                <label className="font-bold text-slate-300">Nama Lengkap Jemaat:</label>
+                <label className="font-bold text-slate-700">Nama Lengkap Jemaat:</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-slate-300">No. Handphone / WhatsApp:</label>
+                <label className="font-bold text-slate-700">No. Handphone / WhatsApp:</label>
                 <input
                   type="text"
                   value={editPhone}
                   onChange={(e) => setEditPhone(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-slate-300">Alamat Email:</label>
+                <label className="font-bold text-slate-700">Alamat Email:</label>
                 <input
                   type="email"
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-bold text-slate-300">Alamat Tempat Tinggal:</label>
+                <label className="font-bold text-slate-700">Alamat Tempat Tinggal:</label>
                 <input
                   type="text"
                   value={editAddress}
                   onChange={(e) => setEditAddress(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-teal-100">
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-800 text-xs font-bold transition-all cursor-pointer"
               >
                 Batal
               </button>
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-teal-600/25 transition-all cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 <span>Simpan Perubahan Profil</span>
@@ -563,15 +586,15 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
       {/* 3. Form Ganti Kata Sandi */}
       {isChangingPassword && (
-        <div className={`rounded-3xl ${theme.cardClass} p-6 transition-all duration-300 space-y-4 border border-amber-500/40 shadow-2xl animate-fade-in`}>
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Lock className="w-5 h-5 text-amber-400" />
+        <div className={`rounded-3xl bg-white p-6 transition-all duration-300 space-y-4 border-2 border-teal-200 text-slate-800 shadow-xl animate-fade-in`}>
+          <div className="flex items-center justify-between border-b border-teal-100 pb-3">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Lock className="w-5 h-5 text-teal-600" />
               <span>Ganti Kata Sandi Akun</span>
             </h3>
             <button
               onClick={() => setIsChangingPassword(false)}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -579,7 +602,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
           {passwordMsg && (
             <div className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 ${
-              passwordMsg.type === 'success' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+              passwordMsg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-300' : 'bg-rose-50 text-rose-800 border border-rose-300'
             }`}>
               <span>{passwordMsg.text}</span>
             </div>
@@ -588,26 +611,26 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
           <form onSubmit={handleChangePassword} className="space-y-3 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-slate-300 mb-1 font-semibold">Kata Sandi Baru:</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Kata Sandi Baru:</label>
                 <input
                   type="password"
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Minimal 6 karakter"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-semibold">Konfirmasi Kata Sandi Baru:</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Konfirmasi Kata Sandi Baru:</label>
                 <input
                   type="password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Ulangi kata sandi baru"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-teal-500"
                 />
               </div>
             </div>
@@ -615,7 +638,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-600/30 transition-all cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-teal-600/25 transition-all cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 <span>Simpan Kata Sandi Baru</span>
@@ -626,24 +649,24 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
       )}
 
       {/* 4. Kartu Tanda Anggota (KTA) Jemaat Digital */}
-      <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 sm:p-8 border-2 border-indigo-500/40 shadow-2xl text-white space-y-6 relative overflow-hidden">
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="rounded-3xl bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900 p-6 sm:p-8 border-2 border-teal-400/50 shadow-2xl text-white space-y-6 relative overflow-hidden">
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-indigo-600 text-white shadow-lg">
+            <div className="p-3 rounded-2xl bg-teal-600 text-white shadow-lg">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest block">
+              <span className="text-[10px] text-teal-200 font-bold uppercase tracking-widest block">
                 Official Digital Member Card
               </span>
               <h3 className="text-lg font-extrabold text-white">Kartu Tanda Anggota (KTA) Jemaat Digital</h3>
             </div>
           </div>
           <div className="text-right text-xs">
-            <span className="text-slate-400 block text-[10px]">Status Verifikasi:</span>
-            <span className="text-emerald-400 font-extrabold flex items-center justify-end gap-1">
+            <span className="text-teal-200/80 block text-[10px]">Status Verifikasi:</span>
+            <span className="text-emerald-300 font-extrabold flex items-center justify-end gap-1">
               <ShieldCheck className="w-4 h-4" /> Verified Active Member
             </span>
           </div>

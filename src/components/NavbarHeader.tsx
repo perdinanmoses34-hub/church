@@ -298,14 +298,17 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         {/* Mobile menu trigger */}
         <button
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-all cursor-pointer shrink-0"
+          className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-teal-700 hover:bg-teal-50 transition-all cursor-pointer shrink-0"
           title="Buka Navigasi"
         >
-          <Grid className="w-5 h-5 text-[#00a859]" />
+          <Grid className="w-5 h-5 text-teal-600" style={{ color: settings?.warna_tema || '#0d9488' }} />
         </button>
 
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#00a859] flex items-center justify-center p-1.5 shadow-xs shrink-0 text-white">
+          <div
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-600 flex items-center justify-center p-1.5 shadow-xs shrink-0 text-white"
+            style={{ backgroundColor: settings?.warna_tema || '#0d9488' }}
+          >
             <Building2 className="w-5 h-5 text-white" />
           </div>
           <div className="flex flex-col min-w-0">
@@ -313,7 +316,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
               <h1 className="text-xs sm:text-base font-black text-slate-900 tracking-tight truncate leading-tight">
                 {settings?.nama_gereja || 'Jesus Kingdom Christ'}
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-[#00a859] border border-emerald-200 text-[10px] font-bold shrink-0">
+              <span className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold shrink-0">
                 Portal Jemaat
               </span>
             </div>
@@ -334,14 +337,14 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
       {/* Right section: Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* 1. Firebase Live Pill */}
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#dcfce7] border border-[#bbf7d0] text-[#15803d] text-xs font-bold shadow-2xs">
-          <span className="w-2 h-2 rounded-full bg-[#16a34a] animate-pulse" />
+        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
           <span>Firebase Live</span>
         </div>
 
         {/* 2. Admin Pill */}
-        <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#dcfce7] border border-[#bbf7d0] text-[#15803d] text-xs font-bold shadow-2xs">
-          <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
+        <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-teal-500" />
           <span>{isAdmin ? 'Admin Gereja' : 'Jemaat Gereja'}</span>
         </div>
         {currentUser.role === 'SUPER_ADMIN' && onOpenSuperAdminSaaSPanel && (

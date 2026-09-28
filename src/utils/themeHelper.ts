@@ -36,9 +36,9 @@ export const getNavbarTheme = (settings?: AppSettings): NavbarThemeStyles => {
   const preset = settings?.navbar_theme_preset || 'CLEAN_LIGHT';
   const customBg = (settings?.navbar_custom_bg || settings?.warna_tema || '#ffffff').trim();
   const hex = customBg.startsWith('#') ? customBg : `#${customBg}`;
-  const churchHex = (settings?.warna_tema || '#059669').trim().startsWith('#')
-    ? (settings?.warna_tema || '#059669').trim()
-    : `#${(settings?.warna_tema || '#059669').trim()}`;
+  const churchHex = (settings?.warna_tema || '#0d9488').trim().startsWith('#')
+    ? (settings?.warna_tema || '#0d9488').trim()
+    : `#${(settings?.warna_tema || '#0d9488').trim()}`;
   const style = settings?.navbar_style || 'GLASS';
   const borderAccent = settings?.navbar_border_accent || 'SUBTLE';
   const customTextChoice = settings?.navbar_custom_text || 'AUTO';
@@ -235,9 +235,9 @@ export interface FooterThemeStyles {
 
 export const getFooterTheme = (settings?: AppSettings): FooterThemeStyles => {
   const preset = settings?.footer_theme_preset || 'CLEAN_LIGHT';
-  const churchHex = (settings?.warna_tema || '#059669').trim().startsWith('#')
-    ? (settings?.warna_tema || '#059669').trim()
-    : `#${(settings?.warna_tema || '#059669').trim()}`;
+  const churchHex = (settings?.warna_tema || '#0d9488').trim().startsWith('#')
+    ? (settings?.warna_tema || '#0d9488').trim()
+    : `#${(settings?.warna_tema || '#0d9488').trim()}`;
 
   let baseBgHex = '#020617';
   if (preset === 'MATCH_THEME') {
@@ -384,14 +384,14 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
   const fontFam = settings?.font_family || 'SANS';
   const cardBorderAccent = settings?.card_border_accent || 'ACCENT_FULL';
   
-  let rawHex = (settings?.warna_tema || '#00a859').trim();
+  let rawHex = (settings?.warna_tema || '#0d9488').trim();
   if (!rawHex.startsWith('#')) {
     rawHex = `#${rawHex}`;
   }
   const customHexColor = rawHex;
 
   // 1. Root Container Background
-  let rootBg = 'bg-[#f0f5f2] text-slate-800';
+  let rootBg = 'bg-[#f4fbf9] text-slate-800';
   switch (preset) {
     case 'MIDNIGHT_BLUE':
       rootBg = 'bg-[#030712] text-slate-100';
@@ -406,34 +406,34 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
       rootBg = 'bg-[#140c03] text-amber-100';
       break;
     case 'LUXE_LIGHT':
-      rootBg = 'bg-slate-100 text-slate-900';
+      rootBg = 'bg-slate-50 text-slate-900';
       break;
     case 'DARK_SLATE':
       rootBg = 'bg-slate-950 text-slate-100';
       break;
     case 'EMERALD_LIGHT':
     default:
-      rootBg = 'bg-[#f0f5f2] text-slate-800';
+      rootBg = 'bg-[#f4fbf9] text-slate-800';
       break;
   }
 
   // 2. Card Background & Borders
   const isLightSystem = preset === 'LUXE_LIGHT' || preset === 'EMERALD_LIGHT';
-  let cardBg = 'bg-white border border-slate-200/90 shadow-sm text-slate-900';
+  let cardBg = 'bg-white border border-teal-100 shadow-sm text-slate-900';
   if (isLightSystem) {
     switch (cardStyle) {
       case 'SOLID':
-        cardBg = 'bg-white border border-slate-200/90 shadow-md text-slate-900';
+        cardBg = 'bg-white border-2 border-teal-200/90 shadow-md text-slate-900';
         break;
       case 'NEON':
-        cardBg = 'bg-white border-2 border-emerald-400 shadow-xl shadow-emerald-500/10 text-slate-900';
+        cardBg = 'bg-white border-2 border-teal-500 shadow-xl shadow-teal-500/15 text-slate-900';
         break;
       case 'FLAT':
-        cardBg = 'bg-slate-50 border border-slate-200/80 shadow-none text-slate-900';
+        cardBg = 'bg-teal-50/40 border border-teal-200/80 shadow-none text-slate-900';
         break;
       case 'GLASS':
       default:
-        cardBg = 'bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-sm text-slate-900';
+        cardBg = 'bg-white/95 backdrop-blur-md border border-teal-100/90 shadow-sm text-slate-900';
         break;
     }
   } else {
@@ -442,7 +442,7 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
         cardBg = 'bg-slate-900 border border-slate-800 shadow-xl text-white';
         break;
       case 'NEON':
-        cardBg = 'bg-slate-900/90 border-2 border-indigo-500/60 shadow-xl shadow-indigo-500/20 text-white';
+        cardBg = 'bg-slate-900/90 border-2 border-teal-500/60 shadow-xl shadow-teal-500/20 text-white';
         break;
       case 'FLAT':
         cardBg = 'bg-slate-900/40 border border-slate-800 shadow-none text-white';
@@ -460,19 +460,19 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
   if (cardSize === 'SPACIOUS') cardPadding = 'p-6 sm:p-8';
 
   // 4. Accent Gradient & Color Accents
-  let accentGradient = 'from-indigo-600 to-blue-600';
-  let accentText = 'text-indigo-400';
-  let accentBorder = 'border-indigo-500';
-  let accentBg = 'bg-indigo-600';
-  let accentRing = 'ring-indigo-500/50';
+  let accentGradient = 'from-teal-600 to-emerald-600';
+  let accentText = 'text-teal-600';
+  let accentBorder = 'border-teal-500';
+  let accentBg = 'bg-teal-600';
+  let accentRing = 'ring-teal-500/50';
 
   switch (accent) {
     case 'EMERALD':
-      accentGradient = 'from-emerald-600 to-teal-600';
-      accentText = 'text-emerald-400';
-      accentBorder = 'border-emerald-500';
-      accentBg = 'bg-emerald-600';
-      accentRing = 'ring-emerald-500/50';
+      accentGradient = 'from-teal-600 to-emerald-600';
+      accentText = 'text-teal-600';
+      accentBorder = 'border-teal-500';
+      accentBg = 'bg-teal-600';
+      accentRing = 'ring-teal-500/50';
       break;
     case 'AMBER':
       accentGradient = 'from-amber-600 to-orange-600';
@@ -519,17 +519,20 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
   let cardBorderAccentClass = 'border';
   switch (cardBorderAccent) {
     case 'ACCENT_LEFT':
-      cardBorderAccentClass = 'border-l-4';
+      cardBorderAccentClass = 'border-l-4 border-l-teal-600 border border-teal-200/80';
       break;
     case 'ACCENT_TOP':
-      cardBorderAccentClass = 'border-t-4';
+      cardBorderAccentClass = 'border-t-4 border-t-teal-600 border border-teal-200/80';
       break;
     case 'ACCENT_GLOW':
-      cardBorderAccentClass = 'border shadow-lg';
+      cardBorderAccentClass = 'border border-teal-400/80 shadow-lg shadow-teal-500/15';
+      break;
+    case 'NONE':
+      cardBorderAccentClass = 'border-0';
       break;
     case 'ACCENT_FULL':
     default:
-      cardBorderAccentClass = 'border';
+      cardBorderAccentClass = 'border border-teal-200/90';
       break;
   }
 

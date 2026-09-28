@@ -134,7 +134,7 @@ export const initialSettings: AppSettings = {
   alamat: 'Jl. Pemuda No. 77, Jakarta Pusat, DKI Jakarta 10110',
   email: 'info@jesuskingdomchrist.org',
   telepon: '+62 21 555-9876',
-  warna_tema: '#059669',
+  warna_tema: '#0d9488',
   // Rekening Bank & QRIS Transfer Persembahan Digital
   rekening_bank_nama: 'Bank BCA',
   rekening_bank_nomor: '527-089-1122',

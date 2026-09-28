@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --theme-custom-primary: #00a859;
-  --theme-custom-border: #10b981;
-  --theme-custom-bg-alpha: rgba(0, 168, 89, 0.12);
-  --app-bg: #f0f5f2;
+  --theme-custom-primary: #0d9488;
+  --theme-custom-border: #14b8a6;
+  --theme-custom-bg-alpha: rgba(13, 148, 136, 0.12);
+  --app-bg: #f4fbf9;
   --app-text: #0f172a;
 }
 

@@ -801,23 +801,14 @@ export const StorageManager = {
   },
   getSettings: (): AppSettings => {
     const saved = getItem<AppSettings>(KEYS.SETTINGS, initialSettings);
-    const settings = { ...initialSettings, ...saved };
-    // Auto upgrade any legacy preset to universal EMERALD_LIGHT theme so all users experience the new theme
-    if (!saved || saved.theme_preset !== 'EMERALD_LIGHT') {
+    const settings: AppSettings = { ...initialSettings, ...(saved || {}) };
+    
+    // Ensure valid theme and color defaults if not explicitly configured
+    if (!settings.warna_tema) {
+      settings.warna_tema = '#0d9488';
+    }
+    if (!settings.theme_preset) {
       settings.theme_preset = 'EMERALD_LIGHT';
-      settings.warna_tema = '#00a859';
-      settings.accent_color = 'EMERALD';
-      settings.navbar_theme_preset = 'CLEAN_LIGHT';
-      settings.navbar_custom_bg = '#ffffff';
-      settings.navbar_custom_text = 'DARK';
-      settings.navbar_border_accent = 'THEME_COLOR';
-      settings.footer_theme_preset = 'CLEAN_LIGHT';
-      settings.footer_custom_bg = '#ffffff';
-      settings.footer_icon_active_bg = '#dcfce7';
-      settings.footer_icon_active_text = '#00a859';
-      settings.footer_icon_inactive_text = '#64748b';
-      settings.jemaat_banner_bg = 'GRADIENT_EMERALD';
-      setItem(KEYS.SETTINGS, settings);
     }
     // Auto sanitize any stale legacy church name
     if (settings.nama_gereja && settings.nama_gereja.includes('Kemenangan Faith')) {
@@ -853,8 +844,22 @@ export const StorageManager = {
     return settings;
   },
   saveSettings: (settings: AppSettings): void => {
+    try {
+      localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
+    } catch (e) {
+      // ignore
+    }
     setItem(KEYS.SETTINGS, settings);
+    pushToCloud(KEYS.SETTINGS, settings);
+    pushToCloud('settings', settings);
     const activeTenantId = StorageManager.getActiveTenantId();
+    if (activeTenantId && activeTenantId !== 'CHURCH-001') {
+      pushToCloud(getTenantScopedKey(KEYS.SETTINGS), settings);
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'settings_updated', settings } }));
+      window.dispatchEvent(new Event('storage'));
+    }
     const tenants = getItem<ChurchTenant[]>(KEYS.TENANTS, initialTenants);
     let needsSync = false;
     const updatedTenants = tenants.map((t) => {

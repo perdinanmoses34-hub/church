@@ -869,8 +869,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
   return (
     <div className="space-y-6 pb-32 sm:pb-24">
       {/* Header Title Section */}
-      <div className="flex flex-col gap-1.5 pb-4 border-b border-slate-800">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+      <div className="flex flex-col gap-1.5 pb-4 border-b border-teal-100">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-teal-950 tracking-tight flex items-center gap-2">
           <ShieldCheck className="w-6 h-6 text-teal-600" />
           <span>Pengaturan &amp; Kustomisasi Sistem</span>
         </h2>
@@ -983,8 +983,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
       {/* Role Notice for Admin */}
       {currentUser.role === 'ADMIN' && (
-        <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-200 text-xs flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0 text-indigo-400" />
+        <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200 text-teal-900 text-xs flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-teal-600" />
           <div>
             <span className="font-bold block">Akses Level Admin Gereja:</span>
             <span>Anda dapat mengubah profil gereja, judul dashboard, tema warna, logo, dan tautan video media sosial, serta mengelola akun User (Admin & JEMAAT) dan password untuk gereja Anda. Fitur Google Sheets REST API & Audit Logs dikunci khusus untuk SuperAdmin.</span>
@@ -996,19 +996,19 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
       {activeTab === 'METADATA' && (
         <div className="space-y-6">
           {/* Quick Jump Banner for Navbar */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-indigo-900/30 to-purple-900/20 border-2 border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-xl">
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-50 via-white to-emerald-50 border-2 border-teal-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-800 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+              <div className="p-2.5 rounded-xl bg-teal-100 text-teal-700 border border-teal-300 shrink-0">
                 <Palette className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2">
+                <h4 className="text-xs sm:text-sm font-black text-teal-950 flex items-center gap-2">
                   <span>Pengaturan Warna &amp; Tema Navbar (Bar Navigasi Paling Atas)</span>
-                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                  <span className="px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold border border-teal-300">
                     Lokasi di Sini
                   </span>
                 </h4>
-                <p className="text-[11px] text-slate-300 mt-0.5">
+                <p className="text-[11px] text-slate-600 mt-0.5">
                   Ubah tema warna preset, kode hex bebas, blur, dan garis bawah navbar di sini atau melalui tombol <strong>"Warna Navbar"</strong> di bar paling atas.
                 </p>
               </div>
@@ -1021,10 +1021,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
               }}
-              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer active:scale-95"
+              className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-black text-xs shadow-md shadow-teal-600/20 flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer active:scale-95"
             >
               <span>Lompat ke Pengaturan Navbar</span>
-              <ArrowDown className="w-4 h-4 text-slate-950" />
+              <ArrowDown className="w-4 h-4 text-white" />
             </button>
           </div>
 
@@ -3084,14 +3084,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
           )}
 
           {/* Google Sheets GAS REST API Section */}
-          <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-4 shadow-xl shadow-teal-950/5">
+            <div className="flex items-center justify-between pb-3 border-b border-teal-100">
               <div>
-                <h3 className="text-base font-bold flex items-center gap-2">
-                  <Database className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base font-bold flex items-center gap-2 text-slate-900">
+                  <Database className="w-5 h-5 text-teal-600" />
                   <span>Google Sheets REST API & Google Apps Script (GAS)</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Tempelkan Web App URL hasil Deploy Apps Script Anda di sini. Kemudian klik tombol <strong>Simpan & Sinkronkan</strong> di bawah.
                 </p>
               </div>
@@ -3099,7 +3099,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <button
                 type="button"
                 onClick={handleCopyGASCode}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow flex items-center gap-1.5 shrink-0"
+                className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md shadow-teal-600/20 flex items-center gap-1.5 shrink-0 transition cursor-pointer"
               >
                 {copiedCode ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
                 <span>{copiedCode ? 'Tersalin ke Clipboard!' : 'Salin Kode GAS (18 Sheets)'}</span>
@@ -3108,37 +3108,37 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">
-                  Google Apps Script Web App URL <span className="text-emerald-400">* (Tempel di sini)</span>
+                <label className="block text-slate-700 mb-1 font-semibold">
+                  Google Apps Script Web App URL <span className="text-teal-600 font-bold">* (Tempel di sini)</span>
                 </label>
                 <input
                   type="text"
                   placeholder="https://script.google.com/macros/s/.../exec"
                   value={metaForm.gas_api_url || ''}
                   onChange={(e) => setMetaForm({ ...metaForm, gas_api_url: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-indigo-500/50 text-white font-mono text-[11px] focus:outline-none focus:border-indigo-400"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Google Spreadsheet ID (Opsional)</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Google Spreadsheet ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
                   value={metaForm.google_sheet_id || ''}
                   onChange={(e) => setMetaForm({ ...metaForm, google_sheet_id: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
             </div>
 
             {/* Save & Sync Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-teal-100">
               <button
                 type="button"
                 onClick={handleSyncAllDataToGAS}
                 disabled={testingGAS}
-                className="px-4 py-2.5 rounded-xl bg-emerald-900/40 hover:bg-emerald-800/80 text-emerald-300 border border-emerald-700/50 text-xs font-bold flex items-center gap-1.5 transition-all"
+                className="px-4 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
               >
                 <RefreshCw className={`w-4 h-4 ${testingGAS ? 'animate-spin' : ''}`} />
                 <span>Sinkronkan Semua Data 18 Sheets Sekarang</span>
@@ -3147,49 +3147,49 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <button
                 type="submit"
                 disabled={testingGAS}
-                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/25 flex items-center gap-2 cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>{testingGAS ? 'Menyimpan & Menguji...' : 'Simpan Konfigurasi & Tes REST API'}</span>
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
-              <h4 className="font-bold text-white flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-indigo-400" />
+            <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-xs text-slate-700 space-y-2">
+              <h4 className="font-bold text-teal-950 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-teal-600" />
                 <span>Panduan Cara Kerja Integration & Sinkronisasi:</span>
               </h4>
-              <ol className="list-decimal list-inside space-y-1.5 text-slate-400 text-[11px]">
+              <ol className="list-decimal list-inside space-y-1.5 text-slate-600 text-[11px]">
                 <li><strong>Tempel URL:</strong> Salin Web App URL dari Google Apps Script lalu tempel di kolom "Google Apps Script Web App URL".</li>
-                <li><strong>Klik Simpan:</strong> Klik tombol <strong className="text-indigo-300">"Simpan Konfigurasi & Tes REST API"</strong> di atas. Sistem akan menyimpan URL ke database dan melakukan verifikasi ping.</li>
-                <li><strong>Sinkronkan Data:</strong> Klik tombol <strong className="text-emerald-300">"Sinkronkan Semua Data 18 Sheets Sekarang"</strong> untuk mengunggah seluruh database lokal ke Google Spreadsheet.</li>
+                <li><strong>Klik Simpan:</strong> Klik tombol <strong className="text-teal-700">"Simpan Konfigurasi & Tes REST API"</strong> di atas. Sistem akan menyimpan URL ke database dan melakukan verifikasi ping.</li>
+                <li><strong>Sinkronkan Data:</strong> Klik tombol <strong className="text-teal-700">"Sinkronkan Semua Data 18 Sheets Sekarang"</strong> untuk mengunggah seluruh database lokal ke Google Spreadsheet.</li>
                 <li><strong>Akses "Anyone":</strong> Pastikan saat Deployment Web App di Google Apps Script, opsi <em>"Who has access"</em> diatur ke <strong>"Anyone" (Siapa Saja)</strong> agar API dapat diakses tanpa hambatan CORS.</li>
               </ol>
             </div>
           </div>
 
           {/* Firebase Cloud Firestore Setup & Multi-Device Real-Time Sync */}
-          <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white space-y-4 shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-4 shadow-xl shadow-teal-950/5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-100">
               <div>
-                <h3 className="text-base font-bold flex items-center gap-2">
-                  <Key className="w-5 h-5 text-amber-400" />
+                <h3 className="text-base font-bold flex items-center gap-2 text-slate-900">
+                  <Key className="w-5 h-5 text-teal-600" />
                   <span>Firebase Cloud Firestore (Koneksi Database Multi-Device Real-Time)</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Secara default, aplikasi <strong>sudah terhubung secara otomatis</strong> ke Cloud Firestore real-time. Semua data admin dan hape jemaat tersinkron otomatis.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
                 {isQuotaExhausted() ? (
-                  <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
                     <span>Mode Manual / Penyimpanan Lokal Aktif</span>
                   </span>
                 ) : (
-                  <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-300 text-[11px] font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping" />
                     <span>Cloud Sync Aktif: {getActiveFirebaseConfig().projectId}</span>
                   </span>
                 )}
@@ -3198,17 +3198,17 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
             {/* Quota Exhausted / Manual Mode Alert Banner */}
             {isQuotaExhausted() && (
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-2.5 shadow-inner">
-                <div className="font-bold flex items-center gap-2 text-amber-300 text-sm">
-                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-amber-400" />
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs space-y-2.5 shadow-xs">
+                <div className="font-bold flex items-center gap-2 text-amber-800 text-sm">
+                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-amber-600" />
                   <span>Pengalihan Otomatis: Mode Manual & Penyimpanan Lokal Aktif</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-amber-100/90">
+                <p className="text-[11px] leading-relaxed text-amber-800/90">
                   Kuota penulisan harian gratis (Firestore Daily Write Quota) pada project Firebase bawaan telah tercapai.
                   Sistem telah secara otomatis mengalihkan penyimpanan ke <strong>Mode Penyimpanan Lokal (LocalStorage)</strong>.
                   Seluruh data Anda <strong>100% aman tersimpan di browser perangkat ini</strong> tanpa ada data yang hilang.
                 </p>
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-500/20">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-200">
                   <button
                     type="button"
                     onClick={async () => {
@@ -3217,13 +3217,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       setFirebaseStatusMsg({ type: res.success ? 'success' : 'error', text: res.message });
                       setTestingFirebase(false);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Coba Sinkronkan Manual Ke Cloud</span>
                   </button>
 
-                  <span className="text-[11px] text-amber-300/80">
+                  <span className="text-[11px] text-amber-800">
                     💡 <strong>Saran:</strong> Anda dapat memasukkan API Key Firebase Console milik Anda sendiri pada form di bawah untuk menggunakan kuota cloud fresh.
                   </span>
                 </div>
@@ -3235,25 +3235,25 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <div
                 className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between ${
                   firebaseStatusMsg.type === 'success'
-                    ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                     : firebaseStatusMsg.type === 'error'
-                    ? 'bg-rose-500/20 border-rose-500/30 text-rose-300'
-                    : 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300'
+                    ? 'bg-rose-50 border-rose-300 text-rose-800'
+                    : 'bg-teal-50 border-teal-300 text-teal-800'
                 }`}
               >
                 <span>{firebaseStatusMsg.text}</span>
               </div>
             )}
 
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
-              <p className="text-slate-300 leading-relaxed text-[11px]">
-                💡 <strong>Koneksi Bawaan vs Custom:</strong> Sistem telah menyediakan project Firebase otomatis (ID: <code className="text-indigo-300 font-mono">{getActiveFirebaseConfig().projectId}</code>). Jika Anda ingin menggunakan project Firebase Console milik Anda sendiri, isi form di bawah ini dan klik <strong className="text-indigo-300">Simpan Konfigurasi</strong>.
+            <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-xs text-slate-700 space-y-2">
+              <p className="text-slate-700 leading-relaxed text-[11px]">
+                💡 <strong>Koneksi Bawaan vs Custom:</strong> Sistem telah menyediakan project Firebase otomatis (ID: <code className="text-teal-800 font-bold font-mono">{getActiveFirebaseConfig().projectId}</code>). Jika Anda ingin menggunakan project Firebase Console milik Anda sendiri, isi form di bawah ini dan klik <strong className="text-teal-700">Simpan Konfigurasi</strong>.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase API Key</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Firebase API Key</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().apiKey}
@@ -3264,12 +3264,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, apiKey: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase Project ID</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Firebase Project ID</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().projectId}
@@ -3280,12 +3280,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, projectId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase Auth Domain (Opsional)</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Firebase Auth Domain (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().authDomain}
@@ -3296,12 +3296,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, authDomain: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase Storage Bucket (Opsional)</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Firebase Storage Bucket (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().storageBucket}
@@ -3312,12 +3312,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, storageBucket: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Messaging Sender ID (Opsional)</label>
+                <label className="block text-slate-700 mb-1 font-semibold">Messaging Sender ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().messagingSenderId}
@@ -3328,12 +3328,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, messagingSenderId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">App ID (Opsional)</label>
+                <label className="block text-slate-700 mb-1 font-semibold">App ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().appId}
@@ -3344,19 +3344,19 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, appId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
             </div>
 
             {/* FCM Push Notification Setup & Tester Card */}
-            <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-3">
+            <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-extrabold text-indigo-200 flex items-center gap-1.5">
+                  <h4 className="text-xs font-extrabold text-teal-950 flex items-center gap-1.5">
                     <span>🔔 Firebase Cloud Messaging (FCM) & Notifikasi Status Bar HP</span>
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-600 mt-0.5">
                     Notifikasi push dikirim melalui Service Worker bawaan sehingga tetap muncul di status bar atas HP dengan suara lonceng & getar meskipun aplikasi sedang ditutup.
                   </p>
                 </div>
@@ -3373,7 +3373,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       '/'
                     );
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/25 flex items-center gap-1.5 cursor-pointer"
                 >
                   ⚡ Tes Send Notifikasi Status Bar HP (Suara & Getar)
                 </button>
@@ -3388,7 +3388,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       alert('Notifikasi aktif di browser/HP Anda.');
                     }
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   📱 Registrasi FCM Token Perangkat Ini
                 </button>
@@ -3396,7 +3396,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowFcmModal(true)}
-                  className="px-3.5 py-2 rounded-xl bg-purple-600/40 hover:bg-purple-600/60 text-purple-200 border border-purple-500/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <Code className="w-3.5 h-3.5" />
                   <span>🛠️ Generator Code Payload FCM (Status Bar & Bunyi)</span>
@@ -3405,13 +3405,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Action buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-teal-100">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleTestFirebaseConnection}
                   disabled={testingFirebase}
-                  className="px-4 py-2.5 rounded-xl bg-amber-900/40 hover:bg-amber-800/80 text-amber-300 border border-amber-700/50 text-xs font-bold flex items-center gap-1.5 transition-all"
+                  className="px-4 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <RefreshCw className={`w-4 h-4 ${testingFirebase ? 'animate-spin' : ''}`} />
                   <span>Tes Koneksi Firestore Real-time</span>
@@ -3421,7 +3421,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleResetToDefaultFirebase}
-                    className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
                   >
                     Gunakan Firebase Bawaan Otomatis
                   </button>
@@ -3430,7 +3430,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/25 flex items-center gap-2 cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>Simpan Seluruh Konfigurasi API</span>
@@ -3438,16 +3438,21 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Danger Zone */}
-            <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+            <div className="pt-4 border-t border-teal-100 flex items-center justify-between">
               <div>
-                <h4 className="text-xs font-bold text-rose-400">Area Reset & Emergency</h4>
+                <h4 className="text-xs font-bold text-rose-500">Area Reset & Emergency</h4>
                 <p className="text-[11px] text-slate-500">Reset ulang data lokal ke data awal seed 18 sheets.</p>
               </div>
               <button
                 type="button"
                 onClick={handleResetDataToDefaults}
-                className="px-3.5 py-2 rounded-xl bg-rose-900/40 hover:bg-rose-900/80 text-rose-300 text-xs font-bold border border-rose-800 flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-300 flex items-center gap-1.5 cursor-pointer"
               >
+                <RotateCcw className="w-4 h-4" />
+                <span>Reset Database Seed</span>
+              </button>
+            </div>
+          </div>
                 <RotateCcw className="w-4 h-4" />
                 <span>Reset Database Seed</span>
               </button>
@@ -3675,44 +3680,44 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Build Error Resolution Callout */}
-            <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border-2 border-rose-500/50 text-xs text-slate-300 space-y-5 shadow-2xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
-                <div className="flex items-center gap-2.5 text-rose-400 font-extrabold text-sm sm:text-base">
-                  <AlertTriangle className="w-6 h-6 shrink-0 text-rose-400 animate-pulse" />
-                  <span>Solusi Error Gambar Terbaru: &quot;Package name does not correspond to file path&quot;</span>
+            <div className="p-4 sm:p-6 rounded-3xl bg-white border-2 border-teal-200/90 text-xs text-slate-800 space-y-5 shadow-xl shadow-teal-950/5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-100">
+                <div className="flex items-center gap-2.5 text-teal-900 font-extrabold text-sm sm:text-base">
+                  <AlertTriangle className="w-6 h-6 shrink-0 text-amber-500 animate-pulse" />
+                  <span>Solusi Error: &quot;Package name does not correspond to file path&quot;</span>
                 </div>
                 <button
                   type="button"
                   disabled={isDownloadingAllEmbed}
                   onClick={handleDownloadAllEmbed}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs shadow-lg transition flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-extrabold text-xs shadow-md shadow-teal-600/20 transition flex items-center gap-2 cursor-pointer self-start sm:self-auto"
                 >
                   {isDownloadingAllEmbed ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                   <span>Unduh ZIP Proyek Utuh (Langsung Jadi)</span>
                 </button>
               </div>
 
-              {/* Detail Penyebab Error dari Screenshot User */}
-              <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs space-y-3">
-                <p className="font-extrabold flex items-center gap-2 text-white text-sm">
-                  <span>🚨 Mengapa Muncul Error pada Gambar Anda?</span>
+              {/* Detail Penyebab Error */}
+              <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-teal-950 text-xs space-y-3">
+                <p className="font-extrabold flex items-center gap-2 text-teal-900 text-sm">
+                  <span>💡 Penjelasan Struktur Folder Android Studio:</span>
                 </p>
-                <p className="leading-relaxed text-slate-200">
-                  Pada screenshot Anda, di panel kiri folder <code className="bg-slate-950 px-2 py-0.5 rounded text-amber-300 font-mono">app/src/main/java/</code>: file <strong className="text-rose-300">MyFirebaseMessagingService.java</strong> ditaruh <strong>di luar</strong> folder paket! File tersebut berada sejajar dengan folder <code className="bg-slate-950 px-2 py-0.5 rounded text-emerald-400 font-mono">com.managementschool.app</code>, bukan di dalamnya.
+                <p className="leading-relaxed text-slate-700">
+                  Di panel kiri folder <code className="bg-white px-2 py-0.5 rounded text-teal-800 border border-teal-200 font-mono">app/src/main/java/</code>: pastikan file <strong className="text-teal-900">MyFirebaseMessagingService.java</strong> ditaruh <strong>di dalam</strong> folder paket <code className="bg-white px-2 py-0.5 rounded text-teal-800 border border-teal-200 font-mono">com.managementschool.app</code>, bukan di luarnya.
                 </p>
-                <div className="bg-slate-950/90 p-4 rounded-xl border border-slate-800 space-y-2">
-                  <p className="text-emerald-400 font-sans font-bold text-xs">Cara Cepat Memperbaikinya (Pilih Salah Satu):</p>
-                  <div className="space-y-2 text-slate-300 text-[12px]">
-                    <div className="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-200">
+                <div className="bg-white p-4 rounded-xl border border-teal-200 space-y-2">
+                  <p className="text-teal-900 font-sans font-bold text-xs">Cara Cepat Memperbaikinya (Pilih Salah Satu):</p>
+                  <div className="space-y-2 text-slate-700 text-[12px]">
+                    <div className="p-2.5 rounded-lg bg-teal-50 border border-teal-300 text-teal-950">
                       <strong>✅ CARA 1 (Paling Mudah &amp; Anti-Gagal):</strong>
                       <p className="mt-1">
                         Klik tombol hijau <strong>&quot;Unduh ZIP Proyek Utuh&quot;</strong> di atas. Ekstrak filenya, lalu di Android Studio buka via menu <strong>File &gt; Open</strong>. Semua file &amp; foldernya sudah tersusun 100% sempurna di tempatnya masing-masing, Anda tinggal klik <strong>Build APK</strong>!
                       </p>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700">
                       <strong>🖱️ CARA 2 (Perbaiki di Android Studio Anda sekarang):</strong>
                       <p className="mt-1">
-                        Di panel pohon file sebelah kiri Android Studio, klik dan tahan (drag) file <span className="text-amber-400 font-bold">MyFirebaseMessagingService</span> lalu geser/jatuhkan (drop) masuk ke dalam folder <span className="text-cyan-400 font-bold">com.managementschool.app</span>. Bila muncul kotak konfirmasi dialog, klik <strong>&quot;Refactor&quot;</strong>. Error merah langsung hilang!
+                        Di panel pohon file sebelah kiri Android Studio, klik dan tahan (drag) file <span className="text-teal-800 font-bold">MyFirebaseMessagingService</span> lalu geser/jatuhkan (drop) masuk ke dalam folder <span className="text-teal-700 font-bold">com.managementschool.app</span>. Bila muncul kotak konfirmasi dialog, klik <strong>&quot;Refactor&quot;</strong>. Error merah langsung hilang!
                       </p>
                     </div>
                   </div>
@@ -3720,30 +3725,30 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
 
               {/* PETA LOKASI FILE & STRUKTUR FOLDER ANDROID STUDIO */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
-                <div className="flex items-center gap-2 text-white font-extrabold text-sm">
-                  <Code className="w-4 h-4 text-cyan-400" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-teal-200 space-y-4 shadow-sm">
+                <div className="flex items-center gap-2 text-teal-950 font-extrabold text-sm">
+                  <Code className="w-4 h-4 text-teal-600" />
                   <span>PETA STRUKTUR FOLDER LENGKAP: Kemana Setiap File Harus Ditempel</span>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {/* Pohon Direktori Visual */}
-                  <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 font-mono text-[11px] leading-relaxed text-slate-300 select-all overflow-x-auto">
-                    <p className="text-amber-400 font-bold pb-2 border-b border-slate-800">📁 ManagementSchool (Root Proyek)</p>
+                  <div className="p-4 rounded-xl bg-teal-950 text-teal-100 border border-teal-800 font-mono text-[11px] leading-relaxed select-all overflow-x-auto">
+                    <p className="text-amber-400 font-bold pb-2 border-b border-teal-800">📁 ManagementSchool (Root Proyek)</p>
                     <div className="pl-2 pt-2 space-y-1">
-                      <p className="text-slate-400">├── 📄 <span className="text-rose-400 font-bold">gradle.properties</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel android.useAndroidX=true disini</span></p>
-                      <p className="text-slate-400">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (Project)</p>
-                      <p className="text-slate-400">├── 📄 <span className="text-cyan-300 font-bold">settings.gradle.kts</span></p>
+                      <p className="text-teal-200/80">├── 📄 <span className="text-amber-300 font-bold">gradle.properties</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel android.useAndroidX=true disini</span></p>
+                      <p className="text-teal-200/80">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (Project)</p>
+                      <p className="text-teal-200/80">├── 📄 <span className="text-cyan-300 font-bold">settings.gradle.kts</span></p>
                       <p className="text-amber-400 font-bold pt-2">└── 📁 app (Modul Aplikasi)</p>
                       <div className="pl-4 space-y-1">
-                        <p className="text-slate-400">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (:app)</p>
-                        <p className="text-slate-400">├── 📄 <span className="text-amber-300 font-bold">google-services.json</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel di dalam folder app</span></p>
+                        <p className="text-teal-200/80">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (:app)</p>
+                        <p className="text-teal-200/80">├── 📄 <span className="text-amber-300 font-bold">google-services.json</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel di dalam folder app</span></p>
                         <p className="text-amber-400 font-bold pt-1">└── 📁 src / main</p>
                         <div className="pl-4 space-y-1">
-                          <p className="text-slate-400">├── 📄 <span className="text-emerald-300 font-bold">AndroidManifest.xml</span> <span className="text-cyan-400 font-sans text-[10px]">&lt;-- Tema DayNight.NoActionBar</span></p>
+                          <p className="text-teal-200/80">├── 📄 <span className="text-emerald-300 font-bold">AndroidManifest.xml</span> <span className="text-cyan-400 font-sans text-[10px]">&lt;-- Tema DayNight.NoActionBar</span></p>
                           <p className="text-amber-400 font-bold pt-1">└── 📁 java</p>
                           <div className="pl-4 space-y-1">
-                            <p className="text-emerald-400 font-bold">└── 📁 com.managementschool.app <span className="text-rose-400 font-sans text-[10px]">&lt;-- KEDUA FILE HARUS DI SINI!</span></p>
+                            <p className="text-emerald-400 font-bold">└── 📁 com.managementschool.app <span className="text-amber-300 font-sans text-[10px]">&lt;-- KEDUA FILE HARUS DI SINI!</span></p>
                             <div className="pl-4 space-y-0.5">
                               <p className="text-white font-bold">├── 📄 MainActivity.kt (atau .java)</p>
                               <p className="text-white font-bold">└── 📄 MyFirebaseMessagingService.java</p>
@@ -3756,50 +3761,50 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                   {/* Tabel Panduan Cepat Salin & Tempel */}
                   <div className="space-y-2 text-xs">
-                    <p className="text-slate-400 font-bold">Daftar File dan Lokasi Persisnya:</p>
+                    <p className="text-slate-700 font-bold">Daftar File dan Lokasi Persisnya:</p>
                     <div className="space-y-2">
-                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-white flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-teal-600"></span>
                             gradle.properties
                           </p>
-                          <p className="text-[11px] text-slate-400">Lokasi: Root paling luar project (sejajar dengan build.gradle.kts root).</p>
+                          <p className="text-[11px] text-slate-500">Lokasi: Root paling luar project (sejajar dengan build.gradle.kts root).</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded text-[10px] shrink-0 font-bold">Wajib AndroidX</span>
+                        <span className="px-2 py-0.5 bg-teal-100 text-teal-800 rounded text-[10px] shrink-0 font-bold border border-teal-300">Wajib AndroidX</span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-white flex items-center gap-1.5">
+                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                             google-services.json
                           </p>
-                          <p className="text-[11px] text-slate-400">Lokasi: Di dalam folder <code>app/</code> (sejajar dengan <code>app/build.gradle.kts</code>).</p>
+                          <p className="text-[11px] text-slate-500">Lokasi: Di dalam folder <code>app/</code> (sejajar dengan <code>app/build.gradle.kts</code>).</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded text-[10px] shrink-0 font-bold">Firebase FCM</span>
+                        <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-300 rounded text-[10px] shrink-0 font-bold">Firebase FCM</span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-white flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-cyan-600"></span>
                             AndroidManifest.xml
                           </p>
-                          <p className="text-[11px] text-slate-400">Lokasi: Di dalam folder <code>app/src/main/AndroidManifest.xml</code>.</p>
+                          <p className="text-[11px] text-slate-500">Lokasi: Di dalam folder <code>app/src/main/AndroidManifest.xml</code>.</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 rounded text-[10px] shrink-0 font-bold">Manifest XML</span>
+                        <span className="px-2 py-0.5 bg-cyan-50 text-cyan-800 border border-cyan-300 rounded text-[10px] shrink-0 font-bold">Manifest XML</span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-white flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
                             MainActivity &amp; MyFirebaseMessagingService
                           </p>
-                          <p className="text-[11px] text-slate-400">Lokasi: Di dalam package <code>app/src/main/java/{androidConfig.packageName.replace(/\./g, '/')}/</code>.</p>
+                          <p className="text-[11px] text-slate-500">Lokasi: Di dalam package <code>app/src/main/java/{androidConfig.packageName.replace(/\./g, '/')}/</code>.</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[10px] shrink-0 font-bold">Kode Java/KT</span>
+                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded text-[10px] shrink-0 font-bold">Kode Java/KT</span>
                       </div>
                     </div>
                   </div>
@@ -3807,36 +3812,36 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
 
               {/* 3 Langkah Eksekusi Akhir */}
-              <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/40 text-emerald-200 text-xs space-y-2">
-                <p className="font-bold text-emerald-300 flex items-center gap-2">
+              <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-teal-950 text-xs space-y-2">
+                <p className="font-bold text-teal-900 flex items-center gap-2">
                   <span>🚀 3 Langkah Terakhir untuk Menghasilkan APK:</span>
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-slate-300">
-                  <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
-                    <p className="font-bold text-white text-[11px]">1. Sync Gradle</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Klik ikon gajah di kanan atas atau menu <strong>File &gt; Sync Project with Gradle Files</strong>.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-slate-700">
+                  <div className="p-2.5 rounded-xl bg-white border border-teal-200">
+                    <p className="font-bold text-teal-900 text-[11px]">1. Sync Gradle</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Klik ikon gajah di kanan atas atau menu <strong>File &gt; Sync Project with Gradle Files</strong>.</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
-                    <p className="font-bold text-white text-[11px]">2. Build APK</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Klik menu atas: <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>.</p>
+                  <div className="p-2.5 rounded-xl bg-white border border-teal-200">
+                    <p className="font-bold text-teal-900 text-[11px]">2. Build APK</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Klik menu atas: <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>.</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
-                    <p className="font-bold text-white text-[11px]">3. Ambil File APK</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Klik tulisan biru <strong>&quot;locate&quot;</strong> di pop-up kanan bawah. File APK siap dikirim ke HP!</p>
+                  <div className="p-2.5 rounded-xl bg-white border border-teal-200">
+                    <p className="font-bold text-teal-900 text-[11px]">3. Ambil File APK</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Klik tulisan biru <strong>&quot;locate&quot;</strong> di pop-up kanan bawah. File APK siap dikirim ke HP!</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Embedded Source Code Exporter */}
-            <div className="rounded-3xl bg-slate-900 border border-slate-800 p-4 sm:p-6 space-y-4 shadow-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-4 sm:p-6 space-y-4 shadow-xl shadow-teal-950/5 text-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-100">
                 <div>
-                  <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
-                    <Code className="w-4 h-4 text-emerald-400" />
+                  <h4 className="text-sm font-extrabold text-teal-950 flex items-center gap-2">
+                    <Code className="w-4 h-4 text-teal-600" />
                     <span>Salin Kode Sumber Proyek (Java, Kotlin &amp; Gradle)</span>
                   </h4>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Pilih file di bawah, klik tombol Salin, lalu tempelkan ke project Android Studio Anda.
                   </p>
                 </div>
@@ -3849,7 +3854,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       setCopiedEmbedFile(currentEmbed.filename);
                       setTimeout(() => setCopiedEmbedFile(null), 2500);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/20 transition flex items-center gap-1.5 cursor-pointer"
                   >
                     {copiedEmbedFile === currentEmbed.filename ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     <span>{copiedEmbedFile === currentEmbed.filename ? 'Tersalin!' : `Salin ${currentEmbed.filename}`}</span>
@@ -3858,7 +3863,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => downloadFile(currentEmbed.filename, currentEmbed.code)}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <Download className="w-4 h-4" />
                     <span>Download</span>
@@ -3888,8 +3893,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     onClick={() => setSelectedEmbedCodeFile(f.id)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium transition whitespace-nowrap shrink-0 cursor-pointer ${
                       selectedEmbedCodeFile === f.id
-                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-1 ring-emerald-400'
-                        : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700/80'
+                        ? 'bg-teal-600 text-white shadow-md shadow-teal-600/25 ring-1 ring-teal-500 font-bold'
+                        : 'bg-teal-50/80 text-teal-900 border border-teal-200 hover:bg-teal-100'
                     }`}
                   >
                     {f.label}
@@ -3898,28 +3903,28 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
 
               {/* Code Pre Box */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden shadow-inner">
-                <div className="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-300 font-mono">
+              <div className="rounded-2xl border border-teal-200 bg-teal-950 text-teal-100 overflow-hidden shadow-inner">
+                <div className="px-4 py-2.5 bg-teal-900/90 border-b border-teal-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-teal-100 font-mono">
                   <div>
                     <span className="font-bold text-white flex items-center gap-2">
-                      <Code className="w-3.5 h-3.5 text-emerald-400" />
+                      <Code className="w-3.5 h-3.5 text-teal-300" />
                       {currentEmbed.filename}
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-sans">
+                      <span className="px-2 py-0.5 rounded text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 font-sans">
                         {currentEmbed.tag}
                       </span>
                     </span>
-                    <p className="text-[11px] text-cyan-400 font-sans mt-0.5">
-                      📁 Letak File di Android Studio: <span className="font-mono font-bold bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">{currentEmbed.path}</span>
+                    <p className="text-[11px] text-teal-200 font-sans mt-0.5">
+                      📁 Letak File di Android Studio: <span className="font-mono font-bold bg-teal-900 px-1.5 py-0.5 rounded border border-teal-700 text-teal-100">{currentEmbed.path}</span>
                     </p>
                   </div>
-                  <span className="text-[11px] text-slate-400 shrink-0">Android SDK 34 • Java 17 / Kotlin 1.9+</span>
+                  <span className="text-[11px] text-teal-300 shrink-0">Android SDK 34 • Java 17 / Kotlin 1.9+</span>
                 </div>
                 {currentEmbed.desc && (
-                  <div className="px-4 py-2 bg-slate-950/80 border-b border-slate-900 text-slate-400 text-[11px]">
+                  <div className="px-4 py-2 bg-teal-900/50 border-b border-teal-800 text-teal-200 text-[11px]">
                     💡 {currentEmbed.desc}
                   </div>
                 )}
-                <pre className="p-4 text-xs font-mono text-emerald-300/90 overflow-x-auto max-h-[440px] leading-relaxed select-all">
+                <pre className="p-4 text-xs font-mono text-teal-100 overflow-x-auto max-h-[440px] leading-relaxed select-all">
                   {currentEmbed.code}
                 </pre>
               </div>

@@ -1115,12 +1115,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Dynamic Theme Preset Style Classes & Density
   const isLightSystem =
-    settings.theme_preset === 'EMERALD_LIGHT' ||
-    settings.theme_preset === 'LUXE_LIGHT' ||
-    settings.theme_preset === 'CLEAN_LIGHT' ||
-    !settings.theme_preset ||
-    settings.navbar_theme_preset === 'CLEAN_LIGHT' ||
-    isColorLight(settings?.navbar_custom_bg || settings?.warna_tema);
+    settings.theme_preset !== 'DARK_SLATE' &&
+    settings.theme_preset !== 'MIDNIGHT_BLUE' &&
+    settings.theme_preset !== 'DEEP_PURPLE' &&
+    settings.theme_preset !== 'FOREST_GREEN' &&
+    settings.theme_preset !== 'WARM_GOLD';
 
   const getCardStyleClass = () => {
     const cardBg = settings.jemaat_cards_bg || 'DEFAULT_GLASS';
@@ -1132,41 +1131,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
     if (cardBg && cardBg !== 'DEFAULT_GLASS') {
       switch (cardBg) {
+        case 'GRADIENT_EMERALD':
+          base = isLightSystem
+            ? 'bg-gradient-to-br from-teal-50/90 via-white to-emerald-50/70 border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
+            : 'bg-gradient-to-br from-emerald-950/90 via-slate-900 to-emerald-950/90 border border-emerald-500/40 shadow-xl text-white';
+          break;
         case 'GRADIENT_INDIGO':
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
-            : 'bg-gradient-to-br from-indigo-950/90 via-slate-900 to-indigo-950/90 border border-indigo-500/40 shadow-xl shadow-indigo-950/30 backdrop-blur-xl text-white';
+            ? 'bg-gradient-to-br from-indigo-50/90 via-white to-slate-50 border-2 border-indigo-200/90 shadow-xl shadow-indigo-950/5 text-slate-800'
+            : 'bg-gradient-to-br from-indigo-950/90 via-slate-900 to-indigo-950/90 border border-indigo-500/40 shadow-xl text-white';
           break;
         case 'GRADIENT_PURPLE':
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
-            : 'bg-gradient-to-br from-purple-950/90 via-slate-900 to-purple-950/90 border border-purple-500/40 shadow-xl shadow-purple-950/30 backdrop-blur-xl text-white';
+            ? 'bg-gradient-to-br from-purple-50/90 via-white to-slate-50 border-2 border-purple-200/90 shadow-xl text-slate-800'
+            : 'bg-gradient-to-br from-purple-950/90 via-slate-900 to-purple-950/90 border border-purple-500/40 shadow-xl text-white';
           break;
         case 'GRADIENT_GOLD':
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
-            : 'bg-gradient-to-br from-amber-950/90 via-slate-900 to-amber-950/90 border border-amber-500/40 shadow-xl shadow-amber-950/30 backdrop-blur-xl text-white';
-          break;
-        case 'GRADIENT_EMERALD':
-          base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
-            : 'bg-gradient-to-br from-emerald-950/90 via-slate-900 to-emerald-950/90 border border-emerald-500/40 shadow-xl shadow-emerald-950/30 backdrop-blur-xl text-white';
-          break;
-        case 'OBSIDIAN_NIGHT':
-          base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
-            : 'bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 border border-slate-700/80 shadow-2xl backdrop-blur-xl text-white';
+            ? 'bg-gradient-to-br from-amber-50/90 via-white to-amber-50/40 border-2 border-amber-200/90 shadow-xl text-slate-800'
+            : 'bg-gradient-to-br from-amber-950/90 via-slate-900 to-amber-950/90 border border-amber-500/40 shadow-xl text-white';
           break;
         case 'OCEAN_BLUE':
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
-            : 'bg-gradient-to-br from-blue-950/90 via-slate-900 to-cyan-950/90 border border-cyan-500/40 shadow-xl shadow-cyan-950/30 backdrop-blur-xl text-white';
+            ? 'bg-gradient-to-br from-cyan-50/90 via-white to-teal-50/60 border-2 border-cyan-200/90 shadow-xl text-slate-800'
+            : 'bg-gradient-to-br from-blue-950/90 via-slate-900 to-cyan-950/90 border border-cyan-500/40 shadow-xl text-white';
+          break;
+        case 'OBSIDIAN_NIGHT':
+          base = isLightSystem
+            ? 'bg-slate-900 border-2 border-slate-800 shadow-2xl text-white'
+            : 'bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 border border-slate-700/80 shadow-2xl text-white';
           break;
         case 'SOLID_SLATE':
-          base = isLightSystem ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800' : 'bg-slate-900 border border-slate-800 shadow-xl text-white';
+          base = isLightSystem
+            ? 'bg-slate-100 border-2 border-slate-300 shadow-md text-slate-900'
+            : 'bg-slate-900 border border-slate-800 shadow-xl text-white';
           break;
         case 'NEON_CYAN':
-          base = isLightSystem ? 'bg-white border-2 border-teal-400 shadow-xl shadow-teal-500/10 text-slate-800' : 'bg-cyan-950/50 border border-cyan-400/50 shadow-lg shadow-cyan-500/20 backdrop-blur-xl text-white';
+          base = isLightSystem
+            ? 'bg-white border-2 border-teal-400 shadow-xl shadow-teal-500/20 text-slate-800'
+            : 'bg-cyan-950/50 border border-cyan-400/50 shadow-lg text-white';
           break;
         default:
           base = isLightSystem
@@ -1177,29 +1180,41 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     } else {
       switch (cardStyle) {
         case 'SOLID':
-          base = isLightSystem ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800' : 'bg-slate-900 border border-slate-800 shadow-xl text-white';
+          base = isLightSystem
+            ? 'bg-white border-2 border-teal-200/90 shadow-md text-slate-800'
+            : 'bg-slate-900 border border-slate-800 shadow-xl text-white';
           break;
         case 'NEON':
-          base = isLightSystem ? 'bg-white border-2 border-teal-400 shadow-xl shadow-teal-500/10 text-slate-800' : 'bg-slate-900/90 border border-indigo-500/40 shadow-lg shadow-indigo-500/10 backdrop-blur-xl text-white';
+          base = isLightSystem
+            ? 'bg-white border-2 border-teal-400 shadow-xl shadow-teal-500/20 text-slate-800'
+            : 'bg-slate-900/90 border border-teal-500/50 shadow-lg text-white';
           break;
         case 'FLAT':
-          base = isLightSystem ? 'bg-white border-2 border-teal-200/90 shadow-sm text-slate-800' : 'bg-slate-900/60 border border-slate-700/60 shadow-none text-white';
+          base = isLightSystem
+            ? 'bg-teal-50/30 border border-teal-200/90 shadow-none text-slate-800'
+            : 'bg-slate-900/60 border border-slate-700/60 shadow-none text-white';
           break;
         case 'GLASS':
         default:
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 hover:border-teal-400 hover:shadow-2xl text-slate-800'
+            ? 'bg-white/95 backdrop-blur-md border border-teal-100 shadow-sm text-slate-800'
             : 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl text-white';
           break;
       }
     }
+
+    const borderAccent = settings.card_border_accent || 'ACCENT_FULL';
+    let borderAccentClass = '';
+    if (borderAccent === 'ACCENT_LEFT') borderAccentClass = 'border-l-4 border-l-teal-600';
+    else if (borderAccent === 'ACCENT_TOP') borderAccentClass = 'border-t-4 border-t-teal-600';
+    else if (borderAccent === 'ACCENT_GLOW') borderAccentClass = 'ring-2 ring-teal-400/40 shadow-lg shadow-teal-500/15';
 
     const density = settings.card_size || 'NORMAL';
     let padding = 'p-3 sm:p-5 md:p-6';
     if (density === 'COMPACT') padding = 'p-2 sm:p-3.5 md:p-4';
     if (density === 'SPACIOUS') padding = 'p-3.5 sm:p-6 md:p-8';
 
-    return `${base} ${padding}`;
+    return `${base} ${borderAccentClass} ${padding}`;
   };
 
   const cardStyleClass = getCardStyleClass();

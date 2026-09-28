@@ -242,7 +242,7 @@ export function recordLocalSave(storageKey: string) {
 let quotaExceededCooldownUntil = 0;
 
 function markQuotaExhausted(): void {
-  quotaExceededCooldownUntil = Date.now() + 24 * 60 * 60 * 1000; // 24 hours cooldown for daily quota limit
+  quotaExceededCooldownUntil = Date.now() + 3 * 60 * 1000; // 3 minutes cooldown instead of 24 hours
   if (typeof localStorage !== 'undefined') {
     try {
       localStorage.setItem('cms_firestore_quota_exhausted', 'true');
@@ -294,8 +294,8 @@ export function isQuotaExhausted(): boolean {
         const timeStr = localStorage.getItem('cms_firestore_quota_time');
         if (timeStr) {
           const timestamp = parseInt(timeStr, 10);
-          // Auto-expire quota exhaustion flag after 24 hours
-          if (!isNaN(timestamp) && Date.now() - timestamp > 24 * 60 * 60 * 1000) {
+          // Auto-expire quota exhaustion flag after 3 minutes
+          if (!isNaN(timestamp) && Date.now() - timestamp > 3 * 60 * 1000) {
             clearQuotaExhausted();
             return false;
           }
@@ -560,6 +560,9 @@ export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boo
 
               // Apply remote cloud update to localStorage
               localStorage.setItem(storageKey, cloudPayloadStr);
+              if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
+                localStorage.setItem('cms_pro_settings', cloudPayloadStr);
+              }
               lastPushedPayloads.set(docId, cloudPayloadStr);
               hasChanges = true;
             }
@@ -685,6 +688,9 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
 
                 // Apply incoming update from Cloud Firestore
                 localStorage.setItem(storageKey, cloudPayloadStr);
+                if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
+                  localStorage.setItem('cms_pro_settings', cloudPayloadStr);
+                }
                 lastPushedPayloads.set(docId, cloudPayloadStr);
                 hasChanges = true;
 
@@ -769,16 +775,8 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
   }
 
   // Pull latest documents immediately on init to guarantee instant catch-up
+  clearQuotaExhausted();
   pullAllFromCloud(onDataReceived).catch((e) => console.warn('[FirebaseSync] Initial pull error:', e));
-
-  // Push existing local keys to cloud on startup if quota is healthy
-  if (!isQuotaExhausted()) {
-    setTimeout(() => {
-      if (!isQuotaExhausted()) {
-        syncAllLocalKeysToCloud().catch((e) => console.warn('[FirebaseSync] Startup push error:', e));
-      }
-    }, 2000);
-  }
 
   // Attach lifecycle event listeners for mobile devices (screen wake up, back online)
   if (typeof window !== 'undefined' && !isLifecycleListenersAttached) {

@@ -99,14 +99,27 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Sync custom theme hex color to CSS variables globally
-    if (settings && settings.warna_tema) {
-      const customHex = settings.warna_tema.trim();
-      if (/^#[0-9A-F]{6}$/i.test(customHex) || /^#[0-9A-F]{3}$/i.test(customHex)) {
-        document.documentElement.style.setProperty('--theme-custom-primary', customHex);
-      }
+    // Sync custom theme hex color & dark mode to CSS variables globally
+    const customHex = (settings?.warna_tema || '#0d9488').trim();
+    if (/^#[0-9A-F]{6}$/i.test(customHex) || /^#[0-9A-F]{3}$/i.test(customHex)) {
+      document.documentElement.style.setProperty('--theme-custom-primary', customHex);
+      document.documentElement.style.setProperty('--theme-custom-border', `${customHex}90`);
+      document.documentElement.style.setProperty('--theme-custom-bg-alpha', `${customHex}18`);
     }
-  }, [settings?.warna_tema]);
+
+    const isDark =
+      settings?.theme_preset === 'DARK_SLATE' ||
+      settings?.theme_preset === 'MIDNIGHT_BLUE' ||
+      settings?.theme_preset === 'DEEP_PURPLE' ||
+      settings?.theme_preset === 'FOREST_GREEN' ||
+      settings?.theme_preset === 'WARM_GOLD';
+
+    if (isDark) {
+      document.documentElement.classList.add('theme-dark');
+    } else {
+      document.documentElement.classList.remove('theme-dark');
+    }
+  }, [settings?.warna_tema, settings?.theme_preset]);
 
   useEffect(() => {
     // Inisialisasi OneSignal Push Notification jika disetel & aktif
@@ -398,11 +411,11 @@ export default function App() {
   const theme = getThemeClasses(settings);
 
   return (
-    <div id="app-container" className="min-h-screen bg-[#f0f5f2] text-slate-800 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-900 relative transition-colors duration-200">
-      {/* 1. Top Window Bar matching screenshot header */}
-      <div className="h-7 sm:h-8 bg-[#004d2c] text-white/90 text-xs px-3 sm:px-4 flex items-center justify-between font-medium select-none shrink-0 z-40 border-b border-emerald-950/40">
+    <div id="app-container" className={`min-h-screen ${theme.rootBg} flex flex-col selection:bg-teal-500/30 selection:text-teal-900 relative transition-colors duration-200`}>
+      {/* 1. Top Window Bar */}
+      <div className="h-7 sm:h-8 bg-teal-950 text-white/90 text-xs px-3 sm:px-4 flex items-center justify-between font-medium select-none shrink-0 z-40 border-b border-teal-900/60">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0" />
           <span className="font-semibold tracking-wide truncate text-[11px] sm:text-xs text-white/95">
             CMS GEREJA &bull; {settings.nama_gereja || 'Jesus Kingdom Christ'} — Sistem Informasi Manajemen &amp; Pelayanan Jemaat
           </span>
@@ -455,7 +468,8 @@ export default function App() {
               <div className="flex items-center gap-2.5 min-w-0">
                 <button
                   onClick={() => handleSelectTab('dashboard')}
-                  className="px-3.5 py-2 rounded-xl bg-[#00a859] hover:bg-[#00914c] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
+                  style={{ backgroundColor: settings.warna_tema || '#0d9488' }}
+                  className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
                 >
                   <ArrowLeft className="w-4 h-4 text-white" />
                   <span>Kembali ke Dashboard Utama</span>
@@ -464,7 +478,7 @@ export default function App() {
                 <span className="text-slate-400 font-bold hidden sm:inline">/</span>
 
                 <div className="hidden sm:flex items-center gap-2 min-w-0">
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider truncate">
+                  <span className="text-xs font-bold text-teal-700 uppercase tracking-wider truncate">
                     Modul: {menuModules.find((m) => m.id === activeTab)?.title || activeTab}
                   </span>
                 </div>
@@ -472,9 +486,9 @@ export default function App() {
 
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-2 shadow-xs transition-all shrink-0 cursor-pointer lg:hidden"
+                className="px-3.5 py-2 rounded-xl bg-white border border-teal-200 text-teal-800 hover:bg-teal-50 text-xs font-bold flex items-center gap-2 shadow-xs transition-all shrink-0 cursor-pointer lg:hidden"
               >
-                <Grid className="w-4 h-4 text-emerald-600" />
+                <Grid className="w-4 h-4 text-teal-600" />
                 <span>Menu</span>
               </button>
             </div>
