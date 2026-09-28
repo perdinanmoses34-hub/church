@@ -1277,13 +1277,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   if (settings.jemaat_card_width === 'COMPACT' || settings.jemaat_card_width === 'MOBILE_COMPACT') widthClass = 'max-w-4xl mx-auto px-1 sm:px-3';
   if (settings.jemaat_card_width === 'CONTAINED') widthClass = 'max-w-7xl mx-auto px-1 sm:px-3';
 
-  let bannerBgClass = 'bg-gradient-to-r from-emerald-800 via-teal-700 to-emerald-900 border-emerald-500 shadow-xl shadow-emerald-950/20';
+  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-2 border-teal-500/60 shadow-xl shadow-teal-950/25';
   switch (settings.jemaat_banner_bg) {
     case 'GRADIENT_GOLD':
       bannerBgClass = 'bg-gradient-to-r from-amber-950 via-yellow-900 to-amber-950 border-amber-500/50 shadow-xl shadow-amber-900/20';
-      break;
-    case 'GRADIENT_EMERALD':
-      bannerBgClass = 'bg-gradient-to-r from-emerald-800 via-teal-700 to-emerald-900 border-emerald-500 shadow-xl shadow-emerald-900/25';
       break;
     case 'GRADIENT_PURPLE':
       bannerBgClass = 'bg-gradient-to-r from-purple-950 via-fuchsia-900 to-purple-950 border-purple-500/50 shadow-xl shadow-purple-900/20';
@@ -1294,20 +1291,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     case 'OCEAN_BLUE':
       bannerBgClass = 'bg-gradient-to-r from-slate-950 via-blue-900 to-cyan-950 border-cyan-500/50 shadow-xl shadow-cyan-900/20';
       break;
+    case 'GRADIENT_EMERALD':
     case 'GRADIENT_INDIGO':
-      bannerBgClass = 'bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 border-indigo-500/50 shadow-xl shadow-indigo-900/20';
-      break;
     default:
-      bannerBgClass = 'bg-gradient-to-r from-emerald-800 via-teal-700 to-emerald-900 border-emerald-500 shadow-xl shadow-emerald-900/25';
+      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-2 border-teal-500/60 shadow-xl shadow-teal-950/25';
       break;
   }
 
   return (
     <div className={`space-y-2 sm:space-y-4 md:space-y-6 pb-2 sm:pb-4 transition-all duration-300 ${widthClass}`}>
-      {/* Welcome Card Banner with Dynamic Custom Header */}
+      {/* Welcome Card Banner with Dynamic Custom Header (Teal Theme) */}
       {settings.show_header_banner !== false ? (
         <div className={`relative rounded-2xl sm:rounded-3xl ${bannerBgClass} ${cardStyleClass} overflow-hidden text-white transition-all duration-300`}>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/15 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
             <div className="flex items-center gap-4">
@@ -1318,31 +1315,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                   }}
-                  className="w-16 h-16 rounded-2xl object-cover border-2 border-indigo-500/50 shadow-lg shadow-indigo-500/20 bg-slate-900"
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-teal-400/60 shadow-lg shadow-teal-950/40 bg-slate-900"
                 />
-                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-[#0f172a]" />
+                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-teal-400 ring-2 ring-teal-950" />
               </div>
 
               <div>
                 <div className="flex items-center gap-2">
                   {isGuestMode ? (
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                    <span className="px-2.5 py-0.5 rounded-full bg-teal-400/20 text-teal-200 border border-teal-300/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-teal-300 shrink-0" />
                       Mode Tamu / Pengunjung
                     </span>
                   ) : (
-                    <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold uppercase tracking-wider">
+                    <span className="px-2.5 py-0.5 rounded-full bg-teal-500/25 text-teal-100 border border-teal-400/40 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                      <ShieldCheck className="w-3 h-3 text-teal-300" />
                       Role: {currentUser.role}
                     </span>
                   )}
-                  <span className="text-xs text-slate-400">Live Portal</span>
+                  <span className="text-xs text-teal-200/80 font-semibold">Live Portal</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1 text-white">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight mt-1 text-white">
                   {isGuestMode ? 'Shalom, Tamu & Pengunjung!' : `Shalom, ${currentUser.nama}!`}
                 </h2>
-                <p className="text-slate-300 text-xs sm:text-sm mt-0.5">
+                <p className="text-teal-100/90 text-xs sm:text-sm mt-0.5">
                   {settings.header_title || settings.nama_gereja} &bull;{' '}
-                  <span className="text-slate-400">{settings.header_subtitle || 'Portal Informasi Utama'}</span>
+                  <span className="text-teal-200/80">{settings.header_subtitle || 'Portal Informasi Utama'}</span>
                 </p>
               </div>
             </div>
@@ -1353,10 +1351,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {isGuestMode && onOpenLogin && (
                 <button
                   onClick={onOpenLogin}
-                  className="col-span-2 sm:col-span-1 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white text-xs font-black shadow-lg shadow-indigo-500/30 border border-indigo-300/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95 shrink-0"
+                  className="col-span-2 sm:col-span-1 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-xs font-black shadow-lg shadow-teal-700/30 border border-teal-300/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95 shrink-0"
                   title="Masuk ke Akun Jemaat / Admin"
                 >
-                  <LogIn className="w-3.5 h-3.5 text-indigo-200 shrink-0" />
+                  <LogIn className="w-3.5 h-3.5 text-teal-200 shrink-0" />
                   <span className="truncate">Masuk / Login Akun</span>
                 </button>
               )}
@@ -1365,10 +1363,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {!isJemaat && (
                 <button
                   onClick={() => setIsSuperAdminChatModalOpen(true)}
-                  className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-lg shadow-emerald-600/20 border border-emerald-400/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95"
+                  className="px-3 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-black shadow-lg shadow-teal-700/30 border border-teal-400/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95"
                   title="Hubungi SuperAdmin / Support Billing Aplikasi"
                 >
-                  <MessageCircle className="w-3.5 h-3.5 text-emerald-200 fill-current shrink-0" />
+                  <MessageCircle className="w-3.5 h-3.5 text-teal-200 fill-current shrink-0" />
                   <span className="truncate">Chat SuperAdmin</span>
                 </button>
               )}
@@ -1377,10 +1375,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 onClick={handleRefreshData}
                 disabled={isRefreshing}
-                className="px-3 py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 text-xs font-semibold border border-indigo-500/40 flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm cursor-pointer w-full sm:w-auto"
+                className="px-3 py-2 rounded-xl bg-teal-700/40 hover:bg-teal-700/60 text-teal-100 text-xs font-semibold border border-teal-500/40 flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm cursor-pointer w-full sm:w-auto"
                 title="Refresh Data Dashboard"
               >
-                <RotateCw className={`w-3.5 h-3.5 text-indigo-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <RotateCw className={`w-3.5 h-3.5 text-teal-300 ${isRefreshing ? 'animate-spin' : ''}`} />
                 <span className="truncate">{isRefreshing ? 'Memuat...' : 'Refresh Data'}</span>
               </button>
 
@@ -1388,7 +1386,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <>
                   <button
                     onClick={() => setIsCreateNotifModalOpen(true)}
-                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-amber-500/20 border border-amber-300/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                     title="Buat Notifikasi atau Peringatan Resmi untuk Jemaat"
                   >
                     <BellRing className="w-3.5 h-3.5 text-amber-200 shrink-0" />
@@ -1397,7 +1395,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                   <button
                     onClick={() => setIsCustomizerOpen(true)}
-                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-600 hover:to-emerald-600 text-white text-xs font-bold shadow-lg shadow-teal-900/30 border border-teal-400/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                   >
                     <Palette className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">Custom Tampilan</span>
@@ -1409,16 +1407,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <>
                   <button
                     onClick={() => onNavigate('jemaat')}
-                    className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow-lg shadow-teal-600/30 border border-teal-400/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                   >
                     <PlusCircle className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">Tambah Jemaat</span>
                   </button>
                   <button
                     onClick={() => onNavigate('keuangan')}
-                    className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-semibold border border-white/10 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-100 text-xs font-semibold border border-teal-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                   >
-                    <DollarSign className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <DollarSign className="w-3.5 h-3.5 text-teal-300 shrink-0" />
                     <span className="truncate">Persembahan</span>
                   </button>
                 </>
@@ -1426,9 +1424,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <button
                 onClick={() => onNavigate('laporan')}
-                className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-semibold border border-white/10 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                className="px-3 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-100 text-xs font-semibold border border-teal-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
               >
-                <Download className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <Download className="w-3.5 h-3.5 text-teal-300 shrink-0" />
                 <span className="truncate">Cetak Laporan</span>
               </button>
             </div>
@@ -1436,18 +1434,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Refresh Notification Toast Banner */}
           {refreshToast && (
-            <div className="mt-4 p-3 bg-indigo-500/20 border border-indigo-500/40 text-indigo-200 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 animate-fade-in shadow-lg">
+            <div className="mt-4 p-3 bg-teal-500/20 border border-teal-400/40 text-teal-100 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 animate-fade-in shadow-lg">
               <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400" />
+                <Check className="w-4 h-4 text-teal-300" />
                 <span>{refreshToast}</span>
               </div>
-              <span className="text-[10px] text-slate-400 font-mono">Live Sync Done</span>
+              <span className="text-[10px] text-teal-200 font-mono">Live Sync Done</span>
             </div>
           )}
         </div>
       ) : (
         /* Minimalist fallback toolbar when header banner is disabled by admin */
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-slate-800 text-white shadow-lg backdrop-blur-md">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-teal-950/90 border border-teal-700/80 text-white shadow-lg backdrop-blur-md">
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <div>

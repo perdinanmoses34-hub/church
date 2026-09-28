@@ -19,9 +19,12 @@ export interface NavbarThemeStyles {
 
 export function isColorLight(hex?: string): boolean {
   if (!hex) return false;
-  let clean = hex.trim().replace('#', '');
+  let clean = hex.trim().toLowerCase().replace('#', '');
   if (clean.length === 3) {
     clean = clean.split('').map((c) => c + c).join('');
+  }
+  if (clean.length === 8) {
+    clean = clean.substring(0, 6);
   }
   if (clean.length < 6) return false;
   const r = parseInt(clean.substring(0, 2), 16);
@@ -29,7 +32,7 @@ export function isColorLight(hex?: string): boolean {
   const b = parseInt(clean.substring(4, 6), 16);
   if (isNaN(r) || isNaN(g) || isNaN(b)) return false;
   const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  return luminance > 0.6;
+  return luminance > 0.45;
 }
 
 export const getNavbarTheme = (settings?: AppSettings): NavbarThemeStyles => {
@@ -55,7 +58,11 @@ export const getNavbarTheme = (settings?: AppSettings): NavbarThemeStyles => {
         containerStyle = { backgroundColor: churchHex };
       } else if (style === 'GRADIENT') {
         containerClass = 'border-b';
-        containerStyle = { background: `linear-gradient(135deg, ${churchHex}, #090d16)` };
+        containerStyle = {
+          background: isLight
+            ? `linear-gradient(135deg, ${churchHex}, #f8fafc)`
+            : `linear-gradient(135deg, ${churchHex}, #090d16)`
+        };
       } else {
         // GLASS
         containerClass = 'backdrop-blur-xl border-b';
@@ -147,11 +154,15 @@ export const getNavbarTheme = (settings?: AppSettings): NavbarThemeStyles => {
         containerStyle = { backgroundColor: hex };
       } else if (style === 'GRADIENT') {
         containerClass = 'border-b';
-        containerStyle = { background: `linear-gradient(135deg, ${hex}, #090d16)` };
+        containerStyle = {
+          background: isLight
+            ? `linear-gradient(135deg, ${hex}, #f8fafc)`
+            : `linear-gradient(135deg, ${hex}, #090d16)`
+        };
       } else {
         // GLASS
         containerClass = 'backdrop-blur-xl border-b';
-        containerStyle = { backgroundColor: `${hex}e6` };
+        containerStyle = { backgroundColor: isLight ? `${hex}` : `${hex}e6` };
       }
       break;
     }
@@ -169,9 +180,13 @@ export const getNavbarTheme = (settings?: AppSettings): NavbarThemeStyles => {
     }
   }
 
-  // Override text lighting if explicitly chosen
-  if (customTextChoice === 'WHITE') isLight = false;
-  if (customTextChoice === 'DARK') isLight = true;
+  // Automatic high-contrast text adjustment:
+  // If the background is light (or clean white / luminance > 0.45), text automatically becomes dark/black
+  if (customTextChoice === 'WHITE' && !isLight) {
+    isLight = false;
+  } else if (customTextChoice === 'DARK' || isLight) {
+    isLight = true;
+  }
 
   // Border bottom styling
   let borderBottomClass = 'border-white/10';
@@ -184,25 +199,25 @@ export const getNavbarTheme = (settings?: AppSettings): NavbarThemeStyles => {
     borderBottomClass = 'border-b-2';
     borderBottomStyle = { borderBottomColor: churchHex };
   } else if (borderAccent === 'GLOW') {
-    borderBottomClass = 'border-b border-indigo-400/40 shadow-lg shadow-indigo-500/20';
+    borderBottomClass = 'border-b border-teal-400/40 shadow-lg shadow-teal-500/20';
   } else if (borderAccent === 'NONE') {
     borderBottomClass = 'border-b-0';
   }
 
   // Text & UI elements classes
-  const textClass = isLight ? 'text-slate-800' : 'text-slate-100';
-  const titleClass = isLight ? 'text-slate-900' : 'text-white';
-  const subtextClass = isLight ? 'text-slate-500' : 'text-slate-400';
+  const textClass = isLight ? 'text-slate-900 font-medium' : 'text-slate-100 font-medium';
+  const titleClass = isLight ? 'text-slate-950 font-black' : 'text-white font-black';
+  const subtextClass = isLight ? 'text-slate-600 font-medium' : 'text-slate-300 font-medium';
   const pillClass = isLight
-    ? 'bg-emerald-50/90 text-emerald-950 border-emerald-200/80'
-    : 'bg-white/5 text-indigo-300 border-white/10';
-  const pillBorderClass = isLight ? 'border-emerald-200' : 'border-white/10';
+    ? 'bg-teal-50 text-teal-900 border-teal-300 shadow-xs'
+    : 'bg-white/10 text-teal-200 border-white/20 shadow-xs';
+  const pillBorderClass = isLight ? 'border-teal-300' : 'border-white/20';
   const iconBtnClass = isLight
-    ? 'text-slate-600 hover:text-emerald-700 bg-slate-100/80 hover:bg-emerald-50 border-slate-200'
-    : 'text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border-white/10';
+    ? 'text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200/90 border-slate-300'
+    : 'text-slate-200 hover:text-white bg-white/10 hover:bg-white/15 border-white/15';
   const badgeClass = isLight
-    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-    : 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30';
+    ? 'bg-teal-50 text-teal-900 border-teal-300'
+    : 'bg-teal-500/20 text-teal-200 border-teal-500/30';
 
   const menuBtnStyle: CSSProperties = {
     backgroundColor: churchHex
@@ -307,13 +322,13 @@ export const getFooterTheme = (settings?: AppSettings): FooterThemeStyles => {
   }
 
   // Text color on footer
-  containerClass += isLight ? ' text-slate-600' : ' text-slate-400';
+  containerClass += isLight ? ' text-slate-800 font-medium' : ' text-slate-400';
 
   // Icon Button background & styling
   const activeBg = settings?.footer_icon_active_bg?.trim() || `${churchHex}25`;
   const activeText = settings?.footer_icon_active_text?.trim() || churchHex;
   const inactiveBg = settings?.footer_icon_custom_bg?.trim() || 'transparent';
-  const inactiveText = settings?.footer_icon_inactive_text?.trim() || (isLight ? '#64748b' : '#94a3b8');
+  const inactiveText = settings?.footer_icon_inactive_text?.trim() || (isLight ? '#1e293b' : '#94a3b8');
 
   const getItemStyle = (isActive: boolean): CSSProperties => {
     if (isActive) {

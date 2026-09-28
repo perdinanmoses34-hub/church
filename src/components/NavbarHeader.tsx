@@ -307,7 +307,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         <button
           onClick={onOpenMobileMenu}
           className={`lg:hidden p-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-            isNavLight ? 'text-slate-600 hover:text-teal-700 hover:bg-teal-50' : 'text-white hover:text-teal-200 hover:bg-white/10'
+            isNavLight ? 'text-slate-800 hover:text-teal-800 hover:bg-slate-100' : 'text-white hover:text-teal-200 hover:bg-white/10'
           }`}
           title="Buka Navigasi"
         >
@@ -323,17 +323,17 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           </div>
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${isNavLight ? 'text-slate-900' : 'text-white'}`}>
+              <h1 className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${isNavLight ? 'text-slate-950 font-black' : 'text-white'}`}>
                 {settings?.nama_gereja || 'Jesus Kingdom Christ'}
               </h1>
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                isNavLight ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-white/15 text-white border border-white/20'
+                isNavLight ? 'bg-teal-50 text-teal-900 border border-teal-300' : 'bg-white/15 text-white border border-white/20'
               }`}>
                 Portal Jemaat
               </span>
             </div>
             <p className={`text-[10px] sm:text-[11px] font-medium leading-none mt-0.5 truncate max-w-[160px] xs:max-w-none ${
-              isNavLight ? 'text-slate-500' : 'text-slate-300'
+              isNavLight ? 'text-slate-600 font-semibold' : 'text-slate-300'
             }`}>
               Sistem Informasi Manajemen Gereja
             </p>
@@ -341,23 +341,37 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         </div>
       </div>
 
-      {/* Middle section: Search Box from screenshot */}
-      <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/90 hover:bg-slate-100 border border-slate-200/80 text-xs text-slate-500 w-44 lg:w-56 cursor-pointer transition-all">
-        <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+      {/* Middle section: Search Box */}
+      <div className={`hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs w-44 lg:w-56 cursor-pointer transition-all ${
+        isNavLight
+          ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
+          : 'bg-white/10 hover:bg-white/15 border-white/15 text-slate-200'
+      }`}>
+        <Search className={`w-3.5 h-3.5 shrink-0 ${isNavLight ? 'text-slate-500' : 'text-slate-300'}`} />
         <span className="truncate">Cari Cepat...</span>
-        <kbd className="ml-auto text-[10px] bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-400 font-mono">/</kbd>
+        <kbd className={`ml-auto text-[10px] border rounded px-1.5 py-0.5 font-mono ${
+          isNavLight ? 'bg-white border-slate-300 text-slate-600' : 'bg-white/10 border-white/20 text-slate-300'
+        }`}>/</kbd>
       </div>
 
       {/* Right section: Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* 1. Firebase Live Pill */}
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold shadow-2xs">
+        <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs border ${
+          isNavLight
+            ? 'bg-teal-50 border-teal-300 text-teal-900'
+            : 'bg-teal-950/60 border-teal-500/40 text-teal-200'
+        }`}>
           <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
           <span>Firebase Live</span>
         </div>
 
         {/* 2. Admin Pill */}
-        <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold shadow-2xs">
+        <div className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs border ${
+          isNavLight
+            ? 'bg-teal-50 border-teal-300 text-teal-900'
+            : 'bg-teal-950/60 border-teal-500/40 text-teal-200'
+        }`}>
           <span className="w-2 h-2 rounded-full bg-teal-500" />
           <span>{isAdmin ? 'Admin Gereja' : 'Jemaat Gereja'}</span>
         </div>
@@ -376,10 +390,14 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         {canInstallPWA && !isGuest && currentUser.role !== 'GUEST' && (
           <button
             onClick={onInstallPWA}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 text-xs font-semibold shadow-sm transition-all border border-emerald-500/30 cursor-pointer"
+            className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all border cursor-pointer ${
+              isNavLight
+                ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-emerald-300'
+                : 'bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border-emerald-500/30'
+            }`}
             title="Download File APK Android (.apk)"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-400" />
+            <Download className={`w-3.5 h-3.5 ${isNavLight ? 'text-emerald-800' : 'text-emerald-400'}`} />
             <span>Download APK</span>
           </button>
         )}
@@ -413,10 +431,14 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                 setIsNavbarCustomizerOpen(true);
               }
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-white border border-amber-500/40 text-xs font-black shadow-lg shadow-amber-500/10 cursor-pointer active:scale-95 transition-all shrink-0"
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shadow-sm cursor-pointer active:scale-95 transition-all shrink-0 border ${
+              isNavLight
+                ? 'bg-amber-100 hover:bg-amber-200/90 text-amber-950 border-amber-300'
+                : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-white border-amber-500/40'
+            }`}
             title="Klik untuk Kustomisasi Warna & Tema Navbar (Khusus Admin)"
           >
-            <Palette className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
+            <Palette className={`w-4 h-4 ${isNavLight ? 'text-amber-800' : 'text-amber-400'} group-hover:rotate-12 transition-transform`} />
             <span className="hidden xs:inline">Warna Navbar</span>
           </button>
         )}
@@ -432,7 +454,9 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-[#0f172a] animate-pulse" />
+              <span className={`absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 animate-pulse ${
+                isNavLight ? 'ring-white' : 'ring-[#0f172a]'
+              }`} />
             )}
           </button>
 
@@ -552,20 +576,30 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                   setShowUserDropdown(!showUserDropdown);
                   setShowNotifDropdown(false);
                 }}
-                className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full hover:bg-slate-100 transition-all cursor-pointer border border-transparent hover:border-slate-200"
+                className={`flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full transition-all cursor-pointer border ${
+                  isNavLight
+                    ? 'hover:bg-slate-100/90 border-slate-200/90 text-slate-800'
+                    : 'hover:bg-white/10 border-transparent hover:border-white/20 text-white'
+                }`}
               >
                 <div className="w-8 h-8 rounded-full bg-[#00a859] flex items-center justify-center font-bold text-white text-xs shadow-xs">
                   {currentUser.nama.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="hidden lg:block text-left min-w-0">
-                  <p className="text-xs font-bold leading-tight text-slate-800 truncate max-w-[130px]">
+                  <p className={`text-xs font-bold leading-tight truncate max-w-[130px] ${
+                    isNavLight ? 'text-slate-950 font-black' : 'text-white'
+                  }`}>
                     {currentUser.nama}
                   </p>
-                  <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5 truncate">
+                  <p className={`text-[10px] font-medium leading-none mt-0.5 truncate ${
+                    isNavLight ? 'text-slate-600 font-semibold' : 'text-slate-300'
+                  }`}>
                     {currentUser.role === 'ADMIN' ? 'Admin Gereja' : currentUser.role}
                   </p>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />
+                <ChevronDown className={`w-3.5 h-3.5 hidden lg:block ${
+                  isNavLight ? 'text-slate-700' : 'text-slate-300'
+                }`} />
               </button>
 
               {showUserDropdown && (

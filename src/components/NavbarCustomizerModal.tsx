@@ -244,18 +244,22 @@ export const NavbarCustomizerModal: React.FC<NavbarCustomizerModalProps> = ({
 
   // --- NAVBAR HANDLERS ---
   const handleSelectNavbarPreset = (presetId: string) => {
+    const isLightPreset = presetId === 'CLEAN_LIGHT';
     const updated: AppSettings = {
       ...form,
-      navbar_theme_preset: presetId as any
+      navbar_theme_preset: presetId as any,
+      navbar_custom_text: isLightPreset ? 'DARK' : form.navbar_custom_text
     };
     applyChange(updated);
   };
 
   const handleNavbarCustomColorChange = (hex: string) => {
+    const isLightHex = isColorLight(hex);
     const updated: AppSettings = {
       ...form,
       navbar_theme_preset: 'CUSTOM_HEX',
-      navbar_custom_bg: hex
+      navbar_custom_bg: hex,
+      navbar_custom_text: isLightHex ? 'DARK' : form.navbar_custom_text
     };
     applyChange(updated);
   };
@@ -491,7 +495,9 @@ export const NavbarCustomizerModal: React.FC<NavbarCustomizerModalProps> = ({
                         <p className={`text-xs font-extrabold truncate ${currentNavbarTheme.titleClass}`}>
                           {form.nama_gereja || 'Jesus Kingdom Christ'}
                         </p>
-                        <p className="text-[9px] uppercase tracking-wider text-amber-400 font-bold leading-none">
+                        <p className={`text-[9px] uppercase tracking-wider font-bold leading-none ${
+                          currentNavbarTheme.isLight ? 'text-teal-700' : 'text-amber-400'
+                        }`}>
                           Enterprise CMS Pro
                         </p>
                       </div>

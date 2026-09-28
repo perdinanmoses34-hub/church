@@ -68,7 +68,7 @@ import {
   Building,
   Church
 } from 'lucide-react';
-import { getNavbarTheme, getFooterTheme } from '../../utils/themeHelper';
+import { getNavbarTheme, getFooterTheme, isColorLight } from '../../utils/themeHelper';
 import { DashboardVisibilityManager } from '../dashboard/DashboardVisibilityManager';
 import {
   sendOneSignalPushNotification,
@@ -1656,7 +1656,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           <button
                             key={preset.id}
                             type="button"
-                            onClick={() => setMetaForm({ ...metaForm, navbar_theme_preset: preset.id as any })}
+                            onClick={() => {
+                              const isLightPreset = preset.id === 'CLEAN_LIGHT';
+                              setMetaForm({
+                                ...metaForm,
+                                navbar_theme_preset: preset.id as any,
+                                navbar_custom_text: isLightPreset ? 'DARK' : metaForm.navbar_custom_text
+                              });
+                            }}
                             className={`p-2.5 rounded-xl border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
                               isSelected
                                 ? 'border-teal-500 ring-2 ring-teal-300 bg-white text-teal-950 shadow-md'
@@ -1702,13 +1709,16 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         <input
                           type="text"
                           value={metaForm.navbar_custom_bg || '#1e293b'}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const isLightHex = isColorLight(val);
                             setMetaForm({
                               ...metaForm,
                               navbar_theme_preset: 'CUSTOM_HEX',
-                              navbar_custom_bg: e.target.value
-                            })
-                          }
+                              navbar_custom_bg: val,
+                              navbar_custom_text: isLightHex ? 'DARK' : metaForm.navbar_custom_text
+                            });
+                          }}
                           placeholder="#1e293b"
                           className="w-full pl-14 pr-3 py-2 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono font-bold text-xs focus:ring-2 focus:ring-teal-500 outline-none uppercase"
                         />
@@ -1721,13 +1731,16 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                               ? metaForm.navbar_custom_bg
                               : '#1e293b'
                           }
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const isLightHex = isColorLight(val);
                             setMetaForm({
                               ...metaForm,
                               navbar_theme_preset: 'CUSTOM_HEX',
-                              navbar_custom_bg: e.target.value
-                            })
-                          }
+                              navbar_custom_bg: val,
+                              navbar_custom_text: isLightHex ? 'DARK' : metaForm.navbar_custom_text
+                            });
+                          }}
                           className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent"
                         />
                         <span>Pilih Visual</span>
@@ -1761,13 +1774,15 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             <button
                               key={chip.hex}
                               type="button"
-                              onClick={() =>
+                              onClick={() => {
+                                const isLightHex = isColorLight(chip.hex);
                                 setMetaForm({
                                   ...metaForm,
                                   navbar_theme_preset: 'CUSTOM_HEX',
-                                  navbar_custom_bg: chip.hex
-                                })
-                              }
+                                  navbar_custom_bg: chip.hex,
+                                  navbar_custom_text: isLightHex ? 'DARK' : metaForm.navbar_custom_text
+                                });
+                              }}
                               className={`px-2.5 py-1 rounded-xl border text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                                 isActive
                                   ? 'border-teal-500 text-teal-950 bg-teal-100 ring-2 ring-teal-300'
