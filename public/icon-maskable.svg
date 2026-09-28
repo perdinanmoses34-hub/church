@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="mBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
+    <linearGradient id="mGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#fbbf24" />
+      <stop offset="70%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="mGlowGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Full-bleed background for maskable safe area (no border clipping) -->
+  <rect width="512" height="512" fill="url(#mBgGrad)" />
+
+  <!-- Inner Content scaled down ~78% within the 80% Android safe zone circle -->
+  <g transform="translate(56, 56) scale(0.78)">
+    <!-- Inner Sanctuary Halo / Rays -->
+    <circle cx="256" cy="220" r="150" fill="url(#mGlowGrad)" />
+    <circle cx="256" cy="220" r="110" fill="none" stroke="#fbbf24" stroke-width="3" stroke-dasharray="10 8" stroke-opacity="0.5" />
+
+    <!-- Church Arch Portal Silhouette -->
+    <path d="M 176 390 L 176 260 Q 176 180 256 160 Q 336 180 336 260 L 336 390 Z" fill="#1e293b" fill-opacity="0.5" stroke="#6366f1" stroke-width="3" stroke-opacity="0.4" />
+
+    <!-- Holy Golden Latin Cross -->
+    <rect x="236" y="100" width="40" height="250" rx="10" fill="url(#mGoldGrad)" />
+    <rect x="160" y="170" width="192" height="40" rx="10" fill="url(#mGoldGrad)" />
+    <!-- Center Diamond Jewel -->
+    <polygon points="256,168 276,190 256,212 236,190" fill="#ffffff" opacity="0.95" />
+
+    <!-- Scripture Ribbon / Base -->
+    <path d="M 120 400 Q 256 368 392 400 L 380 426 Q 256 398 132 426 Z" fill="url(#mGoldGrad)" />
+
+    <!-- Text Subtitle -->
+    <text x="256" y="468" text-anchor="middle" font-family="'Inter', -apple-system, sans-serif" font-weight="900" font-size="32" fill="#f8fafc" letter-spacing="8">CMS PRO</text>
+  </g>
+</svg>

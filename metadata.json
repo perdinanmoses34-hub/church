@@ -1,0 +1,6 @@
+{
+  "name": "CMS App - Portal & Sistem Manajemen Gereja",
+  "description": "Aplikasi resmi sistem informasi manajemen gereja, warta jemaat, renungan harian, lagu puji-pujian berchord, dan unduh APK mobile.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

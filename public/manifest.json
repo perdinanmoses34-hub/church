@@ -1,0 +1,51 @@
+{
+  "id": "/",
+  "name": "Kingdom of Christ - CMS Pro",
+  "short_name": "CMS Gereja",
+  "description": "Sistem Manajemen Gereja Berbasis Web & PWA Enterprise Realtime",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay"],
+  "orientation": "portrait-primary",
+  "background_color": "#090d16",
+  "theme_color": "#0f172a",
+  "categories": ["productivity", "utilities", "social"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Jadwal Ibadah & Acara",
+      "short_name": "Jadwal",
+      "description": "Buka agenda kegiatan dan ibadah gereja",
+      "url": "/",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Renungan & Warta",
+      "short_name": "Renungan",
+      "description": "Baca renungan harian dan warta jemaat",
+      "url": "/",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

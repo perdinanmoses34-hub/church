@@ -1,0 +1,122 @@
+{
+  "entities": {
+    "jemaat": {
+      "title": "Data Jemaat",
+      "description": "Daftar jemaat gereja",
+      "type": "object",
+      "properties": {
+        "jemaat_id": { "type": "string" },
+        "nama_lengkap": { "type": "string" }
+      }
+    },
+    "warta": {
+      "title": "Warta & Pertemuan",
+      "description": "Warta jemaat dan pengumuman",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "keuangan": {
+      "title": "Laporan Keuangan",
+      "description": "Catatan transaksi keuangan gereja",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "renungan": {
+      "title": "Renungan Harian",
+      "description": "Renungan dan ayat harian",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "surat": {
+      "title": "Surat Administrasi",
+      "description": "Surat menyurat gereja",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "agenda": {
+      "title": "Agenda Ibadah",
+      "description": "Jadwal dan agenda peribadatan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "gallery": {
+      "title": "Galeri Foto & Dokumentasi",
+      "description": "Foto dan video galeri kegiatan",
+      "type": "object",
+      "properties": {
+        "gallery_id": { "type": "string" }
+      }
+    },
+    "featured_videos": {
+      "title": "Featured Social Videos",
+      "description": "Video YouTube/TikTok/Reels tayangan utama",
+      "type": "object",
+      "properties": {
+        "video_id": { "type": "string" }
+      }
+    },
+    "media_files": {
+      "title": "File Media & Dokumen",
+      "description": "Berkas dan file upload gereja",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "system_settings": {
+      "title": "Pengaturan Sistem",
+      "description": "Profil gereja dan konfigurasi",
+      "type": "object",
+      "properties": {
+        "nama_gereja": { "type": "string" }
+      }
+    },
+    "users": {
+      "title": "Pengguna Sistem",
+      "description": "Akun login admin dan jemaat",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" }
+      }
+    },
+    "wilayah": {
+      "title": "Data Wilayah",
+      "description": "Daftar wilayah pelayanan",
+      "type": "object",
+      "properties": {
+        "wilayah_id": { "type": "string" }
+      }
+    },
+    "chat_messages": {
+      "title": "Ruang Chat Jemaat & Pengguna",
+      "description": "Pesan percakapan ruang chat komunitas gereja untuk semua pengguna",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sender_name": { "type": "string" },
+        "sender_role": { "type": "string" },
+        "message": { "type": "string", "maxLength": 2000 },
+        "created_at": { "type": "string" },
+        "tag": { "type": "string" },
+        "is_pinned": { "type": "boolean" }
+      },
+      "required": ["id", "sender_name", "message", "created_at"]
+    }
+  },
+  "firestore": {
+    "/gkfc_cms/{documentId}": {
+      "schema": { "$ref": "#/entities/system_settings" },
+      "description": "Church CMS documents and data sync store"
+    }
+  }
+}

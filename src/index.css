@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --theme-custom-primary: #00a859;
+  --theme-custom-border: #10b981;
+  --theme-custom-bg-alpha: rgba(0, 168, 89, 0.12);
+  --app-bg: #f0f5f2;
+  --app-text: #0f172a;
+}
+
+.theme-dark {
+  --app-bg: #090d16;
+  --app-text: #f8fafc;
+}
+
+@layer utilities {
+  .bg-glass {
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+  }
+
+  .bg-glass-card {
+    background-color: #ffffff;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .bg-glass-card-hover {
+    transition: all 0.2s ease-in-out;
+  }
+  .bg-glass-card-hover:hover {
+    background-color: #ffffff;
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 10px 25px -3px rgba(16, 185, 129, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Dark mode overrides */
+  .theme-dark .bg-glass {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .theme-dark .bg-glass-card {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .theme-dark .bg-glass-card-hover:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  /* Custom Color Theme Utilities */
+  .custom-card-border {
+    border-color: var(--theme-custom-border) !important;
+  }
+
+  .custom-card-accent-top {
+    border-top: 3px solid var(--theme-custom-primary) !important;
+  }
+
+  .custom-card-accent-left {
+    border-left: 4px solid var(--theme-custom-primary) !important;
+  }
+
+  .custom-btn-primary {
+    background-color: var(--theme-custom-primary) !important;
+    color: #ffffff !important;
+  }
+
+  .custom-btn-primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .custom-text-primary {
+    color: var(--theme-custom-primary) !important;
+  }
+
+  .custom-bg-alpha {
+    background-color: var(--theme-custom-bg-alpha) !important;
+  }
+}
+
+html, body {
+  background-color: var(--app-bg, #f8fafc);
+  color: var(--app-text, #0f172a);
+  min-height: 100vh;
+}
+
+body {
+  background-color: var(--app-bg, #f8fafc);
+  background-image: radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.04) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 90%, rgba(5, 150, 105, 0.04) 0%, transparent 40%);
+  background-attachment: fixed;
+  color: var(--app-text, #0f172a);
+}
+
+.theme-dark body {
+  background-color: #090d16;
+  background-image: radial-gradient(circle at 0% 0%, #1e293b 0%, #090d16 100%);
+  color: #f8fafc;
+}
+
