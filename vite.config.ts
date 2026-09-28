@@ -4,8 +4,8 @@ import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
-  // Support GitHub Pages relative base path deployment
-  const baseUrl = process.env.BASE_URL || './';
+  // Support GitHub Pages relative base path deployment if specified, default to /
+  const baseUrl = process.env.BASE_URL || '/';
 
   return {
     base: baseUrl,

@@ -8,11 +8,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="CMS Gereja" />
     <meta name="application-name" content="Kingdom of Christ - CMS Pro" />
-    <link rel="manifest" href="./manifest.json" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="./pwa-192x192.png" />
-    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
-    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <meta name="description" content="Aplikasi resmi sistem informasi manajemen gereja, warta jemaat, renungan harian, lagu puji-pujian berchord, dan unduh APK mobile." />
     
     <!-- OpenGraph / Facebook Sharing Metadata -->
@@ -41,24 +41,7 @@
   </head>
   <body class="bg-[#f4fbf9] text-slate-800 min-h-screen">
     <div id="root" class="min-h-screen"></div>
-    <script>
-      window.addEventListener('error', function(e) {
-        var fb = document.getElementById('fallback-action');
-        var errDesc = document.getElementById('error-desc');
-        if (fb) {
-          fb.style.display = 'block';
-          if (errDesc && e.message) errDesc.textContent = 'Gagal memuat modul: ' + e.message;
-        }
-      });
-      setTimeout(function() {
-        var root = document.getElementById('root');
-        var fb = document.getElementById('fallback-action');
-        if (root && root.firstElementChild && root.firstElementChild.id !== 'app-container' && fb) {
-          fb.style.display = 'block';
-        }
-      }, 5000);
-    </script>
-    <script type="module" src="./src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 
