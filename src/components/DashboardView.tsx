@@ -776,10 +776,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       'Notifikasi'
     );
 
-    // Trigger status bar notification immediately on HP/Desktop
+    // Trigger local status bar notification immediately on HP/Desktop
     triggerStatusBarNotification(`🔔 ${newNotif.judul}`, newNotif.pesan);
 
-    window.dispatchEvent(new Event('cms_data_changed'));
+    // Broadcast push notification to mobile devices via OneSignal & Service Worker
+    broadcastChurchAnnouncement(settings, newNotif.judul, newNotif.pesan, '/').catch(() => {});
+
+    try {
+      playNotificationChime();
+    } catch {}
+
+    window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'notification_created', notif: newNotif } }));
+    window.dispatchEvent(new Event('storage'));
 
     setIsCreateNotifModalOpen(false);
     setNewNotifForm({
@@ -4635,10 +4643,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 />
               </div>
 
-              <div className="p-3 rounded-2xl bg-teal-50/70 border border-teal-200 text-[11px] text-teal-900 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-teal-600 shrink-0" />
+              <div className="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-[11px] text-emerald-950 flex items-center gap-2.5">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
+                </span>
                 <span>
-                  Notifikasi akan langsung disinkronkan secara realtime ke seluruh browser jemaat.
+                  <strong>Realtime Bridge Aktif:</strong> Notifikasi otomatis disiarkan langsung ke seluruh HP dan akun jemaat secara real-time.
                 </span>
               </div>
 

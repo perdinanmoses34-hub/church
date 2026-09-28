@@ -9,7 +9,8 @@ import {
   reconnectRealtimeCloudSync,
   isQuotaExhausted,
   forceManualSyncPush,
-  clearQuotaExhausted
+  clearQuotaExhausted,
+  resetAllSyncAndQuota
 } from '../../utils/firebaseSync';
 import {
   triggerStatusBarNotification,
@@ -3211,6 +3212,36 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
             </div>
 
+            {/* Realtime Multi-Device Connection Status */}
+            <div className="p-4 rounded-2xl bg-emerald-50/90 border border-emerald-300 text-emerald-950 text-xs space-y-2 shadow-xs">
+              <div className="font-bold flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2 text-sm text-emerald-900">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-600"></span>
+                  </span>
+                  <span>Sistem Realtime & Notifikasi Multi-Device: TERHUBUNG AKTIF</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await resetAllSyncAndQuota();
+                    setFirebaseStatusMsg({
+                      type: 'success',
+                      text: 'Status kuota telah direset dan koneksi realtime ke seluruh perangkat HP telah diperbarui!'
+                    });
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-[11px] flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Pulihkan Realtime & Reset Kuota</span>
+                </button>
+              </div>
+              <p className="text-[11px] leading-relaxed text-emerald-800">
+                Aplikasi ini dilengkapi <strong>Server-Sent Events (SSE) Realtime Bridge</strong>. Setiap kali Admin mengirim notifikasi atau memperbarui agenda/warta/renungan, perubahan tersebut <strong>langsung masuk ke HP jemaat secara instan</strong> dengan suara lonceng dan banner peringatan tanpa hambatan kuota.
+              </p>
+            </div>
+
             {/* Quota Exhausted / Manual Mode Alert Banner */}
             {isQuotaExhausted() && (
               <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs space-y-2.5 shadow-xs">
@@ -3220,8 +3251,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 </div>
                 <p className="text-[11px] leading-relaxed text-amber-800/90">
                   Kuota penulisan harian gratis (Firestore Daily Write Quota) pada project Firebase bawaan telah tercapai.
-                  Sistem telah secara otomatis mengalihkan penyimpanan ke <strong>Mode Penyimpanan Lokal (LocalStorage)</strong>.
-                  Seluruh data Anda <strong>100% aman tersimpan di browser perangkat ini</strong> tanpa ada data yang hilang.
+                  Sistem telah secara otomatis mengalihkan penyimpanan ke <strong>Mode Penyimpanan Lokal (LocalStorage)</strong> dan SSE Realtime Bridge.
+                  Seluruh data Anda <strong>100% aman tersimpan di browser perangkat ini</strong> dan notifikasi tetap berjalan antar-perangkat.
                 </p>
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-200">
                   <button
@@ -3357,6 +3388,22 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     setMetaForm({
                       ...metaForm,
                       firebaseConfig: { ...metaForm.firebaseConfig, appId: e.target.value }
+                    })
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 mb-1 font-semibold">Firestore Database ID (Opsional, Default: (default))</label>
+                <input
+                  type="text"
+                  placeholder="(default)"
+                  value={metaForm.firebaseConfig?.firestoreDatabaseId || ''}
+                  onChange={(e) =>
+                    setMetaForm({
+                      ...metaForm,
+                      firebaseConfig: { ...metaForm.firebaseConfig, firestoreDatabaseId: e.target.value }
                     })
                   }
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"

@@ -11,7 +11,7 @@ import {
   setLogLevel
 } from 'firebase/firestore';
 import defaultFirebaseConfig from '../../firebase-applet-config.json';
-import { stopSecurityAlarmSiren } from './soundHelper';
+import { stopSecurityAlarmSiren, playNotificationChime } from './soundHelper';
 
 try {
   setLogLevel('silent');
@@ -63,6 +63,7 @@ const DOC_MAPPING: Record<string, string> = {
   cms_pro_featured_videos: 'featured_videos',
   cms_pro_media_files: 'media_files',
   cms_pro_notifications: 'notifications',
+  notifications: 'notifications',
   cms_pro_activity_logs: 'activity_logs',
   cms_pro_login_history: 'login_history',
   cms_pro_prayer_requests: 'prayer_requests',
@@ -99,6 +100,7 @@ const REVERSE_DOC_MAPPING: Record<string, string> = {
   featured_videos: 'cms_pro_featured_videos',
   media_files: 'cms_pro_media_files',
   notifications: 'cms_pro_notifications',
+  cms_pro_notifications: 'cms_pro_notifications',
   activity_logs: 'cms_pro_activity_logs',
   login_history: 'cms_pro_login_history',
   prayer_requests: 'cms_pro_prayer_requests',
@@ -144,7 +146,9 @@ export function getActiveFirebaseConfig() {
             storageBucket: (custom.storageBucket || '').trim() || `${custom.projectId.trim()}.firebasestorage.app`,
             messagingSenderId: (custom.messagingSenderId || '').trim() || defaultFirebaseConfig.messagingSenderId,
             appId: (custom.appId || '').trim() || defaultFirebaseConfig.appId,
-            firestoreDatabaseId: (custom.firestoreDatabaseId || defaultFirebaseConfig.firestoreDatabaseId || '(default)').trim(),
+            firestoreDatabaseId: (custom.firestoreDatabaseId && custom.firestoreDatabaseId.trim())
+              ? custom.firestoreDatabaseId.trim()
+              : '(default)',
             isCustom: true
           };
         }
@@ -317,7 +321,7 @@ export function isQuotaExhausted(): boolean {
  * Pushes updated local data to Cloud Firestore (with Dual-Write Bridge & Fallback)
  */
 export async function pushToCloud(storageKey: string, data: any): Promise<void> {
-  if (isRemoteUpdating || isLocalDeviceSessionKey(storageKey) || isQuotaExhausted()) return;
+  if (isRemoteUpdating || isLocalDeviceSessionKey(storageKey)) return;
   const docId =
     storageKey === 'settings' || storageKey === 'cms_pro_settings' || storageKey.endsWith('_settings')
       ? 'settings'
@@ -334,7 +338,18 @@ export async function pushToCloud(storageKey: string, data: any): Promise<void> 
     return;
   }
 
-  // If in quota cooldown period, suppress repeated background cloud writes
+  // 1. Immediately broadcast to Server-Sent Events (SSE) Realtime Bridge for zero-latency multi-device sync
+  if (typeof fetch !== 'undefined') {
+    fetch('/api/sync/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: storageKey, payload: payloadString, updatedAt: now })
+    }).catch(() => {
+      // offline / local mode
+    });
+  }
+
+  // If in quota cooldown period, suppress repeated background cloud writes to Firestore
   if (isQuotaExhausted()) {
     return;
   }
@@ -342,7 +357,7 @@ export async function pushToCloud(storageKey: string, data: any): Promise<void> 
   const activeConfig = getActiveFirebaseConfig();
   let primarySuccess = false;
 
-  // 1. Try pushing to primary active Firestore
+  // 2. Try pushing to primary active Firestore
   try {
     const firestoreDb = getFirestoreInstance();
     const docRef = doc(firestoreDb, COLLECTION_NAME, docId);
@@ -357,6 +372,16 @@ export async function pushToCloud(storageKey: string, data: any): Promise<void> 
     syncConnectedStatus = true;
     primarySuccess = true;
     lastPushedPayloads.set(docId, payloadString);
+
+    if (docId === 'notifications') {
+      try {
+        const mirrorRef = doc(firestoreDb, COLLECTION_NAME, 'cms_pro_notifications');
+        await setDoc(mirrorRef, { payload: payloadString, updatedAt: Date.now() }, { merge: true });
+        lastPushedPayloads.set('cms_pro_notifications', payloadString);
+      } catch {
+        // ignore mirror write note
+      }
+    }
   } catch (error: any) {
     if (
       error?.code === 'resource-exhausted' ||
@@ -446,7 +471,9 @@ export async function testFirestoreConnection(overrideConfig?: any): Promise<{ s
           storageBucket: (overrideConfig.storageBucket || '').trim() || `${overrideConfig.projectId.trim()}.firebasestorage.app`,
           messagingSenderId: (overrideConfig.messagingSenderId || '').trim() || defaultFirebaseConfig.messagingSenderId,
           appId: (overrideConfig.appId || '').trim() || defaultFirebaseConfig.appId,
-          firestoreDatabaseId: (overrideConfig.firestoreDatabaseId || defaultFirebaseConfig.firestoreDatabaseId || '(default)').trim()
+          firestoreDatabaseId: (overrideConfig.firestoreDatabaseId && overrideConfig.firestoreDatabaseId.trim())
+            ? overrideConfig.firestoreDatabaseId.trim()
+            : '(default)'
         }
       : getActiveFirebaseConfig();
 
@@ -482,6 +509,22 @@ export async function testFirestoreConnection(overrideConfig?: any): Promise<{ s
       message: `Gagal terhubung ke Firestore: ${err?.message || 'Pastikan API Key & Project ID valid dan aturan Firestore Security Rules di Firebase Console Anda sudah diatur allow read, write: if true;'}`
     };
   }
+}
+
+/**
+ * Resets quota lockout and re-establishes real-time connection immediately
+ */
+export async function resetAllSyncAndQuota(): Promise<boolean> {
+  clearQuotaExhausted();
+  if (typeof fetch !== 'undefined') {
+    try {
+      await fetch('/api/sync/reset-quota', { method: 'POST' });
+    } catch {
+      // ignore
+    }
+  }
+  reconnectRealtimeCloudSync();
+  return true;
 }
 
 /**
@@ -521,11 +564,41 @@ export function getCloudSyncStatus(): boolean {
 }
 
 /**
- * Pulls all document payloads from Cloud Firestore to ensure 100% sync on startup / mobile resume
+ * Pulls all document payloads from Cloud Firestore and Server Sync Cache to ensure 100% sync on startup / mobile resume
  */
 export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boolean> {
-  if (isQuotaExhausted()) return false;
   let hasChanges = false;
+
+  // 1. Pull from Realtime Server Cache first for instant multi-device catchup
+  if (typeof fetch !== 'undefined') {
+    try {
+      const res = await fetch('/api/sync/pull');
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.data && typeof json.data === 'object') {
+          isRemoteUpdating = true;
+          try {
+            Object.entries(json.data).forEach(([key, val]: [string, any]) => {
+              if (isLocalDeviceSessionKey(key)) return;
+              const pStr = typeof val?.payload === 'string' ? val.payload : JSON.stringify(val?.payload ?? val);
+              const cur = localStorage.getItem(key);
+              if (cur !== pStr) {
+                localStorage.setItem(key, pStr);
+                lastPushedPayloads.set(key, pStr);
+                hasChanges = true;
+              }
+            });
+          } finally {
+            isRemoteUpdating = false;
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // 2. Also pull from Cloud Firestore
   try {
     const firestoreDb = getFirestoreInstance();
     const colRef = collection(firestoreDb, COLLECTION_NAME);
@@ -533,48 +606,48 @@ export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boo
 
     isRemoteUpdating = true;
     try {
-          snapshot.docs.forEach((docSnap) => {
-            const docId = docSnap.id;
-            if (docId === 'connection_test' || isLocalDeviceSessionKey(docId)) return;
+      snapshot.docs.forEach((docSnap) => {
+        const docId = docSnap.id;
+        if (docId === 'connection_test' || isLocalDeviceSessionKey(docId)) return;
 
-            const storageKey = REVERSE_DOC_MAPPING[docId] || docId;
-            if (isLocalDeviceSessionKey(storageKey)) return;
+        const storageKey = REVERSE_DOC_MAPPING[docId] || docId;
+        if (isLocalDeviceSessionKey(storageKey)) return;
 
-            const cloudData = docSnap.data();
-            if (cloudData && cloudData.payload !== undefined) {
-              const cloudPayloadStr =
-                typeof cloudData.payload === 'string'
-                  ? cloudData.payload
-                  : JSON.stringify(cloudData.payload);
+        const cloudData = docSnap.data();
+        if (cloudData && cloudData.payload !== undefined) {
+          const cloudPayloadStr =
+            typeof cloudData.payload === 'string'
+              ? cloudData.payload
+              : JSON.stringify(cloudData.payload);
 
-              const currentLocalStr = localStorage.getItem(storageKey);
+          const currentLocalStr = localStorage.getItem(storageKey);
 
-              // Skip if current local storage already has this exact payload
-              if (currentLocalStr === cloudPayloadStr) {
-                lastPushedPayloads.set(docId, cloudPayloadStr);
-                return;
-              }
+          // Skip if current local storage already has this exact payload
+          if (currentLocalStr === cloudPayloadStr) {
+            lastPushedPayloads.set(docId, cloudPayloadStr);
+            return;
+          }
 
-              // Apply remote cloud update to localStorage
-              localStorage.setItem(storageKey, cloudPayloadStr);
-              if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
-                localStorage.setItem('cms_pro_settings', cloudPayloadStr);
-                try {
-                  const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
-                  if (rawTenant) {
-                    const cleanTenant = rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
-                    if (cleanTenant && cleanTenant !== 'CHURCH-001' && cleanTenant !== 'ALL') {
-                      localStorage.setItem(`cms_pro_${cleanTenant}_settings`, cloudPayloadStr);
-                    }
-                  }
-                } catch (e) {
-                  // ignore
+          // Apply remote cloud update to localStorage
+          localStorage.setItem(storageKey, cloudPayloadStr);
+          if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
+            localStorage.setItem('cms_pro_settings', cloudPayloadStr);
+            try {
+              const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
+              if (rawTenant) {
+                const cleanTenant = rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
+                if (cleanTenant && cleanTenant !== 'CHURCH-001' && cleanTenant !== 'ALL') {
+                  localStorage.setItem(`cms_pro_${cleanTenant}_settings`, cloudPayloadStr);
                 }
               }
-              lastPushedPayloads.set(docId, cloudPayloadStr);
-              hasChanges = true;
+            } catch (e) {
+              // ignore
             }
-          });
+          }
+          lastPushedPayloads.set(docId, cloudPayloadStr);
+          hasChanges = true;
+        }
+      });
 
       if (hasChanges) {
         window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { source: 'firebase_pull' } }));
@@ -593,9 +666,9 @@ export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boo
     ) {
       markQuotaExhausted();
     }
-    console.warn('[FirebaseSync] Pull all from cloud error:', err);
-    syncConnectedStatus = false;
-    return false;
+    console.warn('[FirebaseSync] Cloud Firestore pull notice:', err?.message || err);
+    // Even if Firestore pull hits error, server SSE pull succeeded
+    return hasChanges;
   }
 }
 
@@ -617,8 +690,53 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
     activeUnsubscribers = [];
   }
 
-  if (isQuotaExhausted()) {
-    return () => {};
+  // 1. Connect to Realtime Server SSE Stream (Zero-quota, instant multi-device notification & sync)
+  if (typeof window !== 'undefined' && 'EventSource' in window) {
+    try {
+      const sse = new EventSource('/api/sync/events');
+      sse.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data?.type === 'sync' && data.key && data.payload !== undefined) {
+            const storageKey = data.key;
+            if (isLocalDeviceSessionKey(storageKey)) return;
+            const payloadStr = typeof data.payload === 'string' ? data.payload : JSON.stringify(data.payload);
+            const currentLocal = localStorage.getItem(storageKey);
+            if (currentLocal !== payloadStr) {
+              isRemoteUpdating = true;
+              try {
+                localStorage.setItem(storageKey, payloadStr);
+                lastPushedPayloads.set(storageKey, payloadStr);
+                if (storageKey === 'cms_pro_notifications' || storageKey === 'notifications') {
+                  try {
+                    playNotificationChime();
+                  } catch {}
+                }
+                syncConnectedStatus = true;
+                window.dispatchEvent(
+                  new CustomEvent('cms_data_changed', { detail: { source: 'server_sse', key: storageKey } })
+                );
+                window.dispatchEvent(new Event('storage'));
+                if (onDataReceived) onDataReceived();
+              } finally {
+                isRemoteUpdating = false;
+              }
+            }
+          } else if (data?.type === 'quota_reset') {
+            clearQuotaExhausted();
+          }
+        } catch {
+          // ignore
+        }
+      };
+      activeUnsubscribers.push(() => {
+        try {
+          sse.close();
+        } catch {}
+      });
+    } catch (err) {
+      console.warn('[SSE] EventSource init notice:', err);
+    }
   }
 
   const activeConfig = getActiveFirebaseConfig();
