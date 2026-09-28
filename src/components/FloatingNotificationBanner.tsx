@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   AlertTriangle,
   ShieldAlert,
@@ -94,23 +94,34 @@ export const FloatingNotificationBanner: React.FC<FloatingNotificationBannerProp
   }, [selectedNotifForDetail]);
 
   // Compute active notifications
-  const activeNotifs = notificationsList.filter((n) => {
-    if (dismissedIds.includes(n.notif_id)) return false;
-    if (n.status_baca === 'Sudah') return false;
+  const activeNotifs = useMemo(() => {
+    return notificationsList.filter((n) => {
+      if (dismissedIds.includes(n.notif_id)) return false;
+      if (n.status_baca === 'Sudah') return false;
 
-    // Filter by audience
-    if (!currentUser) {
-      return n.user_id === 'ALL' || n.tujuan_role === 'ALL' || n.user_id === 'JEMAAT';
-    }
+      // Filter by audience
+      if (!currentUser) {
+        return n.user_id === 'ALL' || n.tujuan_role === 'ALL' || n.user_id === 'JEMAAT';
+      }
 
-    if (n.user_id === 'ALL' || n.tujuan_role === 'ALL') return true;
-    if (currentUser.role === 'JEMAAT' && (n.user_id === 'JEMAAT' || n.tujuan_role === 'JEMAAT')) return true;
-    if (n.user_id === currentUser.username || n.user_id === currentUser.jemaat_id) return true;
-    if (n.user_id && currentUser.nama && n.user_id.toLowerCase().trim() === currentUser.nama.toLowerCase().trim()) return true;
-    if (isAdmin) return true;
+      if (n.user_id === 'ALL' || n.tujuan_role === 'ALL') return true;
+      if (currentUser.role === 'JEMAAT' && (n.user_id === 'JEMAAT' || n.tujuan_role === 'JEMAAT')) return true;
+      if (n.user_id === currentUser.username || n.user_id === currentUser.jemaat_id) return true;
+      if (n.user_id && currentUser.nama && n.user_id.toLowerCase().trim() === currentUser.nama.toLowerCase().trim()) return true;
+      if (isAdmin) return true;
 
-    return false;
-  });
+      return false;
+    });
+  }, [
+    notificationsList,
+    dismissedIds,
+    currentUser?.user_id,
+    currentUser?.username,
+    currentUser?.nama,
+    currentUser?.jemaat_id,
+    currentUser?.role,
+    isAdmin
+  ]);
 
   // Sound chime when new unread notifications arrive
   useEffect(() => {

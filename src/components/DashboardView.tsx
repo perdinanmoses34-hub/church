@@ -649,6 +649,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const prevNotifKeysRef = React.useRef<string>('');
 
+  const loadDashboardData = React.useCallback(() => {
+    const j = StorageManager.getJemaat();
+    setJemaatList((prev) => (prev.length !== j.length || JSON.stringify(prev) !== JSON.stringify(j) ? j : prev));
+    const p = StorageManager.getPersembahan();
+    setPersembahanList((prev) => (prev.length !== p.length || JSON.stringify(prev) !== JSON.stringify(p) ? p : prev));
+    const e = StorageManager.getEvents();
+    setEventsList((prev) => (prev.length !== e.length || JSON.stringify(prev) !== JSON.stringify(e) ? e : prev));
+    const r = StorageManager.getRenungan();
+    setRenunganList((prev) => (prev.length !== r.length || JSON.stringify(prev) !== JSON.stringify(r) ? r : prev));
+    const pg = StorageManager.getPengumuman();
+    setPengumumanList((prev) => (prev.length !== pg.length || JSON.stringify(prev) !== JSON.stringify(pg) ? pg : prev));
+    const pr = StorageManager.getPrayerRequests();
+    setPrayerRequests((prev) => (prev.length !== pr.length || JSON.stringify(prev) !== JSON.stringify(pr) ? pr : prev));
+    const al = StorageManager.getActivityLogs();
+    setActivityLogs((prev) => (prev.length !== al.length || JSON.stringify(prev) !== JSON.stringify(al) ? al : prev));
+    const n = StorageManager.getNotifications();
+    setNotificationsList((prev) => (prev.length !== n.length || JSON.stringify(prev) !== JSON.stringify(n) ? n : prev));
+    const fv = StorageManager.getFeaturedVideos();
+    setFeaturedVideos((prev) => (prev.length !== fv.length || JSON.stringify(prev) !== JSON.stringify(fv) ? fv : prev));
+    const g = StorageManager.getGallery();
+    setGalleryList((prev) => (prev.length !== g.length || JSON.stringify(prev) !== JSON.stringify(g) ? g : prev));
+    const res = StorageManager.getEventReservations();
+    setReservationsList((prev) => (prev.length !== res.length || JSON.stringify(prev) !== JSON.stringify(res) ? res : prev));
+    const k = StorageManager.getKasPengeluaran();
+    setKasList((prev) => (prev.length !== k.length || JSON.stringify(prev) !== JSON.stringify(k) ? k : prev));
+  }, []);
+
   // Keyboard shortcut (Escape) to close notification detail modal
   useEffect(() => {
     if (!selectedNotifForDetail) return;
@@ -685,7 +712,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const pollInterval = setInterval(loadDashboardData, 1500);
+    const pollInterval = setInterval(loadDashboardData, 3000);
 
     return () => {
       unsubscribe();
@@ -694,7 +721,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       window.removeEventListener('focus', handleSync);
       clearInterval(pollInterval);
     };
-  }, []);
+  }, [loadDashboardData]);
 
   // Automatic Audio Chime trigger when new notifications or warning alerts arrive
   useEffect(() => {
@@ -721,38 +748,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       }
       prevNotifKeysRef.current = currentKeys;
     }
-  }, [notificationsList, dismissedNotifIds, currentUser, isAdmin]);
-
-  useEffect(() => {
-    setCustomForm(settings);
-  }, [settings]);
-
-  const loadDashboardData = React.useCallback(() => {
-    const j = StorageManager.getJemaat();
-    setJemaatList((prev) => (prev.length !== j.length || JSON.stringify(prev) !== JSON.stringify(j) ? j : prev));
-    const p = StorageManager.getPersembahan();
-    setPersembahanList((prev) => (prev.length !== p.length || JSON.stringify(prev) !== JSON.stringify(p) ? p : prev));
-    const e = StorageManager.getEvents();
-    setEventsList((prev) => (prev.length !== e.length || JSON.stringify(prev) !== JSON.stringify(e) ? e : prev));
-    const r = StorageManager.getRenungan();
-    setRenunganList((prev) => (prev.length !== r.length || JSON.stringify(prev) !== JSON.stringify(r) ? r : prev));
-    const pg = StorageManager.getPengumuman();
-    setPengumumanList((prev) => (prev.length !== pg.length || JSON.stringify(prev) !== JSON.stringify(pg) ? pg : prev));
-    const pr = StorageManager.getPrayerRequests();
-    setPrayerRequests((prev) => (prev.length !== pr.length || JSON.stringify(prev) !== JSON.stringify(pr) ? pr : prev));
-    const al = StorageManager.getActivityLogs();
-    setActivityLogs((prev) => (prev.length !== al.length || JSON.stringify(prev) !== JSON.stringify(al) ? al : prev));
-    const n = StorageManager.getNotifications();
-    setNotificationsList((prev) => (prev.length !== n.length || JSON.stringify(prev) !== JSON.stringify(n) ? n : prev));
-    const fv = StorageManager.getFeaturedVideos();
-    setFeaturedVideos((prev) => (prev.length !== fv.length || JSON.stringify(prev) !== JSON.stringify(fv) ? fv : prev));
-    const g = StorageManager.getGallery();
-    setGalleryList((prev) => (prev.length !== g.length || JSON.stringify(prev) !== JSON.stringify(g) ? g : prev));
-    const res = StorageManager.getEventReservations();
-    setReservationsList((prev) => (prev.length !== res.length || JSON.stringify(prev) !== JSON.stringify(res) ? res : prev));
-    const k = StorageManager.getKasPengeluaran();
-    setKasList((prev) => (prev.length !== k.length || JSON.stringify(prev) !== JSON.stringify(k) ? k : prev));
-  }, []);
+  }, [notificationsList, dismissedNotifIds, currentUser.user_id, currentUser.nama, currentUser.username, isAdmin]);
 
   const handleSaveNotification = (e: React.FormEvent) => {
     e.preventDefault();

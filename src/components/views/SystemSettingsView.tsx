@@ -138,7 +138,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
   useEffect(() => {
     if (settings) {
-      setMetaForm(settings);
+      setMetaForm((prev) => (JSON.stringify(prev) !== JSON.stringify(settings) ? settings : prev));
     }
   }, [settings]);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -232,6 +232,15 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
   const [userError, setUserError] = useState('');
   const [userSuccess, setUserSuccess] = useState('');
 
+  const loadData = React.useCallback(() => {
+    const u = StorageManager.getUsers();
+    setUsersList((prev) => (prev.length !== u.length || JSON.stringify(prev) !== JSON.stringify(u) ? u : prev));
+    const al = StorageManager.getActivityLogs();
+    setActivityLogs((prev) => (prev.length !== al.length || JSON.stringify(prev) !== JSON.stringify(al) ? al : prev));
+    const lh = StorageManager.getLoginHistory();
+    setLoginHistory((prev) => (prev.length !== lh.length || JSON.stringify(prev) !== JSON.stringify(lh) ? lh : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -251,13 +260,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    setUsersList(StorageManager.getUsers());
-    setActivityLogs(StorageManager.getActivityLogs());
-    setLoginHistory(StorageManager.getLoginHistory());
-  };
+  }, [loadData]);
 
   const handleSaveMeta = (e?: React.FormEvent) => {
     if (e) e.preventDefault();

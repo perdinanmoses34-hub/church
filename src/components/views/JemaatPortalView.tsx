@@ -158,19 +158,24 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
     if (found) {
       setJemaatData((prev) => (JSON.stringify(prev) !== JSON.stringify(found) ? found : prev));
       if (!isEditingRef.current) {
-        setEditName(found.nama_lengkap ?? activeUser.nama ?? '');
-        setEditEmail(found.email ?? activeUser.email ?? '');
-        setEditPhone(found.nomor_hp ?? activeUser.no_hp ?? '');
-        setEditAddress(found.alamat ?? '');
-        setEditPhotoUrl(found.foto ?? '');
-        setPhotoPreview(found.foto ?? '');
+        const freshName = found.nama_lengkap ?? activeUser.nama ?? '';
+        setEditName((prev) => (prev !== freshName ? freshName : prev));
+        const freshEmail = found.email ?? activeUser.email ?? '';
+        setEditEmail((prev) => (prev !== freshEmail ? freshEmail : prev));
+        const freshPhone = found.nomor_hp ?? activeUser.no_hp ?? '';
+        setEditPhone((prev) => (prev !== freshPhone ? freshPhone : prev));
+        const freshAddress = found.alamat ?? '';
+        setEditAddress((prev) => (prev !== freshAddress ? freshAddress : prev));
+        const freshPhoto = found.foto ?? '';
+        setEditPhotoUrl((prev) => (prev !== freshPhoto ? freshPhoto : prev));
+        setPhotoPreview((prev) => (prev !== freshPhoto ? freshPhoto : prev));
       }
     }
-  }, [currentUser]);
+  }, [currentUser.user_id, currentUser.nama, currentUser.email, currentUser.no_hp]);
 
   useEffect(() => {
     if (settings) {
-      setAppSettings(settings);
+      setAppSettings((prev) => (JSON.stringify(prev) !== JSON.stringify(settings) ? settings : prev));
     }
   }, [settings]);
 
@@ -183,7 +188,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const intervalId = setInterval(loadData, 1500);
+    const intervalId = setInterval(loadData, 3000);
 
     return () => {
       unsubscribe();

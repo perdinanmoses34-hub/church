@@ -61,6 +61,15 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
     pic: 'Bendahara Gereja'
   });
 
+  const loadData = React.useCallback(() => {
+    const p = StorageManager.getPersembahan();
+    setPersembahanList((prev) => (prev.length !== p.length || JSON.stringify(prev) !== JSON.stringify(p) ? p : prev));
+    const d = StorageManager.getDonasi();
+    setDonasiList((prev) => (prev.length !== d.length || JSON.stringify(prev) !== JSON.stringify(d) ? d : prev));
+    const k = StorageManager.getKasPengeluaran();
+    setKasList((prev) => (prev.length !== k.length || JSON.stringify(prev) !== JSON.stringify(k) ? k : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -70,7 +79,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const intervalId = setInterval(loadData, 500);
+    const intervalId = setInterval(loadData, 2500);
 
     return () => {
       unsubscribe();
@@ -79,13 +88,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    setPersembahanList(StorageManager.getPersembahan());
-    setDonasiList(StorageManager.getDonasi());
-    setKasList(StorageManager.getKasPengeluaran());
-  };
+  }, [loadData]);
 
   // Balance calculation: ONLY count verified persembahan (status === 'TERVERIFIKASI' or no status for legacy entries)
   const verifiedPersembahanList = persembahanList.filter((p) => p.status === 'TERVERIFIKASI' || !p.status);

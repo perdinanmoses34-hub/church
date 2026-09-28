@@ -100,7 +100,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   const [selfSuccess, setSelfSuccess] = useState('');
 
   useEffect(() => {
-    setSelfForm({
+    const fresh = {
       username: currentUser.username,
       nama: currentUser.nama,
       email: currentUser.email || '',
@@ -108,8 +108,16 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
       old_password: '',
       new_password: '',
       confirm_password: ''
-    });
-  }, [currentUser]);
+    };
+    setSelfForm((prev) =>
+      prev.username === fresh.username &&
+      prev.nama === fresh.nama &&
+      prev.email === fresh.email &&
+      prev.no_hp === fresh.no_hp
+        ? prev
+        : fresh
+    );
+  }, [currentUser.username, currentUser.nama, currentUser.email, currentUser.no_hp]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -144,7 +152,10 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
 
   useEffect(() => {
     const syncNotifs = () => {
-      setNotifications(StorageManager.getNotifications());
+      const fresh = StorageManager.getNotifications();
+      setNotifications((prev) =>
+        prev.length !== fresh.length || JSON.stringify(prev) !== JSON.stringify(fresh) ? fresh : prev
+      );
     };
     syncNotifs();
 
@@ -153,7 +164,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
     window.addEventListener('storage', syncNotifs);
     window.addEventListener('focus', syncNotifs);
 
-    const intervalId = setInterval(syncNotifs, 500);
+    const intervalId = setInterval(syncNotifs, 3000);
 
     return () => {
       unsubscribe();

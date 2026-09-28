@@ -97,6 +97,17 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
     isi_permohonan: ''
   });
 
+  const loadData = React.useCallback(() => {
+    const s = StorageManager.getSettings();
+    setSettings((prev) => (JSON.stringify(prev) !== JSON.stringify(s) ? s : prev));
+    const ev = StorageManager.getEvents();
+    setEventsList((prev) => (prev.length !== ev.length || JSON.stringify(prev) !== JSON.stringify(ev) ? ev : prev));
+    const res = StorageManager.getEventReservations();
+    setReservationsList((prev) => (prev.length !== res.length || JSON.stringify(prev) !== JSON.stringify(res) ? res : prev));
+    const d = StorageManager.getDoa();
+    setDoaList((prev) => (prev.length !== d.length || JSON.stringify(prev) !== JSON.stringify(d) ? d : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -106,7 +117,7 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const intervalId = setInterval(loadData, 1000);
+    const intervalId = setInterval(loadData, 2000);
 
     return () => {
       unsubscribe();
@@ -115,14 +126,7 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    setSettings(StorageManager.getSettings());
-    setEventsList(StorageManager.getEvents());
-    setReservationsList(StorageManager.getEventReservations());
-    setDoaList(StorageManager.getDoa());
-  };
+  }, [loadData]);
 
   const handleOpenAddEvent = () => {
     setEditingEventId(null);

@@ -60,6 +60,15 @@ export const MediaView: React.FC<MediaViewProps> = ({ currentUser, mode = 'BOTH'
     penulis: currentUser.nama || 'Pdt. Dr. Herman Setyawan'
   });
 
+  const loadData = React.useCallback(() => {
+    const s = StorageManager.getSettings();
+    setSettings((prev) => (JSON.stringify(prev) !== JSON.stringify(s) ? s : prev));
+    const p = StorageManager.getPengumuman();
+    setPengumumanList((prev) => (prev.length !== p.length || JSON.stringify(prev) !== JSON.stringify(p) ? p : prev));
+    const r = StorageManager.getRenungan();
+    setRenunganList((prev) => (prev.length !== r.length || JSON.stringify(prev) !== JSON.stringify(r) ? r : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -79,13 +88,7 @@ export const MediaView: React.FC<MediaViewProps> = ({ currentUser, mode = 'BOTH'
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    setSettings(StorageManager.getSettings());
-    setPengumumanList(StorageManager.getPengumuman());
-    setRenunganList(StorageManager.getRenungan());
-  };
+  }, [loadData]);
 
   const handleOpenAddPengumuman = () => {
     setEditingPengumumanId(null);

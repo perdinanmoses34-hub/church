@@ -38,6 +38,16 @@ import { FloatingNotificationBanner } from './components/FloatingNotificationBan
 import { ConfirmModal } from './components/ConfirmModal';
 import { SecurityAlertBannerModal } from './components/SecurityAlertBannerModal';
 
+// Default Guest user for public browsing when not logged in
+const GUEST_USER: User = {
+  user_id: 'guest',
+  username: 'pengunjung',
+  nama: 'Jemaat / Pengunjung',
+  role: 'JEMAAT',
+  email: 'jemaat@gkfc-cms.org',
+  status: 'Aktif'
+};
+
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -49,16 +59,6 @@ export default function App() {
   const [isNavbarCustomizerOpen, setIsNavbarCustomizerOpen] = useState(false);
   const [isAndroidStudioModalOpen, setIsAndroidStudioModalOpen] = useState(false);
   const [tenantStatus, setTenantStatus] = useState(() => StorageManager.checkTenantStatus());
-
-  // Default Guest user for public browsing when not logged in
-  const GUEST_USER: User = {
-    user_id: 'guest',
-    username: 'pengunjung',
-    nama: 'Jemaat / Pengunjung',
-    role: 'JEMAAT',
-    email: 'jemaat@gkfc-cms.org',
-    status: 'Aktif'
-  };
 
   const effectiveUser = currentUser || GUEST_USER;
   const isEffectiveAdmin = effectiveUser.role === 'ADMIN' || effectiveUser.role === 'SUPER_ADMIN';
@@ -126,9 +126,11 @@ export default function App() {
     // Listen for setting changes across components & tabs
     const handleSettingsSync = () => {
       const currentTenantId = StorageManager.getActiveTenantId();
-      setActiveTenantId(currentTenantId);
-      setSettings(StorageManager.getSettings());
-      setTenantStatus(StorageManager.checkTenantStatus());
+      setActiveTenantId((prev) => (prev !== currentTenantId ? currentTenantId : prev));
+      const freshSettings = StorageManager.getSettings();
+      setSettings((prev) => (JSON.stringify(prev) !== JSON.stringify(freshSettings) ? freshSettings : prev));
+      const freshTenant = StorageManager.checkTenantStatus();
+      setTenantStatus((prev) => (prev.isLocked === freshTenant.isLocked && prev.tenant?.tenant_id === freshTenant.tenant?.tenant_id ? prev : freshTenant));
       const savedUser = StorageManager.getCurrentUser();
       if (savedUser) {
         // SECURITY GUARD: Only refresh current user if it is the EXACT same username.
@@ -140,7 +142,7 @@ export default function App() {
             prev.username &&
             savedUser.username.toLowerCase() === prev.username.toLowerCase()
           ) {
-            return savedUser;
+            return JSON.stringify(prev) !== JSON.stringify(savedUser) ? savedUser : prev;
           }
           return prev;
         });
@@ -221,7 +223,7 @@ export default function App() {
       }
 
       if (!isFromMe && latest.id !== seenId) {
-        setIncomingChatNotif(latest);
+        setIncomingChatNotif((prev) => (prev?.id === latest.id ? prev : latest));
         if (prevChatCountRef.current !== -1 && allMsgs.length > prevChatCountRef.current) {
           try {
             playNotificationChime();
@@ -246,7 +248,7 @@ export default function App() {
       window.removeEventListener('storage', checkIncomingChat);
       clearInterval(interval);
     };
-  }, [activeTab, effectiveUser, lastDismissedChatId]);
+  }, [activeTab, effectiveUser.user_id, effectiveUser.nama, effectiveUser.username, lastDismissedChatId]);
 
   const handleSelectTab = (tab: NavTab) => {
     setActiveTab(tab);

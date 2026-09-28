@@ -51,6 +51,15 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
 
   const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
 
+  const loadData = React.useCallback(() => {
+    const w = StorageManager.getWilayah();
+    setWilayahList((prev) => (prev.length !== w.length || JSON.stringify(prev) !== JSON.stringify(w) ? w : prev));
+    const p = StorageManager.getPelayanan();
+    setPelayananList((prev) => (prev.length !== p.length || JSON.stringify(prev) !== JSON.stringify(p) ? p : prev));
+    const k = StorageManager.getKomisi();
+    setKomisiList((prev) => (prev.length !== k.length || JSON.stringify(prev) !== JSON.stringify(k) ? k : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -60,7 +69,7 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const intervalId = setInterval(loadData, 1000);
+    const intervalId = setInterval(loadData, 2500);
 
     return () => {
       unsubscribe();
@@ -69,13 +78,7 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    setWilayahList(StorageManager.getWilayah());
-    setPelayananList(StorageManager.getPelayanan());
-    setKomisiList(StorageManager.getKomisi());
-  };
+  }, [loadData]);
 
   // --- WILAYAH HANDLERS ---
   const handleOpenAddWilayah = () => {

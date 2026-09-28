@@ -137,6 +137,13 @@ export const GaleriView: React.FC<GaleriViewProps> = ({ currentUser, initialTab 
     is_active: true
   });
 
+  const loadData = React.useCallback(() => {
+    const g = StorageManager.getGallery();
+    setGalleryList((prev) => (prev.length !== g.length || JSON.stringify(prev) !== JSON.stringify(g) ? g : prev));
+    const f = StorageManager.getFeaturedVideos();
+    setFeaturedVideos((prev) => (prev.length !== f.length || JSON.stringify(prev) !== JSON.stringify(f) ? f : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -145,7 +152,7 @@ export const GaleriView: React.FC<GaleriViewProps> = ({ currentUser, initialTab 
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const intervalId = setInterval(loadData, 1000);
+    const intervalId = setInterval(loadData, 2500);
 
     return () => {
       window.removeEventListener('cms_data_changed', handleSync);
@@ -153,14 +160,7 @@ export const GaleriView: React.FC<GaleriViewProps> = ({ currentUser, initialTab 
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    const g = StorageManager.getGallery();
-    setGalleryList((prev) => (JSON.stringify(prev) !== JSON.stringify(g) ? g : prev));
-    const f = StorageManager.getFeaturedVideos();
-    setFeaturedVideos((prev) => (JSON.stringify(prev) !== JSON.stringify(f) ? f : prev));
-  };
+  }, [loadData]);
 
   const handleSaveMedia = (e: React.FormEvent) => {
     e.preventDefault();

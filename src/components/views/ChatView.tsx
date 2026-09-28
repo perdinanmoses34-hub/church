@@ -131,10 +131,13 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     const handleDataChange = () => {
       const latest = StorageManager.getChatMessages();
       setMessages((prev) => {
-        if (latest.length > prev.length && soundEnabled) {
-          playNotificationChime();
+        if (latest.length !== prev.length || JSON.stringify(prev) !== JSON.stringify(latest)) {
+          if (latest.length > prev.length && soundEnabled) {
+            playNotificationChime();
+          }
+          return latest;
         }
-        return latest;
+        return prev;
       });
     };
 

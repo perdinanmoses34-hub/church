@@ -69,6 +69,17 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
     file_surat_nikah: ''
   });
 
+  const loadData = React.useCallback(() => {
+    const b = StorageManager.getBaptisan();
+    setBaptisanList((prev) => (prev.length !== b.length || JSON.stringify(prev) !== JSON.stringify(b) ? b : prev));
+    const s = StorageManager.getSidi();
+    setSidiList((prev) => (prev.length !== s.length || JSON.stringify(prev) !== JSON.stringify(s) ? s : prev));
+    const p = StorageManager.getPernikahan();
+    setPernikahanList((prev) => (prev.length !== p.length || JSON.stringify(prev) !== JSON.stringify(p) ? p : prev));
+    const j = StorageManager.getJemaat();
+    setJemaatList((prev) => (prev.length !== j.length || JSON.stringify(prev) !== JSON.stringify(j) ? j : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -78,7 +89,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const intervalId = setInterval(loadData, 500);
+    const intervalId = setInterval(loadData, 2500);
 
     return () => {
       unsubscribe();
@@ -87,14 +98,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    setBaptisanList(StorageManager.getBaptisan());
-    setSidiList(StorageManager.getSidi());
-    setPernikahanList(StorageManager.getPernikahan());
-    setJemaatList(StorageManager.getJemaat());
-  };
+  }, [loadData]);
 
   const handleSaveBaptis = (e: React.FormEvent) => {
     e.preventDefault();

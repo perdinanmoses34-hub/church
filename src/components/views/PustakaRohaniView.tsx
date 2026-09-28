@@ -91,12 +91,14 @@ export const PustakaRohaniView: React.FC<PustakaRohaniViewProps> = ({
   });
 
   // Load songs and favorites from storage
-  const loadData = () => {
+  const loadData = React.useCallback(() => {
     const loadedSongs = StorageManager.getHymnSongs();
-    setSongs(loadedSongs);
-    setFavoriteSongIds(StorageManager.getFavoriteSongIds());
-    setFavoriteVerses(StorageManager.getFavoriteVerses());
-  };
+    setSongs((prev) => (prev.length !== loadedSongs.length || JSON.stringify(prev) !== JSON.stringify(loadedSongs) ? loadedSongs : prev));
+    const favSongIds = StorageManager.getFavoriteSongIds();
+    setFavoriteSongIds((prev) => (prev.length !== favSongIds.length || JSON.stringify(prev) !== JSON.stringify(favSongIds) ? favSongIds : prev));
+    const favV = StorageManager.getFavoriteVerses();
+    setFavoriteVerses((prev) => (prev.length !== favV.length || JSON.stringify(prev) !== JSON.stringify(favV) ? favV : prev));
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -107,7 +109,7 @@ export const PustakaRohaniView: React.FC<PustakaRohaniViewProps> = ({
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('cms_data_changed', handleSync);
     };
-  }, []);
+  }, [loadData]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -197,7 +199,7 @@ export const PustakaRohaniView: React.FC<PustakaRohaniViewProps> = ({
     };
 
     fetchChapterVerses();
-  }, [selectedBook, selectedChapter]);
+  }, [selectedBook.id, selectedBook.name, selectedBook.category, selectedChapter]);
 
   // Transpose Chord Helper
   const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];

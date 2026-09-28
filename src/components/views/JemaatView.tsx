@@ -70,6 +70,17 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
     status: 'Aktif'
   });
 
+  const loadData = React.useCallback(() => {
+    const j = StorageManager.getJemaat();
+    setJemaatList((prev) => (prev.length !== j.length || JSON.stringify(prev) !== JSON.stringify(j) ? j : prev));
+    const k = StorageManager.getKeluarga();
+    setKeluargaList((prev) => (prev.length !== k.length || JSON.stringify(prev) !== JSON.stringify(k) ? k : prev));
+    const w = StorageManager.getWilayah();
+    setWilayahList((prev) => (prev.length !== w.length || JSON.stringify(prev) !== JSON.stringify(w) ? w : prev));
+    const km = StorageManager.getKomisi();
+    setKomisiList((prev) => (prev.length !== km.length || JSON.stringify(prev) !== JSON.stringify(km) ? km : prev));
+  }, []);
+
   useEffect(() => {
     loadData();
 
@@ -79,7 +90,7 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
 
-    const intervalId = setInterval(loadData, 500);
+    const intervalId = setInterval(loadData, 2500);
 
     return () => {
       unsubscribe();
@@ -88,14 +99,7 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
       window.removeEventListener('focus', handleSync);
       clearInterval(intervalId);
     };
-  }, []);
-
-  const loadData = () => {
-    setJemaatList(StorageManager.getJemaat());
-    setKeluargaList(StorageManager.getKeluarga());
-    setWilayahList(StorageManager.getWilayah());
-    setKomisiList(StorageManager.getKomisi());
-  };
+  }, [loadData]);
 
   const filteredJemaat = jemaatList.filter((j) => {
     const matchesQuery =

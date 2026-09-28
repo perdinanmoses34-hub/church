@@ -30,7 +30,7 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
 
   useEffect(() => {
     if (currentUser !== undefined) {
-      setLoggedInUser(currentUser);
+      setLoggedInUser((prev) => (JSON.stringify(prev) !== JSON.stringify(currentUser) ? currentUser : prev));
     }
   }, [currentUser]);
 
