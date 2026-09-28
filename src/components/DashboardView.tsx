@@ -113,7 +113,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { Line, Doughnut } from 'react-chartjs-2';
+import { Line, Doughnut } from './ChartWrapper';
 
 ChartJS.register(
   CategoryScale,
@@ -2215,13 +2215,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* 3. Latest Upcoming Event */}
             {settings.show_event_widget !== false && (
-              <div className={`p-5 rounded-3xl ${
-                isLightSystem
-                  ? 'bg-white border-2 border-teal-200/90 hover:border-teal-400 shadow-xl shadow-teal-950/5 hover:shadow-2xl text-slate-800'
-                  : 'bg-slate-900/90 border border-amber-500/30 text-white shadow-xl'
-              } space-y-3 flex flex-col justify-between transition-all duration-300`}>
+              <div
+                className={`p-5 rounded-3xl ${
+                  isLightSystem
+                    ? 'bg-white border-0 text-slate-800'
+                    : 'bg-slate-900/90 border border-amber-500/30 text-white shadow-xl'
+                } space-y-3 flex flex-col justify-between transition-all duration-300`}
+                style={isLightSystem ? { border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)' } : undefined}
+              >
                 <div>
-                  <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-teal-100' : 'border-white/10'}`}>
+                  <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-slate-100' : 'border-white/10'}`}>
                     <span className={`px-2.5 py-1 rounded-xl ${isLightSystem ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'} font-bold text-[10px] border flex items-center gap-1`}>
                       <Calendar className="w-3.5 h-3.5 text-amber-600" />
                       Agenda / Event Terdekat
@@ -2232,7 +2235,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {latestEvent ? (
                     <div className="mt-3 space-y-2">
                       <h3 className={`font-black text-base ${isLightSystem ? 'text-slate-900' : 'text-white'} leading-snug`}>{latestEvent.nama}</h3>
-                      <div className={`space-y-1.5 text-xs ${isLightSystem ? 'text-slate-700 bg-teal-50/40 border border-teal-200 shadow-2xs' : 'text-slate-300 bg-white/5 border-white/5'} p-3 rounded-2xl`}>
+                      <div className={`space-y-1.5 text-xs ${isLightSystem ? 'text-slate-700 bg-slate-50 border border-slate-200/80 shadow-2xs' : 'text-slate-300 bg-white/5 border-white/5'} p-3 rounded-2xl`}>
                         <div className="flex items-center gap-2">
                           <Clock className={`w-3.5 h-3.5 ${isLightSystem ? 'text-amber-600' : 'text-amber-400'}`} />
                           <span className="font-medium">Pukul {latestEvent.jam} WIB</span>
@@ -2259,7 +2262,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {!isJemaat && (
                         <button
                           onClick={() => setIsAdminResModalOpen(true)}
-                          className={`w-full mt-1.5 py-2 px-3 rounded-xl ${isLightSystem ? 'bg-teal-50 hover:bg-teal-100 text-teal-800 border-teal-200' : 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 hover:text-amber-200 border-amber-500/30'} border text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer`}
+                          className={`w-full mt-1.5 py-2 px-3 rounded-xl ${isLightSystem ? 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200' : 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 hover:text-amber-200 border-amber-500/30'} border text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer`}
                         >
                           <Ticket className={`w-3.5 h-3.5 ${isLightSystem ? 'text-teal-600' : 'text-amber-400'}`} />
                           <span>Daftar Reservasi Jemaat ({reservationsList.length} Pendaftar)</span>
@@ -2271,7 +2274,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   )}
                 </div>
 
-                <div className={`pt-3 border-t ${isLightSystem ? 'border-teal-100' : 'border-white/10'} flex items-center justify-between text-xs`}>
+                <div className={`pt-3 border-t ${isLightSystem ? 'border-slate-100' : 'border-white/10'} flex items-center justify-between text-xs`}>
                   <span className={`text-[11px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'}`}>Jadwal Minggu Ini</span>
                   <button
                     onClick={() => onNavigate('agenda')}
@@ -2287,12 +2290,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Direct Prayer Request Form for Jemaat */}
           {settings.show_prayer_widget !== false && (
-            <div className={`p-5 sm:p-6 rounded-3xl ${
-              isLightSystem
-                ? 'bg-white border-2 border-teal-200/90 hover:border-teal-400 shadow-xl shadow-teal-950/5 hover:shadow-2xl text-slate-800'
-                : 'bg-slate-900/90 border border-rose-500/30 text-white shadow-xl'
-            } space-y-3 sm:space-y-4 transition-all duration-300`}>
-              <div className={`flex items-center gap-3 pb-3 border-b ${isLightSystem ? 'border-teal-100' : 'border-white/10'}`}>
+            <div
+              className={`p-5 sm:p-6 rounded-3xl ${
+                isLightSystem
+                  ? 'bg-white border-0 text-slate-800'
+                  : 'bg-slate-900/90 border border-rose-500/30 text-white shadow-xl'
+              } space-y-3 sm:space-y-4 transition-all duration-300`}
+              style={isLightSystem ? { border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)' } : undefined}
+            >
+              <div className={`flex items-center gap-3 pb-3 border-b ${isLightSystem ? 'border-slate-100' : 'border-white/10'}`}>
                 <div className={`p-2.5 rounded-2xl ${isLightSystem ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-rose-500/20 text-rose-300'} shadow-2xs shrink-0`}>
                   <HeartHandshake className="w-5 h-5" />
                 </div>
@@ -2316,7 +2322,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <select
                       value={prayerTopic}
                       onChange={(e) => setPrayerTopic(e.target.value)}
-                      className={`w-full px-3.5 py-2.5 rounded-xl ${isLightSystem ? 'bg-slate-50 border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100' : 'bg-slate-950 border-slate-700 text-white'} border text-xs`}
+                      className={`w-full px-3.5 py-2.5 rounded-xl ${isLightSystem ? 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100' : 'bg-slate-950 border-slate-700 text-white'} border text-xs`}
                     >
                       <option value="Kesehatan">Kesehatan & Pemulihan</option>
                       <option value="Pekerjaan">Pekerjaan & Karir</option>
@@ -2336,7 +2342,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         placeholder="Tuliskan pokok permohonan doa Anda..."
                         value={prayerText}
                         onChange={(e) => setPrayerText(e.target.value)}
-                        className={`flex-1 px-3.5 py-2.5 rounded-xl ${isLightSystem ? 'bg-slate-50 border-teal-200 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100' : 'bg-slate-950 border-slate-700 text-white'} border text-xs`}
+                        className={`flex-1 px-3.5 py-2.5 rounded-xl ${isLightSystem ? 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100' : 'bg-slate-950 border-slate-700 text-white'} border text-xs`}
                       />
                       <button
                         type="submit"
@@ -2352,7 +2358,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Status Permohonan Doa untuk Jemaat atau Tindakan Doa Cepat untuk Admin */}
               {prayerRequests.length > 0 && (
-                <div className={`pt-3 border-t ${isLightSystem ? 'border-teal-100' : 'border-white/10'} space-y-2.5`}>
+                <div className={`pt-3 border-t ${isLightSystem ? 'border-slate-100' : 'border-white/10'} space-y-2.5`}>
                   <div className="flex items-center justify-between">
                     <span className={`text-xs font-bold ${isLightSystem ? 'text-slate-700' : 'text-slate-300'} uppercase tracking-wider`}>
                       {isAdmin ? 'Permohonan Doa Jemaat Masuk' : 'Status Permohonan Doa Anda'}
@@ -2376,7 +2382,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         return (
                           <div
                             key={pr.prayer_id}
-                            className={`p-3 rounded-2xl ${isLightSystem ? 'bg-teal-50/40 border-teal-200' : 'bg-slate-950/70 border-slate-800'} border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs`}
+                            className={`p-3 rounded-2xl ${isLightSystem ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/70 border-slate-800'} border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs`}
                           >
                             <div className="space-y-1 flex-1 min-w-0">
                               <div className="flex items-center gap-2">
@@ -2431,12 +2437,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Transfer Persembahan & Perpuluhan Digital Card for Jemaat & All Users */}
           {settings.show_digital_offering_widget !== false && (
-            <div className={`p-5 sm:p-6 md:p-7 rounded-3xl ${
-              isLightSystem
-                ? 'bg-white border-2 border-teal-200/90 hover:border-teal-400 shadow-xl shadow-teal-950/5 text-slate-800'
-                : 'bg-slate-900/90 border border-emerald-500/30 text-white shadow-xl'
-            } space-y-4 sm:space-y-5 md:space-y-6 relative overflow-hidden transition-all duration-300`}>
-            <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b ${isLightSystem ? 'border-teal-100' : 'border-white/10'} pb-3.5 sm:pb-4`}>
+            <div
+              className={`p-5 sm:p-6 md:p-7 rounded-3xl ${
+                isLightSystem
+                  ? 'bg-white border-0 text-slate-800'
+                  : 'bg-slate-900/90 border border-emerald-500/30 text-white shadow-xl'
+              } space-y-4 sm:space-y-5 md:space-y-6 relative overflow-hidden transition-all duration-300`}
+              style={isLightSystem ? { border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)' } : undefined}
+            >
+            <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b ${isLightSystem ? 'border-slate-100' : 'border-white/10'} pb-3.5 sm:pb-4`}>
               <div className="flex items-center gap-3">
                 <div className={`p-2.5 sm:p-3 rounded-2xl ${isLightSystem ? 'bg-teal-50 text-teal-600 border border-teal-200 shadow-2xs' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'}`}>
                   <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -2466,17 +2475,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Bank Account Info Card */}
               <div className={`p-5 rounded-2xl ${
                 isLightSystem
-                  ? 'bg-white border-2 border-teal-100 hover:border-teal-300 text-slate-800 shadow-md'
+                  ? 'bg-white border border-slate-200/90 text-slate-800 shadow-sm'
                   : 'bg-slate-950/80 border border-slate-800 text-white'
               } flex flex-col justify-between space-y-4`}>
                 <div className="space-y-3.5">
-                  <div className="flex items-center justify-between pb-2 border-b border-teal-100">
+                  <div className={`flex items-center justify-between pb-2 border-b ${isLightSystem ? 'border-slate-100' : 'border-slate-800'}`}>
                     <span className={`text-xs font-black ${isLightSystem ? 'text-teal-800' : 'text-emerald-400'} uppercase tracking-wider`}>
                       Rekening Resmi Gereja
                     </span>
                     <span className={`px-2.5 py-0.5 rounded-full ${
                       isLightSystem
-                        ? 'bg-teal-50 text-teal-800 border border-teal-200'
+                        ? 'bg-slate-50 text-slate-800 border border-slate-200'
                         : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                     } border text-[10px] font-bold`}>
                       {settings.rekening_bank_nama || 'Bank BCA'}
@@ -2486,7 +2495,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div>
                     <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} font-semibold block`}>Nomor Rekening:</span>
                     <div className={`flex items-center justify-between mt-1.5 ${
-                      isLightSystem ? 'bg-slate-50 border-2 border-teal-200/80 shadow-2xs' : 'bg-slate-900 border border-slate-800'
+                      isLightSystem ? 'bg-slate-50 border border-slate-200 shadow-2xs' : 'bg-slate-900 border border-slate-800'
                     } p-3 rounded-xl border`}>
                       <span className={`font-mono text-base sm:text-lg font-black ${isLightSystem ? 'text-slate-900' : 'text-white'} tracking-wider`}>
                         {settings.rekening_bank_nomor || '527-089-1122'}
@@ -2495,7 +2504,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         onClick={handleCopyBank}
                         className={`px-3 py-1.5 rounded-lg ${
                           isLightSystem
-                            ? 'bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 shadow-xs'
+                            ? 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 shadow-xs'
                             : 'bg-emerald-600/30 hover:bg-emerald-600/60 text-emerald-300 border border-emerald-500/40'
                         } border text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95`}
                       >
@@ -2513,7 +2522,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                 </div>
 
-                <div className={`p-3.5 rounded-xl ${isLightSystem ? 'bg-teal-50/70 border border-teal-200/70 text-teal-950' : 'bg-white/5 border border-white/10 text-slate-300'} text-xs leading-relaxed`}>
+                <div className={`p-3.5 rounded-xl ${isLightSystem ? 'bg-slate-50 border border-slate-200 text-slate-700' : 'bg-white/5 border border-white/10 text-slate-300'} text-xs leading-relaxed`}>
                   💡 <span className="font-bold">Petunjuk:</span> Cantumkan keterangan nama atau jenis persembahan pada berita transfer bank, lalu klik tombol konfirmasi di atas.
                 </div>
               </div>
@@ -2521,10 +2530,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* QRIS Code Large Display Card */}
               <div className={`p-5 md:p-6 rounded-2xl sm:rounded-3xl ${
                 isLightSystem
-                  ? 'bg-white border-2 border-teal-100 hover:border-teal-300 text-slate-800 shadow-md'
+                  ? 'bg-white border border-slate-200/90 text-slate-800 shadow-sm'
                   : 'bg-slate-950/90 border-2 border-emerald-500/40 shadow-xl'
               } flex flex-col items-center justify-center text-center gap-3 sm:gap-4`}>
-                <div className={`flex items-center gap-2 ${isLightSystem ? 'text-teal-900' : 'text-emerald-400'} font-black text-sm tracking-wide uppercase`}>
+                <div className={`flex items-center gap-2 ${isLightSystem ? 'text-slate-900' : 'text-emerald-400'} font-black text-sm tracking-wide uppercase`}>
                   <QrCode className={`w-5 h-5 ${isLightSystem ? 'text-teal-600' : 'text-emerald-400'} animate-pulse`} />
                   <span>Barcode QRIS Persembahan Digital</span>
                 </div>
@@ -2536,7 +2545,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {settings.qris_image_url ? (
                     <div className={`p-3.5 rounded-2xl ${
                       isLightSystem
-                        ? 'bg-white border-4 border-teal-500/80 shadow-lg ring-4 ring-teal-100/80'
+                        ? 'bg-white border border-slate-200 shadow-md'
                         : 'bg-white border-4 border-emerald-500/50 shadow-2xl'
                     }`}>
                       <img
@@ -2548,7 +2557,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   ) : (
                     <div className={`w-48 h-48 sm:w-60 sm:h-60 md:w-68 md:h-68 rounded-2xl bg-white flex flex-col items-center justify-center text-center p-4 text-slate-800 ${
                       isLightSystem
-                        ? 'border-4 border-teal-500/80 shadow-lg ring-4 ring-teal-100/80'
+                        ? 'border border-slate-200 shadow-md'
                         : 'border-4 border-emerald-500/50 shadow-2xl'
                     }`}>
                       <QrCode className={`w-14 h-14 sm:w-16 sm:h-16 ${isLightSystem ? 'text-teal-600' : 'text-emerald-600'} mb-2`} />
@@ -2557,7 +2566,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
                   )}
 
-                  <div className={`absolute inset-0 ${isLightSystem ? 'bg-teal-900/60' : 'bg-slate-950/70'} opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center text-white font-extrabold text-xs sm:text-sm gap-2 backdrop-blur-xs`}>
+                  <div className={`absolute inset-0 ${isLightSystem ? 'bg-slate-900/60' : 'bg-slate-950/70'} opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center text-white font-extrabold text-xs sm:text-sm gap-2 backdrop-blur-xs`}>
                     <Maximize2 className="w-5 h-5 text-amber-300" />
                     <span>Klik Untuk Perbesar Layar Penuh</span>
                   </div>
@@ -2607,7 +2616,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   return (
                     <div className={`p-4 rounded-xl ${
                       isLightSystem
-                        ? 'bg-teal-50/50 border border-teal-200/70 text-slate-600'
+                        ? 'bg-slate-50 border border-slate-200 text-slate-600'
                         : 'bg-slate-950/50 border border-slate-800 text-slate-400'
                     } text-center text-xs`}>
                       Belum ada riwayat persembahan transfer. Klik "Kirim / Konfirmasi Transfer" di atas untuk mengirim persembahan.
@@ -2729,10 +2738,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
               <div className={`w-full max-w-lg rounded-3xl ${
                 isLightSystem
-                  ? 'bg-white border-2 border-teal-200/90 text-slate-900 shadow-2xl'
+                  ? 'bg-white border border-slate-200 text-slate-900 shadow-2xl'
                   : 'bg-slate-900 border border-slate-800 text-white shadow-2xl'
               } p-5 sm:p-6 space-y-4 my-auto max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden`}>
-                <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-teal-100' : 'border-slate-800'} shrink-0`}>
+                <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-slate-100' : 'border-slate-800'} shrink-0`}>
                   <div className="flex items-center gap-2">
                     <div className={`p-2 rounded-xl ${isLightSystem ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-emerald-500/20 text-emerald-400'}`}>
                       <Send className="w-5 h-5" />
