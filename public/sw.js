@@ -2,15 +2,15 @@ const CACHE_NAME = 'cms-pro-pwa-v8';
 
 // Assets to precache for instant offline capability
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/pwa-192x192.png',
-  '/pwa-512x512.png',
-  '/pwa-maskable-512x512.png',
-  '/apple-touch-icon.png',
-  '/icon.svg',
-  '/favicon.ico'
+  './',
+  './index.html',
+  './manifest.json',
+  './pwa-192x192.png',
+  './pwa-512x512.png',
+  './pwa-maskable-512x512.png',
+  './apple-touch-icon.png',
+  './icon.svg',
+  './favicon.ico'
 ];
 
 // Install event - precache core shell & immediately activate
@@ -63,7 +63,7 @@ self.addEventListener('fetch', (event) => {
         .catch(async () => {
           const cached = await caches.match(event.request);
           if (cached) return cached;
-          return caches.match('/') || caches.match('/index.html');
+          return caches.match('./') || caches.match('./index.html') || caches.match('/') || caches.match('/index.html');
         })
     );
     return;
@@ -94,7 +94,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           // If offline and request is an image, can return fallback
-          return caches.match('/pwa-192x192.png');
+          return caches.match('./pwa-192x192.png') || caches.match('/pwa-192x192.png');
         });
     })
   );

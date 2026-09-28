@@ -57,15 +57,13 @@ export async function registerMessagingServiceWorker(): Promise<ServiceWorkerReg
   }
 
   try {
-    const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-      scope: '/'
-    });
+    const reg = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
     console.log('[FirebaseMessaging] Service worker registered successfully:', reg);
     return reg;
   } catch (err) {
-    console.warn('[FirebaseMessaging] SW registration failed, falling back to /sw.js:', err);
+    console.warn('[FirebaseMessaging] SW registration failed, falling back to ./sw.js:', err);
     try {
-      return await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      return await navigator.serviceWorker.register('./sw.js');
     } catch (e) {
       return null;
     }

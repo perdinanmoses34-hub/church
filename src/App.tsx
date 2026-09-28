@@ -77,7 +77,7 @@ export default function App() {
     // Register Service Worker for PWA & Offline Support
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('/sw.js', { scope: '/' })
+        .register('./sw.js')
         .then((reg) => {
           console.log('[PWA] Service Worker registered:', reg.scope);
         })
