@@ -1126,54 +1126,54 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     const cardStyle = settings.card_style || 'GLASS';
 
     let base = isLightSystem
-      ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 hover:border-teal-400 hover:shadow-2xl text-slate-800'
+      ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-lg text-slate-800'
       : 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl text-white';
 
     if (cardBg && cardBg !== 'DEFAULT_GLASS') {
       switch (cardBg) {
         case 'GRADIENT_EMERALD':
           base = isLightSystem
-            ? 'bg-gradient-to-br from-teal-50/90 via-white to-emerald-50/70 border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 text-slate-800'
+            ? 'bg-gradient-to-br from-teal-50/90 via-white to-emerald-50/70 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] text-slate-800'
             : 'bg-gradient-to-br from-emerald-950/90 via-slate-900 to-emerald-950/90 border border-emerald-500/40 shadow-xl text-white';
           break;
         case 'GRADIENT_INDIGO':
           base = isLightSystem
-            ? 'bg-gradient-to-br from-indigo-50/90 via-white to-slate-50 border-2 border-indigo-200/90 shadow-xl shadow-indigo-950/5 text-slate-800'
+            ? 'bg-gradient-to-br from-indigo-50/90 via-white to-slate-50 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] text-slate-800'
             : 'bg-gradient-to-br from-indigo-950/90 via-slate-900 to-indigo-950/90 border border-indigo-500/40 shadow-xl text-white';
           break;
         case 'GRADIENT_PURPLE':
           base = isLightSystem
-            ? 'bg-gradient-to-br from-purple-50/90 via-white to-slate-50 border-2 border-purple-200/90 shadow-xl text-slate-800'
+            ? 'bg-gradient-to-br from-purple-50/90 via-white to-slate-50 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] text-slate-800'
             : 'bg-gradient-to-br from-purple-950/90 via-slate-900 to-purple-950/90 border border-purple-500/40 shadow-xl text-white';
           break;
         case 'GRADIENT_GOLD':
           base = isLightSystem
-            ? 'bg-gradient-to-br from-amber-50/90 via-white to-amber-50/40 border-2 border-amber-200/90 shadow-xl text-slate-800'
+            ? 'bg-gradient-to-br from-amber-50/90 via-white to-amber-50/40 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] text-slate-800'
             : 'bg-gradient-to-br from-amber-950/90 via-slate-900 to-amber-950/90 border border-amber-500/40 shadow-xl text-white';
           break;
         case 'OCEAN_BLUE':
           base = isLightSystem
-            ? 'bg-gradient-to-br from-cyan-50/90 via-white to-teal-50/60 border-2 border-cyan-200/90 shadow-xl text-slate-800'
+            ? 'bg-gradient-to-br from-cyan-50/90 via-white to-teal-50/60 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] text-slate-800'
             : 'bg-gradient-to-br from-blue-950/90 via-slate-900 to-cyan-950/90 border border-cyan-500/40 shadow-xl text-white';
           break;
         case 'OBSIDIAN_NIGHT':
           base = isLightSystem
-            ? 'bg-slate-900 border-2 border-slate-800 shadow-2xl text-white'
+            ? 'bg-slate-900 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.3),0_8px_24px_rgba(0,0,0,0.4)] text-white'
             : 'bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 border border-slate-700/80 shadow-2xl text-white';
           break;
         case 'SOLID_SLATE':
           base = isLightSystem
-            ? 'bg-slate-100 border-2 border-slate-300 shadow-md text-slate-900'
+            ? 'bg-slate-100 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.05)] text-slate-900'
             : 'bg-slate-900 border border-slate-800 shadow-xl text-white';
           break;
         case 'NEON_CYAN':
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-400 shadow-xl shadow-teal-500/20 text-slate-800'
+            ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.14),0_8px_20px_rgba(0,0,0,0.09)] text-slate-800'
             : 'bg-cyan-950/50 border border-cyan-400/50 shadow-lg text-white';
           break;
         default:
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-xl shadow-teal-950/5 hover:border-teal-400 text-slate-800'
+            ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] text-slate-800'
             : 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl text-white';
           break;
       }
@@ -1181,33 +1181,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       switch (cardStyle) {
         case 'SOLID':
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-200/90 shadow-md text-slate-800'
+            ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] text-slate-800'
             : 'bg-slate-900 border border-slate-800 shadow-xl text-white';
           break;
         case 'NEON':
           base = isLightSystem
-            ? 'bg-white border-2 border-teal-400 shadow-xl shadow-teal-500/20 text-slate-800'
-            : 'bg-slate-900/90 border border-teal-500/50 shadow-lg text-white';
+            ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.14),0_8px_20px_rgba(0,0,0,0.09)] text-slate-800'
+            : 'bg-slate-900/90 border border-slate-700 shadow-lg text-white';
           break;
         case 'FLAT':
           base = isLightSystem
-            ? 'bg-teal-50/30 border border-teal-200/90 shadow-none text-slate-800'
+            ? 'bg-slate-50 !border-0 shadow-none text-slate-800'
             : 'bg-slate-900/60 border border-slate-700/60 shadow-none text-white';
           break;
         case 'GLASS':
         default:
           base = isLightSystem
-            ? 'bg-white/95 backdrop-blur-md border border-teal-100 shadow-sm text-slate-800'
+            ? 'bg-white/95 backdrop-blur-md !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.05)] text-slate-800'
             : 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl text-white';
           break;
       }
     }
 
-    const borderAccent = settings.card_border_accent || 'ACCENT_FULL';
+    const borderAccent = settings.card_border_accent || 'NONE';
     let borderAccentClass = '';
-    if (borderAccent === 'ACCENT_LEFT') borderAccentClass = 'border-l-4 border-l-teal-600';
-    else if (borderAccent === 'ACCENT_TOP') borderAccentClass = 'border-t-4 border-t-teal-600';
-    else if (borderAccent === 'ACCENT_GLOW') borderAccentClass = 'ring-2 ring-teal-400/40 shadow-lg shadow-teal-500/15';
+    if (borderAccent === 'ACCENT_GLOW') borderAccentClass = 'shadow-lg shadow-black/15';
 
     const density = settings.card_size || 'NORMAL';
     let padding = 'p-3 sm:p-5 md:p-6';
@@ -1277,24 +1275,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   if (settings.jemaat_card_width === 'COMPACT' || settings.jemaat_card_width === 'MOBILE_COMPACT') widthClass = 'max-w-4xl mx-auto px-1 sm:px-3';
   if (settings.jemaat_card_width === 'CONTAINED') widthClass = 'max-w-7xl mx-auto px-1 sm:px-3';
 
-  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
+  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0';
   switch (settings.jemaat_banner_bg) {
     case 'GRADIENT_GOLD':
-      bannerBgClass = 'bg-gradient-to-r from-amber-950 via-yellow-900 to-amber-950 border-amber-500/50 shadow-xl shadow-amber-900/20';
+      bannerBgClass = 'bg-gradient-to-r from-amber-950 via-yellow-900 to-amber-950 border-0';
       break;
     case 'GRADIENT_PURPLE':
-      bannerBgClass = 'bg-gradient-to-r from-purple-950 via-fuchsia-900 to-purple-950 border-purple-500/50 shadow-xl shadow-purple-900/20';
+      bannerBgClass = 'bg-gradient-to-r from-purple-950 via-fuchsia-900 to-purple-950 border-0';
       break;
     case 'OBSIDIAN_NIGHT':
-      bannerBgClass = 'bg-gradient-to-r from-slate-950 via-neutral-900 to-slate-950 border-slate-700 shadow-xl shadow-black/40';
+      bannerBgClass = 'bg-gradient-to-r from-slate-950 via-neutral-900 to-slate-950 border-0';
       break;
     case 'OCEAN_BLUE':
-      bannerBgClass = 'bg-gradient-to-r from-slate-950 via-blue-900 to-cyan-950 border-cyan-500/50 shadow-xl shadow-cyan-900/20';
+      bannerBgClass = 'bg-gradient-to-r from-slate-950 via-blue-900 to-cyan-950 border-0';
       break;
     case 'GRADIENT_EMERALD':
     case 'GRADIENT_INDIGO':
     default:
-      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
+      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0';
       break;
   }
 
@@ -1302,7 +1300,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div className={`space-y-2 sm:space-y-4 md:space-y-6 pb-2 sm:pb-4 transition-all duration-300 ${widthClass}`}>
       {/* Welcome Card Banner with Dynamic Custom Header (Teal Theme) */}
       {settings.show_header_banner !== false ? (
-        <div className={`relative rounded-2xl sm:rounded-3xl ${bannerBgClass} ${cardStyleClass} !border-0 overflow-hidden text-white transition-all duration-300`}>
+        <div
+          className={`relative rounded-2xl sm:rounded-3xl ${bannerBgClass} p-5 sm:p-7 md:p-8 overflow-hidden text-white transition-all duration-300 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]`}
+          style={{ border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.22), 0 8px 24px rgba(0,0,0,0.32)' }}
+        >
           <div className="absolute top-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/15 rounded-full blur-2xl pointer-events-none" />
 
@@ -1315,7 +1316,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                   }}
-                  className="w-16 h-16 rounded-2xl object-cover border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.4)] bg-slate-900"
+                  className="w-16 h-16 rounded-2xl object-cover !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.4)] bg-slate-900"
                 />
                 <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-teal-400 ring-2 ring-teal-950" />
               </div>
@@ -1323,12 +1324,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   {isGuestMode ? (
-                    <span className="px-2.5 py-0.5 rounded-full bg-teal-400/20 text-teal-200 border border-teal-300/40 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                    <span className="px-2.5 py-0.5 rounded-full bg-teal-400/20 text-teal-200 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.2)] text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-teal-300 shrink-0" />
                       Mode Tamu / Pengunjung
                     </span>
                   ) : (
-                    <span className="px-2.5 py-0.5 rounded-full bg-teal-500/25 text-teal-100 border border-teal-400/40 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                    <span className="px-2.5 py-0.5 rounded-full bg-teal-500/25 text-teal-100 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.2)] text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                       <ShieldCheck className="w-3 h-3 text-teal-300" />
                       Role: {currentUser.role}
                     </span>
@@ -1351,7 +1352,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {isGuestMode && onOpenLogin && (
                 <button
                   onClick={onOpenLogin}
-                  className="col-span-2 sm:col-span-1 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-xs font-black shadow-lg shadow-teal-700/30 border border-teal-300/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95 shrink-0"
+                  className="col-span-2 sm:col-span-1 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-xs font-black shadow-lg shadow-teal-700/30 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.25)] flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95 shrink-0"
                   title="Masuk ke Akun Jemaat / Admin"
                 >
                   <LogIn className="w-3.5 h-3.5 text-teal-200 shrink-0" />
@@ -1363,7 +1364,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {!isJemaat && (
                 <button
                   onClick={() => setIsSuperAdminChatModalOpen(true)}
-                  className="px-3 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-black shadow-lg shadow-teal-700/30 border border-teal-400/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95"
+                  className="px-3 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-black shadow-lg shadow-teal-700/30 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.25)] flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto active:scale-95"
                   title="Hubungi SuperAdmin / Support Billing Aplikasi"
                 >
                   <MessageCircle className="w-3.5 h-3.5 text-teal-200 fill-current shrink-0" />
@@ -1375,7 +1376,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 onClick={handleRefreshData}
                 disabled={isRefreshing}
-                className="px-3 py-2 rounded-xl bg-teal-700/40 hover:bg-teal-700/60 text-teal-100 text-xs font-semibold border border-teal-500/40 flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm cursor-pointer w-full sm:w-auto"
+                className="px-3 py-2 rounded-xl bg-teal-700/40 hover:bg-teal-700/60 text-teal-100 text-xs font-semibold !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25)] flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
                 title="Refresh Data Dashboard"
               >
                 <RotateCw className={`w-3.5 h-3.5 text-teal-300 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -1386,7 +1387,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <>
                   <button
                     onClick={() => setIsCreateNotifModalOpen(true)}
-                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-amber-500/20 border border-amber-300/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-amber-500/20 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.2)] flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                     title="Buat Notifikasi atau Peringatan Resmi untuk Jemaat"
                   >
                     <BellRing className="w-3.5 h-3.5 text-amber-200 shrink-0" />
@@ -1395,7 +1396,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                   <button
                     onClick={() => setIsCustomizerOpen(true)}
-                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-600 hover:to-emerald-600 text-white text-xs font-bold shadow-lg shadow-teal-900/30 border border-teal-400/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-600 hover:to-emerald-600 text-white text-xs font-bold shadow-lg shadow-teal-900/30 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.25)] flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                   >
                     <Palette className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">Custom Tampilan</span>
@@ -1407,14 +1408,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <>
                   <button
                     onClick={() => onNavigate('jemaat')}
-                    className="px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow-lg shadow-teal-600/30 border border-teal-400/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow-lg shadow-teal-600/30 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.25)] flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                   >
                     <PlusCircle className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">Tambah Jemaat</span>
                   </button>
                   <button
                     onClick={() => onNavigate('keuangan')}
-                    className="px-3 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-100 text-xs font-semibold border border-teal-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                    className="px-3 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-100 text-xs font-semibold !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25)] flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
                   >
                     <DollarSign className="w-3.5 h-3.5 text-teal-300 shrink-0" />
                     <span className="truncate">Persembahan</span>
@@ -1424,7 +1425,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <button
                 onClick={() => onNavigate('laporan')}
-                className="px-3 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-100 text-xs font-semibold border border-teal-600/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
+                className="px-3 py-2 rounded-xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-100 text-xs font-semibold !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25)] flex items-center justify-center gap-1.5 transition-all cursor-pointer w-full sm:w-auto"
               >
                 <Download className="w-3.5 h-3.5 text-teal-300 shrink-0" />
                 <span className="truncate">Cetak Laporan</span>
@@ -1434,7 +1435,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Refresh Notification Toast Banner */}
           {refreshToast && (
-            <div className="mt-4 p-3 bg-teal-500/20 border border-teal-400/40 text-teal-100 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 animate-fade-in shadow-lg">
+            <div className="mt-4 p-3 bg-teal-500/20 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25)] text-teal-100 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 animate-fade-in">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-teal-300" />
                 <span>{refreshToast}</span>
@@ -1838,10 +1839,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Baris Pertama: Total Jemaat (Kotak 1) & Total KK (Kotak 2) */}
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 md:gap-4">
               {/* Kartu 1: Total Jemaat */}
-              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm' : 'border-indigo-500/30'} flex flex-col justify-between space-y-1 sm:space-y-2`}>
+              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}>
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Total Jemaat</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'} shadow-xs shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-blue-50 text-blue-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'} shadow-xs shrink-0`}>
                     <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
@@ -1857,12 +1858,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Kartu 2: Total Kepala Keluarga (KK) */}
               <div 
-                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm' : 'border-purple-500/30'} flex flex-col justify-between space-y-1 sm:space-y-2`}
+                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}
                 title="Total Kartu Keluarga unik. Jemaat dengan Nomor KK yang sama dihitung sebagai satu keluarga."
               >
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Total KK</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'} shadow-xs shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-purple-50 text-purple-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'} shadow-xs shrink-0`}>
                     <Home className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
@@ -1880,11 +1881,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 md:gap-4">
               {/* Kartu 3: Kas Persembahan */}
               <div
-                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm' : 'border-emerald-500/30'} flex flex-col justify-between space-y-1 sm:space-y-2`}
+                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}
               >
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Kas Persembahan</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'} shadow-xs shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-emerald-50 text-emerald-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'} shadow-xs shrink-0`}>
                     <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
@@ -1901,11 +1902,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Kartu 4: Jadwal & Event */}
               <div
-                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm' : 'border-amber-500/30'} flex flex-col justify-between space-y-1 sm:space-y-2`}
+                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}
               >
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Jadwal & Event</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shadow-xs shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-amber-50 text-amber-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shadow-xs shrink-0`}>
                     <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
@@ -1923,7 +1924,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Banner Download Aplikasi Mobile Android (.APK) Khusus HP Android (Hanya muncul jika sudah login ke gereja masing-masing) */}
           {!isGuestMode && (churchApkUrl || isAdmin) && settings.show_apk_banner !== false && settings.show_apk_download_button !== false && !isApkBannerDismissed && (
-            <div className="relative p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-950/90 via-slate-900/95 to-teal-950/90 border-2 border-emerald-500/50 shadow-xl backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 text-white animate-fade-in">
+            <div
+              className="relative p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-950/90 via-slate-900/95 to-teal-950/90 border-0 shadow-xl backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 text-white animate-fade-in"
+              style={{ border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.22), 0 8px 24px rgba(0,0,0,0.32)' }}
+            >
               <div className="flex items-start gap-3 min-w-0 flex-1">
                 <div className="p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-inner shrink-0 mt-0.5">
                   <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
@@ -2073,13 +2077,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
             {/* 1. Latest Renungan Utama */}
             {settings.show_renungan_widget !== false && (
-              <div className={`p-5 rounded-3xl ${
-                isLightSystem
-                  ? 'bg-white border-2 border-teal-200/90 hover:border-teal-400 shadow-xl shadow-teal-950/5 hover:shadow-2xl text-slate-800'
-                  : 'bg-slate-900/90 border border-indigo-500/30 text-white shadow-xl'
-              } space-y-3 flex flex-col justify-between transition-all duration-300`}>
+              <div
+                className={`p-5 rounded-3xl ${
+                  isLightSystem
+                    ? 'bg-white border-0 text-slate-800'
+                    : 'bg-slate-900/90 border border-indigo-500/30 text-white shadow-xl'
+                } space-y-3 flex flex-col justify-between transition-all duration-300`}
+                style={isLightSystem ? { border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)' } : undefined}
+              >
                 <div>
-                  <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-teal-100' : 'border-white/10'}`}>
+                  <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-slate-100' : 'border-white/10'}`}>
                     <span className={`px-2.5 py-1 rounded-xl ${isLightSystem ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-teal-500/20 text-teal-300 border border-teal-500/30'} font-bold text-[10px] border flex items-center gap-1.5`}>
                       <BookOpen className={`w-3.5 h-3.5 ${isLightSystem ? 'text-teal-600' : 'text-teal-400'}`} />
                       <span>Renungan Utama Hari Ini</span>
@@ -2122,7 +2129,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   )}
                 </div>
 
-                <div className={`pt-3 border-t ${isLightSystem ? 'border-teal-100' : 'border-white/10'} space-y-2`}>
+                <div className={`pt-3 border-t ${isLightSystem ? 'border-slate-100' : 'border-white/10'} space-y-2`}>
                   <div className={`flex items-center justify-between text-[11px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'}`}>
                     <span>Oleh: <strong className={`${isLightSystem ? 'text-slate-800' : 'text-slate-200'} font-semibold`}>{latestRenungan?.penulis || 'Gembala Sidang'}</strong></span>
                     <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'}`}>{latestRenungan?.tanggal || 'Hari Ini'}</span>
@@ -2153,13 +2160,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* 2. Latest Pengumuman */}
             {settings.show_pengumuman_widget !== false && (
-              <div className={`p-5 rounded-3xl ${
-                isLightSystem
-                  ? 'bg-white border-2 border-teal-200/90 hover:border-teal-400 shadow-xl shadow-teal-950/5 hover:shadow-2xl text-slate-800'
-                  : 'bg-slate-900/90 border border-emerald-500/30 text-white shadow-xl'
-              } space-y-3 flex flex-col justify-between transition-all duration-300`}>
+              <div
+                className={`p-5 rounded-3xl ${
+                  isLightSystem
+                    ? 'bg-white border-0 text-slate-800'
+                    : 'bg-slate-900/90 border border-emerald-500/30 text-white shadow-xl'
+                } space-y-3 flex flex-col justify-between transition-all duration-300`}
+                style={isLightSystem ? { border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)' } : undefined}
+              >
                 <div>
-                  <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-teal-100' : 'border-white/10'}`}>
+                  <div className={`flex items-center justify-between pb-3 border-b ${isLightSystem ? 'border-slate-100' : 'border-white/10'}`}>
                     <span className={`px-2.5 py-1 rounded-xl ${isLightSystem ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'} font-bold text-[10px] border flex items-center gap-1`}>
                       <Megaphone className="w-3.5 h-3.5 text-teal-600" />
                       Pengumuman Resmi Terbaru
@@ -3023,16 +3033,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {settings.show_video_widget !== false && settings.video_enabled !== false && (
             <div className={`rounded-2xl sm:rounded-3xl ${
               isLightSystem
-                ? 'bg-white border-2 border-teal-200/90 shadow-xl text-slate-800'
+                ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_8px_24px_rgba(0,0,0,0.06)] text-slate-800'
                 : 'bg-slate-900/90 border border-slate-800 shadow-xl text-white'
             } p-3.5 sm:p-5 overflow-hidden space-y-3 sm:space-y-4 transition-all duration-300`}>
               <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b ${
-                isLightSystem ? 'border-teal-100' : 'border-white/10'
+                isLightSystem ? 'border-slate-100' : 'border-white/10'
               }`}>
                 <div className="flex items-center gap-2.5">
                   <div className={`p-2 rounded-xl ${
                     isLightSystem
-                      ? 'bg-rose-50 border border-rose-200 text-rose-600'
+                      ? 'bg-rose-50 text-rose-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]'
                       : 'bg-red-500/20 border border-red-500/30 text-red-400'
                   } animate-pulse shrink-0`}>
                     <Tv className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -3041,7 +3051,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded ${
                         isLightSystem
-                          ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                          ? 'bg-rose-100 text-rose-700 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]'
                           : 'bg-red-500/20 text-red-300 border border-red-500/30'
                       } font-bold text-[10px] uppercase tracking-wider`}>
                         🔴 Live Media Stream
@@ -3058,7 +3068,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   onClick={() => onNavigate('galeri')}
                   className={`px-3 py-1.5 rounded-xl ${
                     isLightSystem
-                      ? 'bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 shadow-xs'
+                      ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1)]'
                       : 'bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40'
                   } text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0`}
                 >
@@ -3071,7 +3081,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {settings.video_description && (
                 <p className={`text-xs ${
                   isLightSystem
-                    ? 'text-slate-600 italic bg-teal-50/50 py-1.5 px-3 rounded-xl border border-teal-100'
+                    ? 'text-slate-600 italic bg-slate-50 py-1.5 px-3 rounded-xl !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]'
                     : 'text-slate-300 italic bg-white/5 py-1.5 px-3 rounded-xl border border-white/5'
                 }`}>
                   "{settings.video_description}"
@@ -3081,7 +3091,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Embedded Video Display */}
               <div className={`relative w-full max-w-5xl mx-auto rounded-2xl overflow-hidden ${
                 isLightSystem
-                  ? 'bg-slate-900 border-2 border-teal-400/90 shadow-xl ring-4 ring-teal-100/80'
+                  ? 'bg-slate-900 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_8px_24px_rgba(0,0,0,0.2)]'
                   : 'bg-black/90 border border-white/10 shadow-2xl'
               } aspect-video max-h-[380px] sm:max-h-[460px]`}>
                 {parsedVideo.isValid ? (
@@ -3102,12 +3112,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   )
                 ) : (
                   <div className={`w-full h-full min-h-[180px] flex flex-col items-center justify-center p-6 text-center ${
-                    isLightSystem ? 'bg-teal-50/70 text-slate-700' : 'bg-slate-950 text-slate-400'
+                    isLightSystem ? 'bg-slate-50 text-slate-700' : 'bg-slate-950 text-slate-400'
                   }`}>
-                    <div className="w-12 h-12 rounded-2xl bg-teal-100 border border-teal-300 flex items-center justify-center text-teal-700 mb-2 shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1)] flex items-center justify-center text-slate-700 mb-2">
                       <Tv className="w-6 h-6" />
                     </div>
-                    <p className={`text-sm font-bold ${isLightSystem ? 'text-teal-950' : 'text-slate-200'}`}>Video Belum Diatur atau Tautan Tidak Sesuai</p>
+                    <p className={`text-sm font-bold ${isLightSystem ? 'text-slate-900' : 'text-slate-200'}`}>Video Belum Diatur atau Tautan Tidak Sesuai</p>
                     <p className={`text-xs mt-1 max-w-md ${isLightSystem ? 'text-slate-600' : 'text-slate-400'}`}>
                       Video tayangan ibadah/khotbah YouTube dapat dikonfigurasi melalui Galeri Media atau Pengaturan.
                     </p>
@@ -3117,7 +3127,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Gallery Video & Photo Stream Playlist Selector */}
               {allDashboardVideos.length > 0 && (
-                <div className={`pt-2.5 border-t ${isLightSystem ? 'border-teal-100' : 'border-white/10'} space-y-2`}>
+                <div className={`pt-2.5 border-t ${isLightSystem ? 'border-slate-100' : 'border-white/10'} space-y-2`}>
                   <div className="flex items-center justify-between text-xs">
                     <span className={`font-bold ${isLightSystem ? 'text-slate-700' : 'text-slate-300'} flex items-center gap-1.5 text-[11px]`}>
                       <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -3128,7 +3138,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className={`${isLightSystem ? 'text-teal-700 hover:text-teal-800' : 'text-indigo-400 hover:text-indigo-300'} font-semibold text-[11px] cursor-pointer flex items-center gap-1`}
                     >
                       <span>Buka Galeri Media</span>
-                      <ChevronRight className="w-3 h-3" />
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
@@ -3140,13 +3150,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           key={v.id}
                           type="button"
                           onClick={() => setActiveVideoUrl(v.video_url)}
-                          className={`p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                          className={`p-2.5 rounded-2xl text-left transition-all cursor-pointer ${
                             isPlaying
                               ? isLightSystem
-                                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 border-teal-600 text-white shadow-md ring-2 ring-teal-300/50'
+                                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_4px_12px_rgba(0,0,0,0.15)]'
                                 : 'bg-gradient-to-r from-indigo-950/90 to-purple-950/90 border-indigo-500 text-white shadow-lg ring-1 ring-indigo-500/30'
                               : isLightSystem
-                              ? 'bg-white border-teal-200/90 text-slate-700 hover:bg-teal-50 hover:border-teal-400 shadow-md'
+                              ? 'bg-white text-slate-700 hover:bg-slate-50 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_2px_6px_rgba(0,0,0,0.05)]'
                               : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
                           }`}
                         >
@@ -3173,15 +3183,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Fill empty grid slots proportionally with church streaming information */}
                     {allDashboardVideos.length < 2 && (
                       <div className={`p-2.5 rounded-2xl ${
-                        isLightSystem ? 'bg-white border-2 border-teal-200/90 text-slate-800 shadow-md' : 'bg-white/5 border-white/10 text-white'
-                      } border text-left flex items-center gap-2.5`}>
+                        isLightSystem ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_2px_6px_rgba(0,0,0,0.05)] text-slate-800' : 'bg-white/5 border-white/10 text-white border'
+                      } text-left flex items-center gap-2.5`}>
                         <div className={`p-2 rounded-xl ${
-                          isLightSystem ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-red-500/20 text-red-400 border-red-500/30'
-                        } border shrink-0`}>
+                          isLightSystem ? 'bg-slate-100 text-slate-700 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        } shrink-0`}>
                           <Tv className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
-                          <div className={`text-[10px] font-extrabold ${isLightSystem ? 'text-teal-700' : 'text-red-300'} uppercase tracking-wider`}>
+                          <div className={`text-[10px] font-extrabold ${isLightSystem ? 'text-slate-700' : 'text-red-300'} uppercase tracking-wider`}>
                             Jadwal Live Stream
                           </div>
                           <p className={`text-xs font-bold ${isLightSystem ? 'text-slate-900' : 'text-white'} truncate`}>Ibadah Minggu 07.00 &amp; 10.00 WIB</p>
@@ -3193,17 +3203,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div
                         onClick={() => onNavigate('galeri')}
                         className={`p-2.5 rounded-2xl ${
-                          isLightSystem ? 'bg-white border-2 border-teal-200/90 hover:bg-teal-50 hover:border-teal-400 text-slate-800 shadow-md' : 'bg-white/5 border-white/10 hover:bg-white/10 text-white'
-                        } border text-left flex items-center justify-between cursor-pointer transition-all`}
+                          isLightSystem ? 'bg-white !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_2px_6px_rgba(0,0,0,0.05)] hover:bg-slate-50 text-slate-800' : 'bg-white/5 border-white/10 hover:bg-white/10 text-white border'
+                        } text-left flex items-center justify-between cursor-pointer transition-all`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className={`p-2 rounded-xl ${
-                            isLightSystem ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                          } border shrink-0`}>
+                            isLightSystem ? 'bg-slate-100 text-slate-700 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          } shrink-0`}>
                             <Video className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
-                            <div className={`text-[10px] font-extrabold ${isLightSystem ? 'text-teal-700' : 'text-amber-300'} uppercase tracking-wider`}>
+                            <div className={`text-[10px] font-extrabold ${isLightSystem ? 'text-slate-700' : 'text-amber-300'} uppercase tracking-wider`}>
                               Koleksi Khotbah
                             </div>
                             <p className={`text-xs font-bold ${isLightSystem ? 'text-slate-900' : 'text-white'} truncate`}>Arsip Khotbah &amp; Pujian Lengkap</p>
@@ -3227,10 +3237,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {settings.show_stat_cards !== false && (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-2.5 md:gap-4">
               {/* Total Jemaat Card */}
-              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm text-slate-800' : 'border-indigo-500/30 text-white'} flex flex-col justify-between space-y-1 sm:space-y-2`}>
+              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}>
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Total Jemaat</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'} shadow-sm shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-blue-50 text-blue-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'} shadow-sm shrink-0`}>
                     <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
@@ -3246,12 +3256,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Total Keluarga Card */}
               <div 
-                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm text-slate-800' : 'border-purple-500/30 text-white'} flex flex-col justify-between space-y-1 sm:space-y-2`}
+                className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}
                 title="Total Kartu Keluarga unik. Jemaat dengan Nomor KK yang sama dihitung sebagai satu keluarga."
               >
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Total KK</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'} shadow-sm shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-purple-50 text-purple-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'} shadow-sm shrink-0`}>
                     <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
@@ -3265,10 +3275,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Total Persembahan Card */}
-              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm text-slate-800' : 'border-emerald-500/30 text-white'} flex flex-col justify-between space-y-1 sm:space-y-2`}>
+              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}>
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Kas Persembahan</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'} shadow-sm shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-emerald-50 text-emerald-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'} shadow-sm shrink-0`}>
                     <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>
@@ -3284,10 +3294,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Event Mendatang Card */}
-              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} border ${isLightSystem ? 'border-slate-200/90 shadow-sm text-slate-800' : 'border-amber-500/30 text-white'} flex flex-col justify-between space-y-1 sm:space-y-2`}>
+              <div className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl ${cardStyleClass} !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-1 sm:space-y-2`}>
                 <div className="flex items-center justify-between gap-1">
                   <span className={`text-[10px] sm:text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-bold uppercase tracking-wider truncate`}>Jadwal & Event</span>
-                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shadow-sm shrink-0`}>
+                  <div className={`p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl ${isLightSystem ? 'bg-amber-50 text-amber-600 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shadow-sm shrink-0`}>
                     <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </div>

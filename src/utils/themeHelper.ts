@@ -434,21 +434,21 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
 
   // 2. Card Background & Borders
   const isLightSystem = preset === 'LUXE_LIGHT' || preset === 'EMERALD_LIGHT';
-  let cardBg = 'bg-white border border-teal-100 shadow-sm text-slate-900';
+  let cardBg = 'bg-white border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.05)] text-slate-900';
   if (isLightSystem) {
     switch (cardStyle) {
       case 'SOLID':
-        cardBg = 'bg-white border-2 border-teal-200/90 shadow-md text-slate-900';
+        cardBg = 'bg-white border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.06)] text-slate-900';
         break;
       case 'NEON':
-        cardBg = 'bg-white border-2 border-teal-500 shadow-xl shadow-teal-500/15 text-slate-900';
+        cardBg = 'bg-white border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.14),0_8px_20px_rgba(0,0,0,0.09)] text-slate-900';
         break;
       case 'FLAT':
-        cardBg = 'bg-teal-50/40 border border-teal-200/80 shadow-none text-slate-900';
+        cardBg = 'bg-slate-50 border-0 shadow-none text-slate-900';
         break;
       case 'GLASS':
       default:
-        cardBg = 'bg-white/95 backdrop-blur-md border border-teal-100/90 shadow-sm text-slate-900';
+        cardBg = 'bg-white/95 backdrop-blur-md border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.05)] text-slate-900';
         break;
     }
   } else {
@@ -457,7 +457,7 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
         cardBg = 'bg-slate-900 border border-slate-800 shadow-xl text-white';
         break;
       case 'NEON':
-        cardBg = 'bg-slate-900/90 border-2 border-teal-500/60 shadow-xl shadow-teal-500/20 text-white';
+        cardBg = 'bg-slate-900/90 border border-slate-700 shadow-xl text-white';
         break;
       case 'FLAT':
         cardBg = 'bg-slate-900/40 border border-slate-800 shadow-none text-white';
@@ -531,23 +531,21 @@ export const getThemeClasses = (settings?: AppSettings): ThemeStyles => {
   if (fontFam === 'SERIF') fontClass = 'font-serif';
   if (fontFam === 'MONO') fontClass = 'font-mono';
 
-  let cardBorderAccentClass = 'border';
+  let cardBorderAccentClass = 'border-0';
   switch (cardBorderAccent) {
     case 'ACCENT_LEFT':
-      cardBorderAccentClass = 'border-l-4 border-l-teal-600 border border-teal-200/80';
+      cardBorderAccentClass = 'border-l-4 border-l-teal-600';
       break;
     case 'ACCENT_TOP':
-      cardBorderAccentClass = 'border-t-4 border-t-teal-600 border border-teal-200/80';
+      cardBorderAccentClass = 'border-t-4 border-t-teal-600';
       break;
     case 'ACCENT_GLOW':
-      cardBorderAccentClass = 'border border-teal-400/80 shadow-lg shadow-teal-500/15';
+      cardBorderAccentClass = 'shadow-lg shadow-black/15';
       break;
     case 'NONE':
-      cardBorderAccentClass = 'border-0';
-      break;
     case 'ACCENT_FULL':
     default:
-      cardBorderAccentClass = 'border border-teal-200/90';
+      cardBorderAccentClass = 'border-0';
       break;
   }
 

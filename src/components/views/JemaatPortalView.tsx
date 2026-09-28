@@ -318,24 +318,24 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
   if (appSettings.jemaat_card_width === 'CONTAINED') widthClass = 'max-w-7xl mx-auto px-1 sm:px-3';
 
   // Dynamic Banner Background
-  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
+  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 !border-0';
   switch (appSettings.jemaat_banner_bg) {
     case 'GRADIENT_GOLD':
-      bannerBgClass = 'bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-900 border-amber-500/50 shadow-xl shadow-amber-900/20';
+      bannerBgClass = 'bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-900 !border-0';
       break;
     case 'GRADIENT_PURPLE':
-      bannerBgClass = 'bg-gradient-to-r from-purple-900 via-purple-800 to-slate-900 border-purple-500/50 shadow-xl shadow-purple-900/20';
+      bannerBgClass = 'bg-gradient-to-r from-purple-900 via-purple-800 to-slate-900 !border-0';
       break;
     case 'OCEAN_BLUE':
-      bannerBgClass = 'bg-gradient-to-r from-cyan-900 via-teal-800 to-blue-900 border-cyan-500/50 shadow-xl shadow-cyan-900/20';
+      bannerBgClass = 'bg-gradient-to-r from-cyan-900 via-teal-800 to-blue-900 !border-0';
       break;
     case 'OBSIDIAN_NIGHT':
-      bannerBgClass = 'bg-gradient-to-r from-slate-950 via-slate-900 to-zinc-950 border-slate-700 shadow-xl';
+      bannerBgClass = 'bg-gradient-to-r from-slate-950 via-slate-900 to-zinc-950 !border-0';
       break;
     case 'GRADIENT_EMERALD':
     case 'GRADIENT_INDIGO':
     default:
-      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
+      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 !border-0';
       break;
   }
 
@@ -344,7 +344,10 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
   return (
     <div className={`space-y-6 pb-2 sm:pb-4 transition-all duration-300 ${widthClass}`}>
       {/* 1. Header Banner Profil User / Jemaat (Teal Theme) */}
-      <div className={`relative rounded-3xl ${bannerBgClass} p-6 sm:p-8 overflow-hidden text-white transition-all border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]`}>
+      <div
+        className={`relative rounded-3xl ${bannerBgClass} p-6 sm:p-8 overflow-hidden text-white transition-all !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]`}
+        style={{ border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.22), 0 8px 24px rgba(0,0,0,0.32)' }}
+      >
         <div className="absolute top-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/15 rounded-full blur-2xl pointer-events-none" />
 
@@ -357,11 +360,11 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                 }}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_16px_rgba(0,0,0,0.4)] bg-slate-900"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_16px_rgba(0,0,0,0.4)] bg-slate-900"
               />
               <button
                 onClick={() => setIsEditing(true)}
-                className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white shadow-lg transition-all cursor-pointer"
+                className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white shadow-lg transition-all cursor-pointer !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25)]"
                 title="Ubah Foto Profil"
               >
                 <Camera className="w-4 h-4" />
@@ -370,19 +373,22 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-3 py-0.5 rounded-full bg-teal-500/30 text-teal-100 border border-teal-400/40 text-xs font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs">
+                <span className="px-3 py-0.5 rounded-full bg-teal-500/30 text-teal-100 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22)] text-xs font-bold uppercase tracking-wider flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-teal-300" />
                   <span>Jemaat Resmi</span>
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-200 border border-teal-400/30 text-[10px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-200 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22)] text-[10px] font-bold">
                   Sektor: {jemaatData?.wilayah || 'Utama'}
                 </span>
               </div>
 
               <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight mt-1 text-white">
-                {jemaatData?.nama_lengkap || currentUser.nama}
+                {appSettings.jemaat_banner_title ? `${appSettings.jemaat_banner_title}, ` : 'Shalom, '}
+                {jemaatData?.nama_lengkap || currentUser.nama}!
               </h2>
               <p className="text-teal-100/90 text-xs sm:text-sm mt-0.5 flex items-center gap-2">
+                <span>{appSettings.jemaat_banner_subtitle || 'Portal Layanan Jemaat Resmi & Sistem Informasi Terpadu'}</span>
+                <span>&bull;</span>
                 <span>ID Jemaat: <strong className="text-teal-200 font-mono">{jemaatData?.jemaat_id || currentUser.user_id}</strong></span>
                 <span>&bull;</span>
                 <span>Username: <strong className="text-white font-semibold">@{currentUser.username}</strong></span>
@@ -394,10 +400,10 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
             <button
               onClick={handleManualSync}
               disabled={isSyncingCloud}
-              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 ${
+              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.2)] ${
                 isQuotaExhausted()
-                  ? 'bg-amber-600/30 hover:bg-amber-600/50 text-amber-200 border border-amber-500/40'
-                  : 'bg-teal-700/50 hover:bg-teal-700/70 text-teal-100 border border-teal-500/40'
+                  ? 'bg-amber-600/30 hover:bg-amber-600/50 text-amber-200'
+                  : 'bg-teal-700/50 hover:bg-teal-700/70 text-teal-100'
               }`}
               title={isQuotaExhausted() ? 'Mode Manual & Penyimpanan Lokal (Kuota Cloud Penuh)' : 'Sinkronkan data dengan Cloud Firebase'}
             >
@@ -406,14 +412,14 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
             </button>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="px-4 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-lg shadow-teal-900/30 flex items-center gap-2 transition-all cursor-pointer border border-teal-400/40"
+              className="px-4 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-lg shadow-teal-900/30 flex items-center gap-2 transition-all cursor-pointer !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.25)]"
             >
               <Edit3 className="w-4 h-4" />
               <span>{isEditing ? 'Tutup Form Edit' : 'Edit Data Profil'}</span>
             </button>
             <button
               onClick={() => setIsChangingPassword(!isChangingPassword)}
-              className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25)] flex items-center gap-2 transition-all cursor-pointer"
             >
               <Key className="w-4 h-4 text-amber-400" />
               <span>Ganti Kata Sandi</span>
@@ -422,7 +428,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
         </div>
 
         {saveSuccess && (
-          <div className="mt-4 p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-fade-in">
+          <div className="mt-4 p-3.5 rounded-2xl bg-emerald-500/20 !border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22)] text-emerald-300 text-xs font-bold flex items-center gap-2 animate-fade-in">
             <Check className="w-4 h-4" />
             <span>{saveSuccess}</span>
           </div>
@@ -431,8 +437,11 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
       {/* 2. Modal/Card Edit Profil Data Diri */}
       {isEditing && (
-        <div className={`rounded-3xl bg-white p-6 transition-all duration-300 space-y-5 border-2 border-teal-200 text-slate-800 shadow-xl animate-fade-in`}>
-          <div className="flex items-center justify-between border-b border-teal-100 pb-3">
+        <div
+          className="rounded-3xl bg-white p-6 transition-all duration-300 space-y-5 border-0 text-slate-800 animate-fade-in shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_8px_24px_rgba(0,0,0,0.1)]"
+          style={{ border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.1)' }}
+        >
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <UserIcon className="w-5 h-5 text-teal-600" />
               <span>Formulir Perubahan Data Profil Jemaat</span>
@@ -447,7 +456,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
             {/* FOTO PROFIL OPTION */}
-            <div className="p-4 rounded-2xl bg-teal-50/50 border border-teal-200 space-y-3">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
               <label className="block text-xs font-bold text-slate-700">Ganti Foto Profil:</label>
               
               <div className="flex items-center gap-2">
@@ -457,7 +466,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     photoMode === 'OFFLINE'
                       ? 'bg-teal-600 text-white shadow'
-                      : 'bg-white border border-teal-200 text-slate-600 hover:text-teal-700'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:text-teal-700'
                   }`}
                 >
                   <Upload className="w-3.5 h-3.5" />
@@ -469,7 +478,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     photoMode === 'ONLINE'
                       ? 'bg-teal-600 text-white shadow'
-                      : 'bg-white border border-teal-200 text-slate-600 hover:text-teal-700'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:text-teal-700'
                   }`}
                 >
                   <LinkIcon className="w-3.5 h-3.5" />
@@ -497,13 +506,13 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                       setPhotoPreview(e.target.value);
                     }}
                     placeholder="https://example.com/foto.jpg"
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-teal-200 text-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   />
                 </div>
               )}
 
               {photoPreview && (
-                <div className="flex items-center gap-3 pt-2 border-t border-teal-200">
+                <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
                   <span className="text-xs text-slate-500 font-semibold">Preview Foto:</span>
                   <img
                     src={photoPreview}
@@ -511,7 +520,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                     }}
-                    className="w-12 h-12 rounded-xl object-cover border border-teal-400"
+                    className="w-12 h-12 rounded-xl object-cover border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.2)]"
                   />
                 </div>
               )}
@@ -525,7 +534,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                   required
                 />
               </div>
@@ -536,7 +545,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   type="text"
                   value={editPhone}
                   onChange={(e) => setEditPhone(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
@@ -546,7 +555,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   type="email"
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
 
@@ -556,12 +565,12 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   type="text"
                   value={editAddress}
                   onChange={(e) => setEditAddress(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-teal-100">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
@@ -583,8 +592,11 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
 
       {/* 3. Form Ganti Kata Sandi */}
       {isChangingPassword && (
-        <div className={`rounded-3xl bg-white p-6 transition-all duration-300 space-y-4 border-2 border-teal-200 text-slate-800 shadow-xl animate-fade-in`}>
-          <div className="flex items-center justify-between border-b border-teal-100 pb-3">
+        <div
+          className="rounded-3xl bg-white p-6 transition-all duration-300 space-y-4 border-0 text-slate-800 animate-fade-in shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_8px_24px_rgba(0,0,0,0.1)]"
+          style={{ border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.1)' }}
+        >
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Lock className="w-5 h-5 text-teal-600" />
               <span>Ganti Kata Sandi Akun</span>
@@ -615,7 +627,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Minimal 6 karakter"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
@@ -627,7 +639,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Ulangi kata sandi baru"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-teal-500"
                 />
               </div>
             </div>
@@ -646,7 +658,10 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
       )}
 
       {/* 4. Kartu Tanda Anggota (KTA) Jemaat Digital */}
-      <div className="rounded-3xl bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900 p-6 sm:p-8 border-2 border-teal-400/50 shadow-2xl text-white space-y-6 relative overflow-hidden">
+      <div
+        className="rounded-3xl bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900 p-6 sm:p-8 !border-0 text-white space-y-6 relative overflow-hidden shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]"
+        style={{ border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.22), 0 8px 24px rgba(0,0,0,0.32)' }}
+      >
         <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
