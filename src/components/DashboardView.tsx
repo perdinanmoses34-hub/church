@@ -1277,7 +1277,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   if (settings.jemaat_card_width === 'COMPACT' || settings.jemaat_card_width === 'MOBILE_COMPACT') widthClass = 'max-w-4xl mx-auto px-1 sm:px-3';
   if (settings.jemaat_card_width === 'CONTAINED') widthClass = 'max-w-7xl mx-auto px-1 sm:px-3';
 
-  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-2 border-teal-500/60 shadow-xl shadow-teal-950/25';
+  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
   switch (settings.jemaat_banner_bg) {
     case 'GRADIENT_GOLD':
       bannerBgClass = 'bg-gradient-to-r from-amber-950 via-yellow-900 to-amber-950 border-amber-500/50 shadow-xl shadow-amber-900/20';
@@ -1294,7 +1294,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     case 'GRADIENT_EMERALD':
     case 'GRADIENT_INDIGO':
     default:
-      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-2 border-teal-500/60 shadow-xl shadow-teal-950/25';
+      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
       break;
   }
 
@@ -1302,7 +1302,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div className={`space-y-2 sm:space-y-4 md:space-y-6 pb-2 sm:pb-4 transition-all duration-300 ${widthClass}`}>
       {/* Welcome Card Banner with Dynamic Custom Header (Teal Theme) */}
       {settings.show_header_banner !== false ? (
-        <div className={`relative rounded-2xl sm:rounded-3xl ${bannerBgClass} ${cardStyleClass} overflow-hidden text-white transition-all duration-300`}>
+        <div className={`relative rounded-2xl sm:rounded-3xl ${bannerBgClass} ${cardStyleClass} !border-0 overflow-hidden text-white transition-all duration-300`}>
           <div className="absolute top-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/15 rounded-full blur-2xl pointer-events-none" />
 
@@ -1315,7 +1315,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                   }}
-                  className="w-16 h-16 rounded-2xl object-cover border-2 border-teal-400/60 shadow-lg shadow-teal-950/40 bg-slate-900"
+                  className="w-16 h-16 rounded-2xl object-cover border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_12px_rgba(0,0,0,0.4)] bg-slate-900"
                 />
                 <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-teal-400 ring-2 ring-teal-950" />
               </div>
@@ -1445,7 +1445,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       ) : (
         /* Minimalist fallback toolbar when header banner is disabled by admin */
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-teal-950/90 border border-teal-700/80 text-white shadow-lg backdrop-blur-md">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-teal-950/90 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)] text-white backdrop-blur-md">
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <div>

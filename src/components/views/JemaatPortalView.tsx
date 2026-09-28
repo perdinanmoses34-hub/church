@@ -318,7 +318,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
   if (appSettings.jemaat_card_width === 'CONTAINED') widthClass = 'max-w-7xl mx-auto px-1 sm:px-3';
 
   // Dynamic Banner Background
-  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-2 border-teal-500/60 shadow-xl shadow-teal-950/25';
+  let bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
   switch (appSettings.jemaat_banner_bg) {
     case 'GRADIENT_GOLD':
       bannerBgClass = 'bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-900 border-amber-500/50 shadow-xl shadow-amber-900/20';
@@ -335,7 +335,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
     case 'GRADIENT_EMERALD':
     case 'GRADIENT_INDIGO':
     default:
-      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-2 border-teal-500/60 shadow-xl shadow-teal-950/25';
+      bannerBgClass = 'bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-950 border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]';
       break;
   }
 
@@ -344,7 +344,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
   return (
     <div className={`space-y-6 pb-2 sm:pb-4 transition-all duration-300 ${widthClass}`}>
       {/* 1. Header Banner Profil User / Jemaat (Teal Theme) */}
-      <div className={`relative rounded-3xl ${bannerBgClass} p-6 sm:p-8 overflow-hidden text-white transition-all border shadow-2xl`}>
+      <div className={`relative rounded-3xl ${bannerBgClass} p-6 sm:p-8 overflow-hidden text-white transition-all border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.22),0_8px_24px_rgba(0,0,0,0.32)]`}>
         <div className="absolute top-0 right-0 w-96 h-96 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-400/15 rounded-full blur-2xl pointer-events-none" />
 
@@ -357,7 +357,7 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                 }}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-4 border-teal-400/60 shadow-2xl bg-slate-900"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-0 shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_4px_16px_rgba(0,0,0,0.4)] bg-slate-900"
               />
               <button
                 onClick={() => setIsEditing(true)}
