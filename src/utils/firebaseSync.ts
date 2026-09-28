@@ -317,8 +317,26 @@ export function isQuotaExhausted(): boolean {
   return false;
 }
 
+const cloudWriteTimers = new Map<string, any>();
+
 /**
- * Pushes updated local data to Cloud Firestore (with Dual-Write Bridge & Fallback)
+ * Sync active custom Firebase configuration with server and all connected clients
+ */
+export async function syncServerFirebaseConfig(config?: any): Promise<void> {
+  if (typeof fetch === 'undefined') return;
+  try {
+    await fetch('/api/firebase-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config: config || null })
+    });
+  } catch (e) {
+    console.warn('[FirebaseSync] Failed to sync config to server:', e);
+  }
+}
+
+/**
+ * Pushes updated local data to Cloud Firestore (with Debounce & Realtime SSE Bridge)
  */
 export async function pushToCloud(storageKey: string, data: any): Promise<void> {
   if (isRemoteUpdating || isLocalDeviceSessionKey(storageKey)) return;
@@ -354,79 +372,49 @@ export async function pushToCloud(storageKey: string, data: any): Promise<void> 
     return;
   }
 
-  const activeConfig = getActiveFirebaseConfig();
-  let primarySuccess = false;
+  // 2. Debounce Firestore cloud write (250ms) to prevent quota exhaustion from rapid burst saves
+  if (cloudWriteTimers.has(docId)) {
+    clearTimeout(cloudWriteTimers.get(docId));
+  }
 
-  // 2. Try pushing to primary active Firestore
-  try {
-    const firestoreDb = getFirestoreInstance();
-    const docRef = doc(firestoreDb, COLLECTION_NAME, docId);
-    await setDoc(
-      docRef,
-      {
-        payload: payloadString,
-        updatedAt: Date.now()
-      },
-      { merge: true }
-    );
-    syncConnectedStatus = true;
-    primarySuccess = true;
-    lastPushedPayloads.set(docId, payloadString);
+  cloudWriteTimers.set(
+    docId,
+    setTimeout(async () => {
+      cloudWriteTimers.delete(docId);
+      if (isQuotaExhausted()) return;
 
-    if (docId === 'notifications') {
       try {
-        const mirrorRef = doc(firestoreDb, COLLECTION_NAME, 'cms_pro_notifications');
-        await setDoc(mirrorRef, { payload: payloadString, updatedAt: Date.now() }, { merge: true });
-        lastPushedPayloads.set('cms_pro_notifications', payloadString);
-      } catch {
-        // ignore mirror write note
+        const firestoreDb = getFirestoreInstance();
+        const docRef = doc(firestoreDb, COLLECTION_NAME, docId);
+        await setDoc(
+          docRef,
+          {
+            payload: payloadString,
+            updatedAt: Date.now()
+          },
+          { merge: true }
+        );
+        syncConnectedStatus = true;
+        lastPushedPayloads.set(docId, payloadString);
+      } catch (error: any) {
+        if (
+          error?.code === 'resource-exhausted' ||
+          (error?.message && (error.message.includes('Quota limit exceeded') || error.message.includes('Quota exceeded')))
+        ) {
+          markQuotaExhausted();
+          console.warn(`[FirebaseSync] Firestore daily write quota limit reached. Pausing background sync writes.`);
+        } else if (
+          error?.code === 'unavailable' ||
+          (error?.message && (error.message.includes('offline') || error.message.includes('Could not reach Cloud Firestore')))
+        ) {
+          syncConnectedStatus = false;
+          console.info(`[FirebaseSync] Firestore operating in offline mode. Changes preserved locally.`);
+        } else {
+          console.warn(`[FirebaseSync] Primary sync failed for ${storageKey}:`, error);
+        }
       }
-    }
-  } catch (error: any) {
-    if (
-      error?.code === 'resource-exhausted' ||
-      (error?.message && (error.message.includes('Quota limit exceeded') || error.message.includes('Quota exceeded')))
-    ) {
-      markQuotaExhausted();
-      console.warn(`[FirebaseSync] Firestore daily write quota limit reached. Pausing background sync writes.`);
-      return;
-    } else if (
-      error?.code === 'unavailable' ||
-      (error?.message && (error.message.includes('offline') || error.message.includes('Could not reach Cloud Firestore')))
-    ) {
-      syncConnectedStatus = false;
-      console.info(`[FirebaseSync] Firestore operating in offline mode. Changes preserved locally.`);
-    } else {
-      console.warn(`[FirebaseSync] Primary sync failed for ${storageKey}:`, error);
-    }
-  }
-
-  // 2. Dual-write bridge to default automatic project ONLY if primary is custom and primary sync was unsuccessful
-  if (activeConfig.isCustom && !primarySuccess && !isQuotaExhausted()) {
-    try {
-      const defaultDb = getDefaultFirestoreInstance();
-      const defaultDocRef = doc(defaultDb, COLLECTION_NAME, docId);
-      await setDoc(
-        defaultDocRef,
-        {
-          payload: payloadString,
-          updatedAt: Date.now()
-        },
-        { merge: true }
-      );
-      lastPushedPayloads.set(docId, payloadString);
-    } catch (e: any) {
-      if (
-        e?.code === 'resource-exhausted' ||
-        (e?.message && (e.message.includes('Quota limit exceeded') || e.message.includes('Quota exceeded')))
-      ) {
-        markQuotaExhausted();
-        console.warn(`[FirebaseSync] Firestore daily write quota limit reached on bridge. Pausing background sync writes.`);
-      } else {
-        console.warn(`[FirebaseSync] Default bridge write error for ${storageKey}:`, e);
-      }
-    }
-  }
+    }, 250)
+  );
 }
 
 /**
@@ -724,6 +712,32 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
             }
           } else if (data?.type === 'quota_reset') {
             clearQuotaExhausted();
+          } else if (data?.type === 'firebase_config_updated' && data?.config) {
+            try {
+              const raw = localStorage.getItem('cms_pro_settings') || '{}';
+              const parsed = JSON.parse(raw);
+              parsed.firebaseConfig = data.config;
+              localStorage.setItem('cms_pro_settings', JSON.stringify(parsed));
+              clearQuotaExhausted();
+              setTimeout(() => {
+                reconnectRealtimeCloudSync(onDataReceived);
+              }, 150);
+            } catch (e) {
+              // ignore
+            }
+          } else if (data?.type === 'firebase_config_reset') {
+            try {
+              const raw = localStorage.getItem('cms_pro_settings') || '{}';
+              const parsed = JSON.parse(raw);
+              delete parsed.firebaseConfig;
+              localStorage.setItem('cms_pro_settings', JSON.stringify(parsed));
+              clearQuotaExhausted();
+              setTimeout(() => {
+                reconnectRealtimeCloudSync(onDataReceived);
+              }, 150);
+            } catch (e) {
+              // ignore
+            }
           }
         } catch {
           // ignore
@@ -737,6 +751,32 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
     } catch (err) {
       console.warn('[SSE] EventSource init notice:', err);
     }
+  }
+
+  // 2. Fetch server-broadcasted Firebase configuration on startup
+  if (typeof fetch !== 'undefined') {
+    fetch('/api/firebase-config')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res?.isCustom && res?.config?.apiKey && res?.config?.projectId) {
+          const cur = getActiveFirebaseConfig();
+          if (cur.projectId !== res.config.projectId || cur.apiKey !== res.config.apiKey) {
+            try {
+              const raw = localStorage.getItem('cms_pro_settings') || '{}';
+              const parsed = JSON.parse(raw);
+              parsed.firebaseConfig = res.config;
+              localStorage.setItem('cms_pro_settings', JSON.stringify(parsed));
+              clearQuotaExhausted();
+              setTimeout(() => {
+                reconnectRealtimeCloudSync(onDataReceived);
+              }, 200);
+            } catch (e) {
+              // ignore
+            }
+          }
+        }
+      })
+      .catch(() => {});
   }
 
   const activeConfig = getActiveFirebaseConfig();

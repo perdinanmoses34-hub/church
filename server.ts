@@ -14,6 +14,19 @@ const sseClients = new Set<Response>();
 // File cache path to preserve data across server restarts
 const CACHE_DIR = path.resolve(__dirname, 'data');
 const CACHE_FILE = path.join(CACHE_DIR, 'cloud_sync_cache.json');
+const FIREBASE_CONFIG_FILE = path.join(CACHE_DIR, 'custom_firebase_config.json');
+
+let activeCustomFirebaseConfig: any = null;
+
+try {
+  if (fs.existsSync(FIREBASE_CONFIG_FILE)) {
+    const raw = fs.readFileSync(FIREBASE_CONFIG_FILE, 'utf-8');
+    activeCustomFirebaseConfig = JSON.parse(raw);
+    console.log('[ServerSync] Loaded custom Firebase config for project:', activeCustomFirebaseConfig.projectId);
+  }
+} catch (e) {
+  console.warn('[ServerSync] Custom config load note:', e);
+}
 
 // Ensure cache directory exists and load persisted data
 try {
@@ -155,6 +168,61 @@ async function startServer() {
       }
     });
     return res.json({ success: true, message: 'Status kuota berhasil direset.' });
+  });
+
+  // Get active custom Firebase configuration (accessible by mobile phones & all instances)
+  app.get('/api/firebase-config', (req: Request, res: Response) => {
+    return res.json({
+      isCustom: !!activeCustomFirebaseConfig,
+      config: activeCustomFirebaseConfig || null
+    });
+  });
+
+  // Save active custom Firebase configuration across all connected devices
+  app.post('/api/firebase-config', (req: Request, res: Response) => {
+    try {
+      const { config } = req.body;
+      if (config && config.apiKey && config.projectId) {
+        activeCustomFirebaseConfig = {
+          apiKey: String(config.apiKey).trim(),
+          projectId: String(config.projectId).trim(),
+          authDomain: config.authDomain ? String(config.authDomain).trim() : `${String(config.projectId).trim()}.firebaseapp.com`,
+          storageBucket: config.storageBucket ? String(config.storageBucket).trim() : `${String(config.projectId).trim()}.firebasestorage.app`,
+          messagingSenderId: config.messagingSenderId ? String(config.messagingSenderId).trim() : '',
+          appId: config.appId ? String(config.appId).trim() : '',
+          firestoreDatabaseId: config.firestoreDatabaseId && String(config.firestoreDatabaseId).trim() ? String(config.firestoreDatabaseId).trim() : '(default)'
+        };
+        fs.writeFileSync(FIREBASE_CONFIG_FILE, JSON.stringify(activeCustomFirebaseConfig, null, 2), 'utf-8');
+
+        // Broadcast to all connected clients
+        const broadcastMsg = `data: ${JSON.stringify({ type: 'firebase_config_updated', config: activeCustomFirebaseConfig })}\n\n`;
+        sseClients.forEach((client) => {
+          try {
+            client.write(broadcastMsg);
+          } catch {
+            sseClients.delete(client);
+          }
+        });
+        return res.json({ success: true, message: 'Firebase configuration saved and broadcasted to all devices.', config: activeCustomFirebaseConfig });
+      } else {
+        activeCustomFirebaseConfig = null;
+        if (fs.existsSync(FIREBASE_CONFIG_FILE)) {
+          fs.unlinkSync(FIREBASE_CONFIG_FILE);
+        }
+        const broadcastMsg = `data: ${JSON.stringify({ type: 'firebase_config_reset' })}\n\n`;
+        sseClients.forEach((client) => {
+          try {
+            client.write(broadcastMsg);
+          } catch {
+            sseClients.delete(client);
+          }
+        });
+        return res.json({ success: true, message: 'Reset to default Firebase configuration.' });
+      }
+    } catch (err: any) {
+      console.error('[ServerSync] Firebase config save error:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
   });
 
   // Status check endpoint

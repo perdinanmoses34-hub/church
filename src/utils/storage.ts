@@ -854,12 +854,6 @@ export const StorageManager = {
       // ignore
     }
     setItem(KEYS.SETTINGS, settings);
-    pushToCloud('settings', settings);
-    pushToCloud(KEYS.SETTINGS, settings);
-    const activeTenantId = StorageManager.getActiveTenantId();
-    if (activeTenantId && activeTenantId !== 'CHURCH-001') {
-      pushToCloud(getTenantScopedKey(KEYS.SETTINGS), settings);
-    }
     notifyStorageListeners();
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'settings_updated', settings } }));
@@ -1717,10 +1711,6 @@ export const StorageManager = {
     const settings = StorageManager.getSettings();
     settings.security_alert = alert;
     setItem(KEYS.SETTINGS, settings);
-
-    // Explicit cloud push to ensure both security_alert and cms_pro_security_alert docs are updated
-    pushToCloud('cms_pro_security_alert', alert);
-    pushToCloud('security_alert', alert);
 
     if (alert && alert.active) {
       // Add entry to notifications for history audit
