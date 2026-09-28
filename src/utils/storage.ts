@@ -846,16 +846,21 @@ export const StorageManager = {
   saveSettings: (settings: AppSettings): void => {
     try {
       localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
+      const scopedKey = getTenantScopedKey(KEYS.SETTINGS);
+      if (scopedKey !== KEYS.SETTINGS) {
+        localStorage.setItem(scopedKey, JSON.stringify(settings));
+      }
     } catch (e) {
       // ignore
     }
     setItem(KEYS.SETTINGS, settings);
-    pushToCloud(KEYS.SETTINGS, settings);
     pushToCloud('settings', settings);
+    pushToCloud(KEYS.SETTINGS, settings);
     const activeTenantId = StorageManager.getActiveTenantId();
     if (activeTenantId && activeTenantId !== 'CHURCH-001') {
       pushToCloud(getTenantScopedKey(KEYS.SETTINGS), settings);
     }
+    notifyStorageListeners();
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'settings_updated', settings } }));
       window.dispatchEvent(new Event('storage'));

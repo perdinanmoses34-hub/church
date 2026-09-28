@@ -116,8 +116,18 @@ export default function App() {
 
     if (isDark) {
       document.documentElement.classList.add('theme-dark');
+      let darkBg = '#020617';
+      if (settings?.theme_preset === 'MIDNIGHT_BLUE') darkBg = '#030712';
+      else if (settings?.theme_preset === 'DEEP_PURPLE') darkBg = '#090514';
+      else if (settings?.theme_preset === 'FOREST_GREEN') darkBg = '#04120a';
+      else if (settings?.theme_preset === 'WARM_GOLD') darkBg = '#140c03';
+      else if (settings?.theme_preset === 'DARK_SLATE') darkBg = '#020617';
+      document.body.style.backgroundColor = darkBg;
+      document.documentElement.style.backgroundColor = darkBg;
     } else {
       document.documentElement.classList.remove('theme-dark');
+      document.body.style.backgroundColor = '#f4fbf9';
+      document.documentElement.style.backgroundColor = '#f4fbf9';
     }
   }, [settings?.warna_tema, settings?.theme_preset]);
 
@@ -137,10 +147,10 @@ export default function App() {
 
   useEffect(() => {
     // Listen for setting changes across components & tabs
-    const handleSettingsSync = () => {
+    const handleSettingsSync = (e?: any) => {
       const currentTenantId = StorageManager.getActiveTenantId();
       setActiveTenantId((prev) => (prev !== currentTenantId ? currentTenantId : prev));
-      const freshSettings = StorageManager.getSettings();
+      const freshSettings = (e?.detail?.settings && typeof e.detail.settings === 'object') ? e.detail.settings : StorageManager.getSettings();
       setSettings((prev) => (JSON.stringify(prev) !== JSON.stringify(freshSettings) ? freshSettings : prev));
       const freshTenant = StorageManager.checkTenantStatus();
       setTenantStatus((prev) => (prev.isLocked === freshTenant.isLocked && prev.tenant?.tenant_id === freshTenant.tenant?.tenant_id ? prev : freshTenant));

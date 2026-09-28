@@ -3453,11 +3453,6 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </button>
             </div>
           </div>
-                <RotateCcw className="w-4 h-4" />
-                <span>Reset Database Seed</span>
-              </button>
-            </div>
-          </div>
         </form>
       )}
 

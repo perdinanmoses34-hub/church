@@ -291,17 +291,27 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
     .substring(0, 4)
     .toUpperCase() || 'JKC';
 
+  const isNavLight = theme.navbar.isLight;
+
   return (
-    <header className="sticky top-0 z-30 h-16 w-full bg-white border-b border-slate-200/80 px-3 sm:px-6 flex items-center justify-between shadow-xs select-none">
+    <header
+      className={`sticky top-0 z-30 h-16 w-full px-3 sm:px-6 flex items-center justify-between shadow-xs select-none transition-all duration-300 ${theme.navbar.containerClass} ${theme.navbar.borderBottomClass}`}
+      style={{
+        ...theme.navbar.containerStyle,
+        ...theme.navbar.borderBottomStyle
+      }}
+    >
       {/* Left section: Hamburger for Mobile & School/Church Branding */}
       <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
         {/* Mobile menu trigger */}
         <button
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-teal-700 hover:bg-teal-50 transition-all cursor-pointer shrink-0"
+          className={`lg:hidden p-2 rounded-xl transition-all cursor-pointer shrink-0 ${
+            isNavLight ? 'text-slate-600 hover:text-teal-700 hover:bg-teal-50' : 'text-white hover:text-teal-200 hover:bg-white/10'
+          }`}
           title="Buka Navigasi"
         >
-          <Grid className="w-5 h-5 text-teal-600" style={{ color: settings?.warna_tema || '#0d9488' }} />
+          <Grid className="w-5 h-5" style={{ color: settings?.warna_tema || '#0d9488' }} />
         </button>
 
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -313,14 +323,18 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           </div>
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-xs sm:text-base font-black text-slate-900 tracking-tight truncate leading-tight">
+              <h1 className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${isNavLight ? 'text-slate-900' : 'text-white'}`}>
                 {settings?.nama_gereja || 'Jesus Kingdom Christ'}
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold shrink-0">
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                isNavLight ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-white/15 text-white border border-white/20'
+              }`}>
                 Portal Jemaat
               </span>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-none mt-0.5 truncate max-w-[160px] xs:max-w-none">
+            <p className={`text-[10px] sm:text-[11px] font-medium leading-none mt-0.5 truncate max-w-[160px] xs:max-w-none ${
+              isNavLight ? 'text-slate-500' : 'text-slate-300'
+            }`}>
               Sistem Informasi Manajemen Gereja
             </p>
           </div>

@@ -42,6 +42,7 @@ export function isLocalDeviceSessionKey(key: string): boolean {
 
 // Bidirectional Mapping between LocalStorage keys and Firestore Document IDs
 const DOC_MAPPING: Record<string, string> = {
+  settings: 'settings',
   cms_pro_settings: 'settings',
   cms_pro_users: 'users',
   cms_pro_jemaat: 'jemaat',
@@ -294,11 +295,13 @@ export function isQuotaExhausted(): boolean {
         const timeStr = localStorage.getItem('cms_firestore_quota_time');
         if (timeStr) {
           const timestamp = parseInt(timeStr, 10);
-          // Auto-expire quota exhaustion flag after 3 minutes
-          if (!isNaN(timestamp) && Date.now() - timestamp > 3 * 60 * 1000) {
+          if (!isNaN(timestamp) && Date.now() - timestamp > 60 * 1000) {
             clearQuotaExhausted();
             return false;
           }
+        } else {
+          clearQuotaExhausted();
+          return false;
         }
         return true;
       }
@@ -307,15 +310,6 @@ export function isQuotaExhausted(): boolean {
     }
   }
 
-  if (typeof sessionStorage !== 'undefined') {
-    try {
-      if (sessionStorage.getItem('cms_firestore_quota_exhausted') === 'true') {
-        return true;
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
   return false;
 }
 
@@ -324,7 +318,10 @@ export function isQuotaExhausted(): boolean {
  */
 export async function pushToCloud(storageKey: string, data: any): Promise<void> {
   if (isRemoteUpdating || isLocalDeviceSessionKey(storageKey) || isQuotaExhausted()) return;
-  const docId = DOC_MAPPING[storageKey] || storageKey;
+  const docId =
+    storageKey === 'settings' || storageKey === 'cms_pro_settings' || storageKey.endsWith('_settings')
+      ? 'settings'
+      : DOC_MAPPING[storageKey] || storageKey;
   if (isLocalDeviceSessionKey(docId)) return;
 
   const payloadString = typeof data === 'string' ? data : JSON.stringify(data);
@@ -562,6 +559,17 @@ export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boo
               localStorage.setItem(storageKey, cloudPayloadStr);
               if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
                 localStorage.setItem('cms_pro_settings', cloudPayloadStr);
+                try {
+                  const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
+                  if (rawTenant) {
+                    const cleanTenant = rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
+                    if (cleanTenant && cleanTenant !== 'CHURCH-001' && cleanTenant !== 'ALL') {
+                      localStorage.setItem(`cms_pro_${cleanTenant}_settings`, cloudPayloadStr);
+                    }
+                  }
+                } catch (e) {
+                  // ignore
+                }
               }
               lastPushedPayloads.set(docId, cloudPayloadStr);
               hasChanges = true;
@@ -690,6 +698,17 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
                 localStorage.setItem(storageKey, cloudPayloadStr);
                 if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
                   localStorage.setItem('cms_pro_settings', cloudPayloadStr);
+                  try {
+                    const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
+                    if (rawTenant) {
+                      const cleanTenant = rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
+                      if (cleanTenant && cleanTenant !== 'CHURCH-001' && cleanTenant !== 'ALL') {
+                        localStorage.setItem(`cms_pro_${cleanTenant}_settings`, cloudPayloadStr);
+                      }
+                    }
+                  } catch (e) {
+                    // ignore
+                  }
                 }
                 lastPushedPayloads.set(docId, cloudPayloadStr);
                 hasChanges = true;
