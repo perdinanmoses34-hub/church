@@ -237,7 +237,7 @@ function getItem<T>(key: string, fallback: T): T {
 type StorageListener = () => void;
 const internalListeners = new Set<StorageListener>();
 
-function notifyStorageListeners() {
+export function notifyStorageListeners() {
   internalListeners.forEach((fn) => {
     try {
       fn();
@@ -268,6 +268,9 @@ if (typeof window !== 'undefined') {
       notifyStorageListeners();
       window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { key: e.key } }));
     }
+  });
+  window.addEventListener('cms_data_changed', () => {
+    notifyStorageListeners();
   });
 }
 
@@ -606,6 +609,8 @@ export const StorageManager = {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { key: KEYS.ACTIVE_TENANT, tenantId: cleanId } }));
     }
+    pushToCloud(KEYS.ACTIVE_TENANT, cleanId);
+    pushToCloud('active_tenant_id', cleanId);
   },
   getActiveTenant: (): ChurchTenant | null => {
     const activeId = StorageManager.getActiveTenantId();
@@ -844,6 +849,7 @@ export const StorageManager = {
     return settings;
   },
   saveSettings: (settings: AppSettings): void => {
+    const activeTenantId = StorageManager.getActiveTenantId();
     try {
       localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
       const scopedKey = getTenantScopedKey(KEYS.SETTINGS);
@@ -854,6 +860,10 @@ export const StorageManager = {
       // ignore
     }
     setItem(KEYS.SETTINGS, settings);
+    const scopedKey = getTenantScopedKey(KEYS.SETTINGS);
+    if (scopedKey !== KEYS.SETTINGS) {
+      setItem(scopedKey, settings);
+    }
     notifyStorageListeners();
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'settings_updated', settings } }));

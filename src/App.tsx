@@ -145,6 +145,32 @@ export default function App() {
   // Current Active Tenant Scope
   const [activeTenantId, setActiveTenantId] = useState<string>(() => StorageManager.getActiveTenantId());
 
+  // Detect URL tenant/church query parameter (e.g. ?tenant=CHURCH-002 or ?church=GBI-01)
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const tParam = params.get('tenant') || params.get('church');
+        if (tParam) {
+          const clean = tParam.trim();
+          const allTenants = StorageManager.getTenants();
+          const matched = allTenants.find(
+            (t) =>
+              t.tenant_id.toLowerCase() === clean.toLowerCase() ||
+              t.kode_unik?.toLowerCase() === clean.toLowerCase() ||
+              t.nama_gereja?.toLowerCase() === clean.toLowerCase()
+          );
+          if (matched) {
+            StorageManager.setActiveTenantId(matched.tenant_id);
+            setActiveTenantId(matched.tenant_id);
+          }
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
     // Listen for setting changes across components & tabs
     const handleSettingsSync = (e?: any) => {

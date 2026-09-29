@@ -72,7 +72,7 @@ try {
   firestoreInstance = initializeFirestore(
     app,
     {
-      experimentalForceLongPolling: true
+      experimentalAutoDetectLongPolling: true
     },
     defaultDbId
   );
@@ -111,7 +111,7 @@ export function initFirebase(settings?: AppSettings) {
       firestoreDb = initializeFirestore(
         firebaseApp,
         {
-          experimentalForceLongPolling: true
+          experimentalAutoDetectLongPolling: true
         },
         dbId
       );

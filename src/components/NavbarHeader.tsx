@@ -80,6 +80,34 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [isNavbarCustomizerOpen, setIsNavbarCustomizerOpen] = useState(false);
+  const [showChurchSwitcher, setShowChurchSwitcher] = useState(false);
+  const [allTenants, setAllTenants] = useState(() => StorageManager.getTenants());
+  const activeTenantId = StorageManager.getActiveTenantId();
+  const churchSwitcherRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleSync = () => {
+      setAllTenants(StorageManager.getTenants());
+    };
+    window.addEventListener('cms_data_changed', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('cms_data_changed', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (churchSwitcherRef.current && !churchSwitcherRef.current.contains(e.target as Node)) {
+        setShowChurchSwitcher(false);
+      }
+    };
+    if (showChurchSwitcher) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showChurchSwitcher]);
 
   // Admin access check - color settings are strictly restricted to Admin & SuperAdmin
   const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
@@ -321,11 +349,23 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           >
             <Building2 className="w-5 h-5 text-white" />
           </div>
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${isNavLight ? 'text-slate-950 font-black' : 'text-white'}`}>
-                {settings?.nama_gereja || 'Jesus Kingdom Christ'}
-              </h1>
+          <div className="flex flex-col min-w-0 relative" ref={churchSwitcherRef}>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => allTenants.length > 1 && setShowChurchSwitcher(!showChurchSwitcher)}
+                className={`flex items-center gap-1.5 text-left group transition-all ${
+                  allTenants.length > 1 ? 'cursor-pointer hover:opacity-85' : 'cursor-default'
+                }`}
+                title={allTenants.length > 1 ? 'Klik untuk mengganti gereja' : undefined}
+              >
+                <h1 className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${isNavLight ? 'text-slate-950 font-black' : 'text-white'}`}>
+                  {settings?.nama_gereja || 'Jesus Kingdom Christ'}
+                </h1>
+                {allTenants.length > 1 && (
+                  <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${showChurchSwitcher ? 'rotate-180' : ''} ${isNavLight ? 'text-slate-600' : 'text-slate-300'}`} />
+                )}
+              </button>
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
                 isNavLight ? 'bg-teal-50 text-teal-900 border border-teal-300' : 'bg-white/15 text-white border border-white/20'
               }`}>
@@ -337,6 +377,49 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
             }`}>
               Sistem Informasi Manajemen Gereja
             </p>
+
+            {/* Church Switcher Dropdown */}
+            {showChurchSwitcher && allTenants.length > 1 && (
+              <div
+                className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl p-2 z-50 text-white backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150"
+              >
+                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800 text-xs font-bold text-slate-400">
+                  <span className="flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-teal-400" />
+                    Pilih Gereja / Jemaat
+                  </span>
+                  <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full">{allTenants.length} Cabang</span>
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-1 mt-1 p-1">
+                  {allTenants.map((t) => {
+                    const isCurrent = t.tenant_id === activeTenantId;
+                    return (
+                      <button
+                        key={t.tenant_id}
+                        type="button"
+                        onClick={() => {
+                          StorageManager.setActiveTenantId(t.tenant_id);
+                          setShowChurchSwitcher(false);
+                        }}
+                        className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-left transition-all ${
+                          isCurrent
+                            ? 'bg-teal-600 text-white font-bold shadow-xs'
+                            : 'hover:bg-slate-800 text-slate-200'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold truncate">{t.nama_gereja}</p>
+                          <p className={`text-[10px] truncate ${isCurrent ? 'text-teal-100' : 'text-slate-400'}`}>
+                            {t.alamat || t.kode_unik || t.tenant_id}
+                          </p>
+                        </div>
+                        {isCurrent && <Check className="w-4 h-4 shrink-0 text-white" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

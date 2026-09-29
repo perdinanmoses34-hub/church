@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import defaultFirebaseConfig from '../../firebase-applet-config.json';
 import { stopSecurityAlarmSiren, playNotificationChime } from './soundHelper';
+import { notifyStorageListeners } from './storage';
 
 try {
   setLogLevel('silent');
@@ -32,9 +33,6 @@ export function isLocalDeviceSessionKey(key: string): boolean {
     k === 'cms_pro_current_user' ||
     k === 'current_user' ||
     k.includes('current_user') ||
-    k === 'cms_pro_active_tenant_id' ||
-    k === 'active_tenant_id' ||
-    k.includes('active_tenant') ||
     k === 'cms_pro_fcm_tokens' ||
     k.includes('fcm_token')
   );
@@ -44,6 +42,8 @@ export function isLocalDeviceSessionKey(key: string): boolean {
 const DOC_MAPPING: Record<string, string> = {
   settings: 'settings',
   cms_pro_settings: 'settings',
+  cms_pro_active_tenant_id: 'active_tenant_id',
+  active_tenant_id: 'active_tenant_id',
   cms_pro_users: 'users',
   cms_pro_jemaat: 'jemaat',
   cms_pro_keluarga: 'keluarga',
@@ -111,7 +111,8 @@ const REVERSE_DOC_MAPPING: Record<string, string> = {
   hymn_songs: 'cms_pro_hymn_songs',
   favorite_songs: 'cms_pro_favorite_songs',
   favorite_verses: 'cms_pro_favorite_verses',
-  security_alert: 'cms_pro_security_alert'
+  security_alert: 'cms_pro_security_alert',
+  active_tenant_id: 'cms_pro_active_tenant_id'
 };
 
 /**
@@ -180,7 +181,7 @@ export function getOrInitFirestore(app: FirebaseApp, databaseId?: string): Fires
     firestoreDb = initializeFirestore(
       app,
       {
-        experimentalForceLongPolling: true
+        experimentalAutoDetectLongPolling: true
       },
       dbId
     );
@@ -340,10 +341,13 @@ export async function syncServerFirebaseConfig(config?: any): Promise<void> {
  */
 export async function pushToCloud(storageKey: string, data: any): Promise<void> {
   if (isRemoteUpdating || isLocalDeviceSessionKey(storageKey)) return;
-  const docId =
-    storageKey === 'settings' || storageKey === 'cms_pro_settings' || storageKey.endsWith('_settings')
-      ? 'settings'
-      : DOC_MAPPING[storageKey] || storageKey;
+
+  let docId = DOC_MAPPING[storageKey] || storageKey;
+  if (storageKey === 'settings' || storageKey === 'cms_pro_settings') {
+    docId = 'settings';
+  } else if (storageKey.startsWith('cms_pro_') && storageKey.endsWith('_settings')) {
+    docId = storageKey;
+  }
   if (isLocalDeviceSessionKey(docId)) return;
 
   const payloadString = typeof data === 'string' ? data : JSON.stringify(data);
@@ -618,19 +622,24 @@ export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boo
 
           // Apply remote cloud update to localStorage
           localStorage.setItem(storageKey, cloudPayloadStr);
-          if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
+          if (docId === 'settings' || storageKey === 'cms_pro_settings') {
             localStorage.setItem('cms_pro_settings', cloudPayloadStr);
+          } else if (docId.startsWith('cms_pro_') && docId.endsWith('_settings')) {
+            localStorage.setItem(docId, cloudPayloadStr);
             try {
               const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
-              if (rawTenant) {
-                const cleanTenant = rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
-                if (cleanTenant && cleanTenant !== 'CHURCH-001' && cleanTenant !== 'ALL') {
-                  localStorage.setItem(`cms_pro_${cleanTenant}_settings`, cloudPayloadStr);
-                }
+              const cleanTenant = rawTenant ? rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim() : 'CHURCH-001';
+              if (docId === `cms_pro_${cleanTenant}_settings`) {
+                localStorage.setItem('cms_pro_settings', cloudPayloadStr);
               }
-            } catch (e) {
-              // ignore
-            }
+            } catch (e) {}
+          } else if (docId === 'active_tenant_id' || storageKey === 'cms_pro_active_tenant_id') {
+            try {
+              const cleanTenant = cloudPayloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
+              if (cleanTenant) {
+                localStorage.setItem('cms_pro_active_tenant_id', JSON.stringify(cleanTenant));
+              }
+            } catch (e) {}
           }
           lastPushedPayloads.set(docId, cloudPayloadStr);
           hasChanges = true;
@@ -638,6 +647,7 @@ export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boo
       });
 
       if (hasChanges) {
+        notifyStorageListeners();
         window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { source: 'firebase_pull' } }));
         window.dispatchEvent(new Event('storage'));
         if (onDataReceived) onDataReceived();
@@ -694,6 +704,14 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
               isRemoteUpdating = true;
               try {
                 localStorage.setItem(storageKey, payloadStr);
+                if (storageKey === 'settings' || storageKey === 'cms_pro_settings') {
+                  localStorage.setItem('cms_pro_settings', payloadStr);
+                } else if (storageKey === 'cms_pro_active_tenant_id' || storageKey === 'active_tenant_id') {
+                  const cleanTenant = payloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
+                  if (cleanTenant) {
+                    localStorage.setItem('cms_pro_active_tenant_id', JSON.stringify(cleanTenant));
+                  }
+                }
                 lastPushedPayloads.set(storageKey, payloadStr);
                 if (storageKey === 'cms_pro_notifications' || storageKey === 'notifications') {
                   try {
@@ -701,6 +719,7 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
                   } catch {}
                 }
                 syncConnectedStatus = true;
+                notifyStorageListeners();
                 window.dispatchEvent(
                   new CustomEvent('cms_data_changed', { detail: { source: 'server_sse', key: storageKey } })
                 );
@@ -854,19 +873,24 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
 
                 // Apply incoming update from Cloud Firestore
                 localStorage.setItem(storageKey, cloudPayloadStr);
-                if (docId === 'settings' || storageKey === 'cms_pro_settings' || docId.endsWith('_settings')) {
+                if (docId === 'settings' || storageKey === 'cms_pro_settings') {
                   localStorage.setItem('cms_pro_settings', cloudPayloadStr);
+                } else if (docId.startsWith('cms_pro_') && docId.endsWith('_settings')) {
+                  localStorage.setItem(docId, cloudPayloadStr);
                   try {
                     const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
-                    if (rawTenant) {
-                      const cleanTenant = rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
-                      if (cleanTenant && cleanTenant !== 'CHURCH-001' && cleanTenant !== 'ALL') {
-                        localStorage.setItem(`cms_pro_${cleanTenant}_settings`, cloudPayloadStr);
-                      }
+                    const cleanTenant = rawTenant ? rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim() : 'CHURCH-001';
+                    if (docId === `cms_pro_${cleanTenant}_settings`) {
+                      localStorage.setItem('cms_pro_settings', cloudPayloadStr);
                     }
-                  } catch (e) {
-                    // ignore
-                  }
+                  } catch (e) {}
+                } else if (docId === 'active_tenant_id' || storageKey === 'cms_pro_active_tenant_id') {
+                  try {
+                    const cleanTenant = cloudPayloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
+                    if (cleanTenant) {
+                      localStorage.setItem('cms_pro_active_tenant_id', JSON.stringify(cleanTenant));
+                    }
+                  } catch (e) {}
                 }
                 lastPushedPayloads.set(docId, cloudPayloadStr);
                 hasChanges = true;
@@ -906,6 +930,7 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
           });
 
           if (hasChanges) {
+            notifyStorageListeners();
             // Notify app components of remote data updates
             window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { source: 'firebase_listener' } }));
             window.dispatchEvent(new Event('storage'));
