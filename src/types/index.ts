@@ -235,6 +235,7 @@ export type NavTab =
   | 'laporan'
   | 'jemaat_portal'
   | 'settings'
+  | 'tampilan'
   | 'agenda'
   | 'media'
   | 'chat'

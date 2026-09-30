@@ -28,6 +28,7 @@ import { JemaatPortalView } from './components/views/JemaatPortalView';
 import { ChatView } from './components/views/ChatView';
 import { PustakaRohaniView } from './components/views/PustakaRohaniView';
 import { SystemSettingsView } from './components/views/SystemSettingsView';
+import { TemaTampilanView } from './components/views/TemaTampilanView';
 import { LainnyaView } from './components/views/LainnyaView';
 import { SplashScreen } from './components/SplashScreen';
 import { SuperAdminSaaSPanel } from './components/SuperAdminSaaSPanel';
@@ -607,6 +608,14 @@ export default function App() {
                 <p className="text-sm text-slate-400">Menu Pengaturan Sistem dan Kustomisasi Warna Tema Navbar hanya dapat diakses oleh Admin & SuperAdmin.</p>
               </div>
             )
+          )}
+
+          {activeTab === 'tampilan' && (
+            <TemaTampilanView
+              key={`${activeTenantId}_tampilan`}
+              settings={settings}
+              onUpdateSettings={handleUpdateSettings}
+            />
           )}
 
           {activeTab === 'lainnya' && (
