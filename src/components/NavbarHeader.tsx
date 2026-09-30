@@ -31,7 +31,6 @@ import {
   Grid,
   ArrowLeft,
   Home,
-  Download,
   Palette,
   Search
 } from 'lucide-react';
@@ -419,8 +418,8 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         </div>
       </div>
 
-      {/* Middle section: Search Box */}
-      <div className={`hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs w-44 lg:w-56 cursor-pointer transition-all ${
+      {/* Middle section: Search Box (Tampil di layar besar agar tidak menutup nama gereja) */}
+      <div className={`hidden xl:flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs w-48 2xl:w-56 cursor-pointer transition-all ${
         isNavLight
           ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
           : 'bg-white/10 hover:bg-white/15 border-white/15 text-slate-200'
@@ -432,20 +431,10 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         }`}>/</kbd>
       </div>
 
-      {/* Right section: Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
+      {/* Right section: Admin Tools, Notifications, Profile Dropdown */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* 1. Firebase Live Pill */}
-        <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs border ${
-          isNavLight
-            ? 'bg-teal-50 border-teal-300 text-teal-900'
-            : 'bg-teal-950/60 border-teal-500/40 text-teal-200'
-        }`}>
-          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-          <span>Firebase Live</span>
-        </div>
-
-        {/* 2. Admin Pill */}
-        <div className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs border ${
+        {/* Admin Pill (hanya di layar ultra lebar agar navbar selalu proporsional) */}
+        <div className={`hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs border ${
           isNavLight
             ? 'bg-teal-50 border-teal-300 text-teal-900'
             : 'bg-teal-950/60 border-teal-500/40 text-teal-200'
@@ -453,6 +442,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           <span className="w-2 h-2 rounded-full bg-teal-500" />
           <span>{isAdmin ? 'Admin Gereja' : 'Jemaat Gereja'}</span>
         </div>
+
         {currentUser.role === 'SUPER_ADMIN' && onOpenSuperAdminSaaSPanel && (
           <button
             onClick={onOpenSuperAdminSaaSPanel}
@@ -465,39 +455,22 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           </button>
         )}
 
-        {/* Waktu & Jam Realtime */}
-        <div
-          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold shadow-2xs transition-all shrink-0 ${
-            isNavLight
-              ? 'bg-slate-100/90 border-slate-300/80 text-slate-800'
-              : 'bg-white/10 border-white/20 text-white'
-          }`}
-          title={dateStr ? `${dateStr} · Waktu Realtime` : 'Jam Realtime'}
-        >
-          <Clock className={`w-3.5 h-3.5 shrink-0 ${isNavLight ? 'text-teal-700' : 'text-teal-300'}`} />
-          <div className="flex items-center gap-1.5 leading-none font-mono">
-            <span className="font-bold tracking-tight">{timeStr || '00:00:00 WIB'}</span>
-            <span className="hidden xl:inline text-[11px] font-sans font-medium opacity-75">· {dateStr}</span>
-          </div>
-        </div>
-
-        {/* Tombol Akses Cepat Konversi Android Studio & Download google-services.json (Khusus Admin) */}
+        {/* Waktu & Jam Realtime - Khusus Admin di Layar Desktop (Disembunyikan di HP / Jemaat agar tidak numpuk) */}
         {isAdmin && (
-          <button
-            onClick={() => {
-              if (onOpenAndroidStudioModal) {
-                onOpenAndroidStudioModal();
-              } else {
-                window.dispatchEvent(new CustomEvent('open_android_studio_modal'));
-              }
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 border border-emerald-400/40 cursor-pointer active:scale-95 transition-all"
-            title="Konversi Android Studio & Download google-services.json"
+          <div
+            className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold shadow-2xs transition-all shrink-0 ${
+              isNavLight
+                ? 'bg-slate-100/90 border-slate-300/80 text-slate-800'
+                : 'bg-white/10 border-white/20 text-white'
+            }`}
+            title={dateStr ? `${dateStr} · Waktu Realtime` : 'Jam Realtime'}
           >
-            <Smartphone className="w-3.5 h-3.5 text-amber-300" />
-            <span className="hidden md:inline">📱 Android Studio &amp; FCM</span>
-            <span className="md:hidden">Android</span>
-          </button>
+            <Clock className={`w-3.5 h-3.5 shrink-0 ${isNavLight ? 'text-teal-700' : 'text-teal-300'}`} />
+            <div className="flex items-center gap-1.5 leading-none font-mono">
+              <span className="font-bold tracking-tight">{timeStr || '00:00:00 WIB'}</span>
+              <span className="hidden xl:inline text-[11px] font-sans font-medium opacity-75">· {dateStr}</span>
+            </div>
+          </div>
         )}
 
         {/* Quick Navbar Customizer Palette Button - ONLY FOR ADMIN */}
@@ -510,7 +483,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                 setIsNavbarCustomizerOpen(true);
               }
             }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shadow-sm cursor-pointer active:scale-95 transition-all shrink-0 border ${
+            className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shadow-sm cursor-pointer active:scale-95 transition-all shrink-0 border ${
               isNavLight
                 ? 'bg-amber-100 hover:bg-amber-200/90 text-amber-950 border-amber-300'
                 : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-white border-amber-500/40'
