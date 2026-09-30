@@ -314,31 +314,35 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <DollarSign className="w-6 h-6 text-emerald-400" />
-            <span>Manajemen Keuangan, Persembahan & Kas</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Pencatatan persembahan ibadah, verifikasi transfer digital jemaat, kas penerimaan & pengeluaran operasional.
-          </p>
+      {/* Header Card Proposional */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-teal-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 shadow-2xs shrink-0">
+            <DollarSign className="w-6 h-6 sm:w-7 sm:h-7 text-teal-600" />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>Manajemen Keuangan, Persembahan &amp; Kas</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+              Pencatatan persembahan ibadah, verifikasi transfer digital jemaat, kas penerimaan &amp; pengeluaran operasional.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleExportExcel}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <FileSpreadsheet className="w-4 h-4" />
+            <FileSpreadsheet className="w-4 h-4 text-teal-600" />
             <span>Excel</span>
           </button>
           <button
             onClick={handleExportPDF}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <FileText className="w-4 h-4 text-rose-400" />
+            <FileText className="w-4 h-4 text-rose-600" />
             <span>PDF</span>
           </button>
         </div>
@@ -346,13 +350,13 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
 
       {/* Alert Banner for Pending Verification */}
       {pendingList.length > 0 && (
-        <div className="p-4 rounded-2xl bg-amber-500/15 border-2 border-amber-500/40 text-amber-200 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg animate-pulse">
+        <div className="p-4 rounded-3xl bg-amber-50 border-2 border-amber-300 text-amber-900 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm animate-pulse">
           <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
             <div>
               <span>🔔 Terdapat <strong>{pendingList.length} persembahan transfer jemaat</strong> yang memerlukan verifikasi Admin!</span>
-              <p className="text-[11px] font-normal text-amber-300/80 mt-0.5">
-                Saldo kas hanya akan bertambah setelah transaksi diverifikasi & diterima oleh Admin.
+              <p className="text-[11px] font-normal text-amber-800 mt-0.5">
+                Saldo kas hanya akan bertambah setelah transaksi diverifikasi &amp; diterima oleh Admin.
               </p>
             </div>
           </div>
@@ -361,7 +365,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
               setActiveTab('PERSEMBAHAN');
               setStatusFilter('PENDING');
             }}
-            className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shrink-0 cursor-pointer shadow"
+            className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shrink-0 cursor-pointer shadow-sm transition-all"
           >
             Verifikasi Sekarang ({pendingList.length})
           </button>
@@ -370,43 +374,45 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
 
       {/* Financial Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-sm text-white">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Penerimaan (Terverifikasi)</span>
-          <h3 className="text-2xl font-bold tracking-tight text-emerald-400 mt-2">
+        <div className="rounded-3xl bg-white border-2 border-teal-100 p-5 shadow-sm text-slate-800">
+          <span className="text-xs text-teal-800 uppercase font-bold tracking-wider">Total Penerimaan (Terverifikasi)</span>
+          <h3 className="text-2xl font-black tracking-tight text-teal-700 mt-2">
             Rp {totalPenerimaan.toLocaleString('id-ID')}
           </h3>
-          <p className="text-[11px] text-slate-500 mt-1">Hanya mencakup transaksi terverifikasi & tunai</p>
+          <p className="text-[11px] text-slate-500 mt-1 font-medium">Hanya mencakup transaksi terverifikasi &amp; tunai</p>
         </div>
 
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-sm text-white">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Pengeluaran Operasional</span>
-          <h3 className="text-2xl font-bold tracking-tight text-rose-400 mt-2">
+        <div className="rounded-3xl bg-white border-2 border-rose-100 p-5 shadow-sm text-slate-800">
+          <span className="text-xs text-rose-800 uppercase font-bold tracking-wider">Total Pengeluaran Operasional</span>
+          <h3 className="text-2xl font-black tracking-tight text-rose-600 mt-2">
             Rp {totalPengeluaran.toLocaleString('id-ID')}
           </h3>
-          <p className="text-[11px] text-slate-500 mt-1">Biaya Listrik, Maintenance & Diakonia</p>
+          <p className="text-[11px] text-slate-500 mt-1 font-medium">Biaya Listrik, Maintenance &amp; Diakonia</p>
         </div>
 
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-sm text-white">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Saldo Kas Bersih Realtime</span>
-          <h3 className="text-2xl font-bold tracking-tight text-indigo-400 mt-2">
+        <div className="rounded-3xl bg-white border-2 border-emerald-100 p-5 shadow-sm text-slate-800">
+          <span className="text-xs text-emerald-800 uppercase font-bold tracking-wider">Saldo Kas Bersih Realtime</span>
+          <h3 className="text-2xl font-black tracking-tight text-emerald-700 mt-2">
             Rp {(totalPenerimaan - totalPengeluaran).toLocaleString('id-ID')}
           </h3>
-          <p className="text-[11px] text-slate-500 mt-1">Tersedia di Kas Bank / Tunai Gereja</p>
+          <p className="text-[11px] text-slate-500 mt-1 font-medium">Tersedia di Kas Bank / Tunai Gereja</p>
         </div>
       </div>
 
       {/* Subtab Selector */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-3">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-teal-100 pb-3 gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('PERSEMBAHAN')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'PERSEMBAHAN' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-900 text-slate-400 hover:text-white'
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'PERSEMBAHAN'
+                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                : 'bg-white text-slate-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200'
             }`}
           >
-            Persembahan & Transfer ({persembahanList.length})
+            <span>Persembahan &amp; Transfer ({persembahanList.length})</span>
             {pendingList.length > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black">
+              <span className="ml-1 px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-900 text-[10px] font-black">
                 {pendingList.length}
               </span>
             )}
@@ -415,16 +421,20 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
           <button
             onClick={() => setActiveTab('KAS')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'KAS' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-900 text-slate-400 hover:text-white'
+              activeTab === 'KAS'
+                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                : 'bg-white text-slate-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200'
             }`}
           >
-            Kas & Pengeluaran ({kasList.length})
+            Kas &amp; Pengeluaran ({kasList.length})
           </button>
 
           <button
             onClick={() => setActiveTab('DONASI')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'DONASI' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-900 text-slate-400 hover:text-white'
+              activeTab === 'DONASI'
+                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                : 'bg-white text-slate-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200'
             }`}
           >
             Donasi Pembangunan ({donasiList.length})
@@ -434,7 +444,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
         {isAdmin && activeTab === 'PERSEMBAHAN' && (
           <button
             onClick={() => setIsPersembahanModal(true)}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-bold shadow-md shadow-teal-600/25 flex items-center gap-1.5 cursor-pointer shrink-0 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Catat Persembahan Tunai</span>
@@ -444,7 +454,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
         {isAdmin && activeTab === 'KAS' && (
           <button
             onClick={() => setIsKasModal(true)}
-            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-bold shadow-md shadow-teal-600/25 flex items-center gap-1.5 cursor-pointer shrink-0 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Catat Transaksi Kas</span>
@@ -456,15 +466,17 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
       {activeTab === 'PERSEMBAHAN' && (
         <div className="space-y-4">
           {/* Status Filter Bar & Search */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900 p-3 rounded-2xl border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-3xl border-2 border-teal-100 shadow-sm">
             <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto text-xs">
-              <span className="text-slate-400 font-semibold flex items-center gap-1 mr-1">
-                <Filter className="w-3.5 h-3.5 text-indigo-400" /> Filter:
+              <span className="text-slate-500 font-bold flex items-center gap-1 mr-1">
+                <Filter className="w-3.5 h-3.5 text-teal-600" /> Filter:
               </span>
               <button
                 onClick={() => setStatusFilter('ALL')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-                  statusFilter === 'ALL' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  statusFilter === 'ALL'
+                    ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 Semua ({persembahanList.length})
@@ -473,8 +485,8 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                 onClick={() => setStatusFilter('PENDING')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1 cursor-pointer ${
                   statusFilter === 'PENDING'
-                    ? 'bg-amber-500 text-slate-950 font-black shadow'
-                    : 'bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20'
+                    ? 'bg-amber-500 text-white shadow-md'
+                    : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
                 }`}
               >
                 <Clock className="w-3.5 h-3.5" />
@@ -484,8 +496,8 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                 onClick={() => setStatusFilter('TERVERIFIKASI')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
                   statusFilter === 'TERVERIFIKASI'
-                    ? 'bg-emerald-600 text-white shadow'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
                 }`}
               >
                 Terverifikasi ({persembahanList.filter((p) => p.status === 'TERVERIFIKASI' || !p.status).length})
@@ -494,8 +506,8 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                 onClick={() => setStatusFilter('DITOLAK')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
                   statusFilter === 'DITOLAK'
-                    ? 'bg-rose-600 text-white shadow'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-rose-600 text-white shadow-md'
+                    : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
                 }`}
               >
                 Ditolak ({persembahanList.filter((p) => p.status === 'DITOLAK').length})
@@ -503,25 +515,25 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
             </div>
 
             <div className="relative w-full sm:w-64">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+              <Search className="w-3.5 h-3.5 text-teal-600 absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Cari pengirim, ID, jenis..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs"
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               />
             </div>
           </div>
 
           {/* Table Persembahan */}
-          <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+          <div className="rounded-3xl bg-white border-2 border-teal-100 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs text-slate-300">
+              <table className="w-full text-left border-collapse text-xs text-slate-800">
                 <thead>
-                  <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="p-3.5">ID & Tanggal</th>
-                    <th className="p-3.5">Pengirim & Jenis</th>
+                  <tr className="bg-teal-50/80 border-b border-teal-100 text-teal-950 font-bold uppercase tracking-wider">
+                    <th className="p-3.5">ID &amp; Tanggal</th>
+                    <th className="p-3.5">Pengirim &amp; Jenis</th>
                     <th className="p-3.5">Metode / Bukti</th>
                     <th className="p-3.5">Status Verifikasi</th>
                     <th className="p-3.5">Keterangan</th>
@@ -529,10 +541,10 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                     {isAdmin && <th className="p-3.5 text-center">Aksi / Kontrol</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-teal-100">
                   {filteredPersembahan.length === 0 ? (
                     <tr>
-                      <td colSpan={isAdmin ? 7 : 6} className="p-8 text-center text-slate-500 text-xs">
+                      <td colSpan={isAdmin ? 7 : 6} className="p-8 text-center text-slate-500 text-xs font-medium">
                         Tidak ada data persembahan untuk filter ini.
                       </td>
                     </tr>
@@ -543,29 +555,29 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                       const isRejected = p.status === 'DITOLAK';
 
                       return (
-                        <tr key={p.persembahan_id} className={`hover:bg-slate-800/40 transition-all ${isPending ? 'bg-amber-500/5' : ''}`}>
+                        <tr key={p.persembahan_id} className={`hover:bg-teal-50/40 transition-all ${isPending ? 'bg-amber-50/40' : ''}`}>
                           <td className="p-3.5">
-                            <div className="font-mono text-indigo-300 font-bold">{p.persembahan_id}</div>
-                            <div className="text-[10px] text-slate-400">{p.tanggal}</div>
+                            <div className="font-mono text-teal-800 font-bold">{p.persembahan_id}</div>
+                            <div className="text-[10px] text-slate-500 font-medium">{p.tanggal}</div>
                           </td>
                           <td className="p-3.5">
-                            <div className="font-bold text-white flex items-center gap-1.5">
+                            <div className="font-bold text-slate-900 flex items-center gap-1.5">
                               <span>{p.nama_pengirim || 'Jemaat'}</span>
                             </div>
-                            <span className="inline-block mt-0.5 px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[10px]">
+                            <span className="inline-block mt-0.5 px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold">
                               {p.jenis || p.kategori || 'Persembahan'}
                             </span>
                           </td>
                           <td className="p-3.5">
                             <div className="flex items-center gap-2">
-                              <span className="font-semibold text-slate-200">{p.metode_pembayaran || 'Tunai'}</span>
+                              <span className="font-bold text-slate-700">{p.metode_pembayaran || 'Tunai'}</span>
                               {p.bukti_transfer && (
                                 <button
                                   onClick={() => setSelectedReceipt(p)}
-                                  className="px-2 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                                  className="px-2 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all"
                                   title="Lihat Bukti Transfer"
                                 >
-                                  <Eye className="w-3 h-3" />
+                                  <Eye className="w-3 h-3 text-teal-600" />
                                   <span>Bukti</span>
                                 </button>
                               )}
@@ -573,34 +585,34 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                           </td>
                           <td className="p-3.5">
                             {isPending && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold animate-pulse">
-                                <Clock className="w-3 h-3 text-amber-400" />
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 text-[10px] font-bold animate-pulse">
+                                <Clock className="w-3 h-3 text-amber-600" />
                                 <span>Perlu Verifikasi</span>
                               </span>
                             )}
                             {isVerified && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">
-                                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                                 <span>Terverifikasi</span>
                               </span>
                             )}
                             {isRejected && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-bold">
-                                <XCircle className="w-3 h-3 text-rose-400" />
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-[10px] font-bold">
+                                <XCircle className="w-3 h-3 text-rose-600" />
                                 <span>Ditolak</span>
                               </span>
                             )}
                           </td>
-                          <td className="p-3.5 text-slate-300 max-w-xs truncate">
+                          <td className="p-3.5 text-slate-700 max-w-xs truncate font-medium">
                             {p.keterangan || '-'}
                             {p.catatan_admin && (
-                              <div className="text-[10px] text-amber-300/80 mt-0.5 truncate italic">
+                              <div className="text-[10px] text-amber-700 mt-0.5 truncate italic font-semibold">
                                 Admin: {p.catatan_admin}
                               </div>
                             )}
                           </td>
-                          <td className="p-3.5 text-right font-bold text-sm">
-                            <span className={isVerified ? 'text-emerald-400' : isPending ? 'text-amber-300' : 'text-slate-500 line-through'}>
+                          <td className="p-3.5 text-right font-black text-sm">
+                            <span className={isVerified ? 'text-emerald-700' : isPending ? 'text-amber-700' : 'text-slate-400 line-through'}>
                               Rp {p.jumlah.toLocaleString('id-ID')}
                             </span>
                           </td>
@@ -619,7 +631,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                                     </button>
                                     <button
                                       onClick={() => handleRejectPersembahan(p.persembahan_id)}
-                                      className="px-2 py-1 rounded-lg bg-rose-600/30 hover:bg-rose-600/60 text-rose-300 border border-rose-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+                                      className="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all"
                                       title="Tolak Transaksi"
                                     >
                                       <X className="w-3.5 h-3.5" />
@@ -629,7 +641,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
 
                                 <button
                                   onClick={() => handleDeletePersembahan(p.persembahan_id)}
-                                  className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-all cursor-pointer"
                                   title="Hapus Riwayat Persembahan Ini"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -650,41 +662,41 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
 
       {/* Tab 2: Kas & Pengeluaran */}
       {activeTab === 'KAS' && (
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+        <div className="rounded-3xl bg-white border-2 border-teal-100 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs text-slate-300">
+            <table className="w-full text-left border-collapse text-xs text-slate-800">
               <thead>
-                <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
-                  <th className="p-3.5">ID & Tanggal</th>
-                  <th className="p-3.5">Tipe & Kategori</th>
+                <tr className="bg-teal-50/80 border-b border-teal-100 text-teal-950 font-bold uppercase tracking-wider">
+                  <th className="p-3.5">ID &amp; Tanggal</th>
+                  <th className="p-3.5">Tipe &amp; Kategori</th>
                   <th className="p-3.5">Keterangan Transaksi</th>
                   <th className="p-3.5">PIC / Penanggung Jawab</th>
                   <th className="p-3.5 text-right">Jumlah (Rp)</th>
                   {isAdmin && <th className="p-3.5 text-center">Aksi</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-teal-100">
                 {kasList.map((k) => (
-                  <tr key={k.kas_id} className="hover:bg-slate-800/40 transition-all">
+                  <tr key={k.kas_id} className="hover:bg-teal-50/40 transition-all">
                     <td className="p-3.5">
-                      <div className="font-mono text-slate-300 font-bold">{k.kas_id}</div>
-                      <div className="text-[10px] text-slate-400">{k.tanggal}</div>
+                      <div className="font-mono text-teal-800 font-bold">{k.kas_id}</div>
+                      <div className="text-[10px] text-slate-500 font-medium">{k.tanggal}</div>
                     </td>
                     <td className="p-3.5">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${k.tipe === 'Penerimaan' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${k.tipe === 'Penerimaan' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}>
                         {k.tipe}: {k.kategori}
                       </span>
                     </td>
-                    <td className="p-3.5 text-slate-300">{k.keterangan}</td>
-                    <td className="p-3.5 text-slate-400">{k.pic || '-'}</td>
-                    <td className={`p-3.5 text-right font-bold text-sm ${k.tipe === 'Penerimaan' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <td className="p-3.5 text-slate-800 font-medium">{k.keterangan}</td>
+                    <td className="p-3.5 text-slate-600 font-medium">{k.pic || '-'}</td>
+                    <td className={`p-3.5 text-right font-black text-sm ${k.tipe === 'Penerimaan' ? 'text-emerald-700' : 'text-rose-600'}`}>
                       {k.tipe === 'Penerimaan' ? '+' : '-'} Rp {k.jumlah.toLocaleString('id-ID')}
                     </td>
                     {isAdmin && (
                       <td className="p-3.5 text-center">
                         <button
                           onClick={() => handleDeleteKas(k.kas_id)}
-                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
+                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-all cursor-pointer"
                           title="Hapus Riwayat Kas Ini"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -701,12 +713,12 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
 
       {/* Tab 3: Donasi Pembangunan */}
       {activeTab === 'DONASI' && (
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+        <div className="rounded-3xl bg-white border-2 border-teal-100 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs text-slate-300">
+            <table className="w-full text-left border-collapse text-xs text-slate-800">
               <thead>
-                <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
-                  <th className="p-3.5">ID & Tanggal</th>
+                <tr className="bg-teal-50/80 border-b border-teal-100 text-teal-950 font-bold uppercase tracking-wider">
+                  <th className="p-3.5">ID &amp; Tanggal</th>
                   <th className="p-3.5">Nama Donatur</th>
                   <th className="p-3.5">Kategori / Peruntukan</th>
                   <th className="p-3.5">Keterangan</th>
@@ -714,28 +726,28 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
                   {isAdmin && <th className="p-3.5 text-center">Aksi</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-teal-100">
                 {donasiList.map((d) => (
-                  <tr key={d.donasi_id} className="hover:bg-slate-800/40 transition-all">
+                  <tr key={d.donasi_id} className="hover:bg-teal-50/40 transition-all">
                     <td className="p-3.5">
-                      <div className="font-mono text-purple-300 font-bold">{d.donasi_id}</div>
-                      <div className="text-[10px] text-slate-400">{d.tanggal}</div>
+                      <div className="font-mono text-teal-800 font-bold">{d.donasi_id}</div>
+                      <div className="text-[10px] text-slate-500 font-medium">{d.tanggal}</div>
                     </td>
-                    <td className="p-3.5 font-bold text-white">{d.nama}</td>
+                    <td className="p-3.5 font-bold text-slate-900">{d.nama}</td>
                     <td className="p-3.5">
-                      <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold">
                         {d.kategori || 'Pembangunan'}
                       </span>
                     </td>
-                    <td className="p-3.5 text-slate-300">{d.keterangan || '-'}</td>
-                    <td className="p-3.5 text-right font-bold text-emerald-400 text-sm">
+                    <td className="p-3.5 text-slate-700 font-medium">{d.keterangan || '-'}</td>
+                    <td className="p-3.5 text-right font-black text-emerald-700 text-sm">
                       + Rp {d.jumlah.toLocaleString('id-ID')}
                     </td>
                     {isAdmin && (
                       <td className="p-3.5 text-center">
                         <button
                           onClick={() => handleDeleteDonasi(d.donasi_id)}
-                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
+                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-all cursor-pointer"
                           title="Hapus Donasi Ini"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

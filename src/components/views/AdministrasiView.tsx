@@ -435,40 +435,50 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <Scroll className="w-6 h-6 text-indigo-400" />
-            <span>Administrasi Sakramen & Surat Gereja</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Pencatatan Baptisan Kudus, Peneguhan Sidi, Pemberkatan Pernikahan Kudus, Upload Surat Baptisan, dan Berita Acara.
-          </p>
+      {/* Header Card Proposional */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-teal-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 shadow-2xs shrink-0">
+            <Scroll className="w-6 h-6 sm:w-7 sm:h-7 text-teal-600" />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>Administrasi Sakramen &amp; Surat Gereja</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+              Pencatatan Baptisan Kudus, Peneguhan Sidi, Pemberkatan Pernikahan Kudus, Upload Surat Baptisan, dan Berita Acara.
+            </p>
+          </div>
         </div>
 
         {/* Subtab Navigation */}
-        <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-2xl">
+        <div className="p-1 rounded-2xl bg-slate-100/90 border border-slate-200 flex items-center gap-1 shadow-inner shrink-0">
           <button
             onClick={() => setActiveTab('BAPTISAN')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-              activeTab === 'BAPTISAN' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'BAPTISAN'
+                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
             }`}
           >
             Baptisan ({baptisanList.length})
           </button>
           <button
             onClick={() => setActiveTab('SIDI')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-              activeTab === 'SIDI' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'SIDI'
+                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
             }`}
           >
             Sidi ({sidiList.length})
           </button>
           <button
             onClick={() => setActiveTab('PERNIKAHAN')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-              activeTab === 'PERNIKAHAN' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'PERNIKAHAN'
+                ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
             }`}
           >
             Pernikahan ({pernikahanList.length})
@@ -480,11 +490,11 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
       {activeTab === 'BAPTISAN' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Record Data Baptisan Kudus & Surat</h3>
+            <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Record Data Baptisan Kudus &amp; Surat</h3>
             {isAdmin && (
               <button
                 onClick={() => setIsBaptisModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-bold shadow-md shadow-teal-600/25 flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 <span>Input Baptisan Baru</span>
@@ -492,12 +502,12 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
             )}
           </div>
 
-          <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+          <div className="rounded-3xl bg-white border-2 border-teal-100 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs text-slate-300">
+              <table className="w-full text-left border-collapse text-xs text-slate-800">
                 <thead>
-                  <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="p-3.5">No. Surat & ID</th>
+                  <tr className="bg-teal-50/80 border-b border-teal-100 text-teal-950 font-bold uppercase tracking-wider">
+                    <th className="p-3.5">No. Surat &amp; ID</th>
                     <th className="p-3.5">Nama Yang Dibaptis</th>
                     <th className="p-3.5">Tanggal Baptis</th>
                     <th className="p-3.5">Pendeta Pembaptis</th>
@@ -506,27 +516,27 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
                     {isAdmin && <th className="p-3.5 text-center">Aksi</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-teal-100">
                   {baptisanList.map((b) => (
-                    <tr key={b.baptisan_id} className="hover:bg-slate-800/40 transition-all">
-                      <td className="p-3.5 font-mono text-indigo-300">
+                    <tr key={b.baptisan_id} className="hover:bg-teal-50/40 transition-all">
+                      <td className="p-3.5 font-mono text-teal-800 font-bold">
                         {b.nomor_surat || b.baptisan_id}
                       </td>
-                      <td className="p-3.5 font-bold text-white text-sm">{b.nama_jemaat || b.jemaat_id}</td>
-                      <td className="p-3.5">{b.tanggal}</td>
-                      <td className="p-3.5">{b.pendeta}</td>
+                      <td className="p-3.5 font-bold text-slate-900 text-sm">{b.nama_jemaat || b.jemaat_id}</td>
+                      <td className="p-3.5 font-medium text-slate-700">{b.tanggal}</td>
+                      <td className="p-3.5 font-medium text-slate-700">{b.pendeta}</td>
                       <td className="p-3.5">
                         {b.file_surat_baptis ? (
                           <div className="flex items-center gap-2">
-                            <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1">
-                              <CheckCircle className="w-3 h-3 text-emerald-400" />
+                            <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3 text-emerald-600" />
                               <span>Surat Jadi</span>
                             </span>
                             <a
                               href={b.file_surat_baptis}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-2.5 py-1 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/60 text-indigo-300 border border-indigo-500/30 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+                              className="px-2.5 py-1 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all"
                               title="Lihat / Download Surat Baptisan"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -536,13 +546,13 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
                               <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={() => setUploadTarget({ type: 'BAPTISAN', id: b.baptisan_id, name: b.nama_jemaat || b.jemaat_id })}
-                                  className="text-[10px] text-slate-400 hover:text-white underline cursor-pointer"
+                                  className="text-[10px] text-teal-700 hover:text-teal-900 underline cursor-pointer"
                                 >
                                   Ganti
                                 </button>
                                 <button
                                   onClick={() => handleDeleteSuratFile('BAPTISAN', b.baptisan_id)}
-                                  className="text-[10px] text-rose-400 hover:text-rose-300 underline cursor-pointer"
+                                  className="text-[10px] text-rose-600 hover:text-rose-800 underline cursor-pointer"
                                   title="Hapus file surat ini"
                                 >
                                   Hapus File
@@ -553,13 +563,13 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
                         ) : isAdmin ? (
                           <button
                             onClick={() => setUploadTarget({ type: 'BAPTISAN', id: b.baptisan_id, name: b.nama_jemaat || b.jemaat_id })}
-                            className="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/40 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all"
+                            className="px-2.5 py-1 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all"
                           >
-                            <Upload className="w-3 h-3" />
+                            <Upload className="w-3 h-3 text-amber-600" />
                             <span>Upload Surat Jadi</span>
                           </button>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 text-[10px]">
+                          <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200 text-[10px]">
                             Belum Diupload Admin
                           </span>
                         )}
@@ -568,18 +578,18 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
                         <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => handleOpenPreviewBaptis(b)}
-                            className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white inline-flex items-center gap-1 text-[11px] font-semibold cursor-pointer border border-slate-700 transition-all shadow-sm"
+                            className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-900 inline-flex items-center gap-1 text-[11px] font-bold cursor-pointer border border-slate-200 transition-all shadow-2xs"
                             title="Pratinjau Berita Acara & Tanda Tangan"
                           >
-                            <Eye className="w-3.5 h-3.5 text-indigo-400" />
+                            <Eye className="w-3.5 h-3.5 text-teal-600" />
                             <span>Lihat Akta</span>
                           </button>
                           <button
                             onClick={() => cetakBeritaAcaraBaptisPDF(b)}
-                            className="px-2.5 py-1.5 rounded-lg bg-indigo-900/50 hover:bg-indigo-900/90 text-indigo-300 inline-flex items-center gap-1 text-[11px] font-semibold cursor-pointer border border-indigo-700/40 transition-all shadow-sm"
+                            className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 inline-flex items-center gap-1 text-[11px] font-bold cursor-pointer border border-teal-200 transition-all shadow-2xs"
                             title="Unduh PDF Berita Acara Resmi"
                           >
-                            <Printer className="w-3.5 h-3.5" />
+                            <Printer className="w-3.5 h-3.5 text-teal-600" />
                             <span>PDF</span>
                           </button>
                         </div>
@@ -588,7 +598,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
                         <td className="p-3.5 text-center">
                           <button
                             onClick={() => handleDeleteBaptis(b.baptisan_id, b.nama_jemaat || b.jemaat_id)}
-                            className="p-1.5 rounded-lg bg-rose-900/40 text-rose-300 hover:bg-rose-900/80 transition-all inline-flex items-center gap-1 text-[11px] cursor-pointer"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all inline-flex items-center gap-1 text-[11px] cursor-pointer"
                             title="Hapus Record"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

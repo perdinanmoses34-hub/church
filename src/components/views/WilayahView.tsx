@@ -243,41 +243,45 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-indigo-400" />
-            <span>Manajemen Wilayah, Komisi & Pelayanan</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Pengorganisasian wilayah sektor jemaat, komisi kategorial gereja, dan tim pelayanan ibadah.
-          </p>
+      {/* Header Card Proposional */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-teal-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 shadow-2xs shrink-0">
+            <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-teal-600" />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>Manajemen Wilayah, Komisi &amp; Pelayanan</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+              Pengorganisasian wilayah sektor jemaat, komisi kategorial gereja, dan tim pelayanan ibadah.
+            </p>
+          </div>
         </div>
 
         {isAdmin && (
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleOpenAddWilayah}
-              className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-sm"
+              className="px-3 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
               title="Tambah Wilayah Sektor Baru"
             >
-              <Plus className="w-4 h-4 text-indigo-400" />
+              <Plus className="w-4 h-4 text-teal-600" />
               <span>+ Wilayah</span>
             </button>
 
             <button
               onClick={handleOpenAddKomisi}
-              className="px-3 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-sm"
+              className="px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
               title="Tambah Komisi Baru"
             >
-              <Plus className="w-4 h-4 text-purple-400" />
+              <Plus className="w-4 h-4 text-purple-600" />
               <span>+ Komisi</span>
             </button>
 
             <button
               onClick={handleOpenAddPelayanan}
-              className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 flex items-center gap-1.5 cursor-pointer transition-all"
+              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-bold shadow-md shadow-teal-600/25 flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
               title="Tambah Tim Pelayanan Baru"
             >
               <Plus className="w-4 h-4" />
@@ -288,13 +292,13 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+      <div className="flex items-center gap-2 border-b border-teal-100 pb-3 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveSubTab('wilayah')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
             activeSubTab === 'wilayah'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+              : 'bg-white text-slate-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200'
           }`}
         >
           <MapPin className="w-4 h-4" />
@@ -303,10 +307,10 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
 
         <button
           onClick={() => setActiveSubTab('komisi')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
             activeSubTab === 'komisi'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+              : 'bg-white text-slate-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -315,10 +319,10 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
 
         <button
           onClick={() => setActiveSubTab('pelayanan')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
             activeSubTab === 'pelayanan'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+              : 'bg-white text-slate-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200'
           }`}
         >
           <Users className="w-4 h-4" />
@@ -331,13 +335,13 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <span>Daftar Wilayah Sektor Jemaat</span>
-                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-indigo-400 text-xs">
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold">
                   {wilayahList.length} Sektor
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Admin dapat menambah wilayah baru atau menghapus wilayah yang tidak diperlukan menggunakan ikon hapus.
               </p>
             </div>
@@ -345,7 +349,7 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
             {isAdmin && (
               <button
                 onClick={handleOpenAddWilayah}
-                className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1.5 rounded-xl border border-indigo-500/30 cursor-pointer"
+                className="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-xl border border-teal-200 cursor-pointer shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Tambah Wilayah</span>
@@ -354,36 +358,38 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
           </div>
 
           {wilayahList.length === 0 ? (
-            <div className="p-8 text-center bg-slate-900/60 border border-dashed border-slate-800 rounded-2xl text-slate-400">
-              <MapPin className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-              <p className="text-sm font-medium">Belum ada wilayah sektor.</p>
-              <p className="text-xs text-slate-500 mt-1">Klik tombol "+ Wilayah" di atas untuk menambahkan sektor.</p>
+            <div className="p-8 text-center bg-white border border-dashed border-teal-200 rounded-3xl text-slate-500 space-y-2">
+              <MapPin className="w-10 h-10 mx-auto text-teal-400 mb-2" />
+              <p className="text-sm font-bold text-slate-800">Belum ada wilayah sektor.</p>
+              <p className="text-xs text-slate-500">Klik tombol "+ Wilayah" di atas untuk menambahkan sektor.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {wilayahList.map((w) => (
                 <div
                   key={w.wilayah_id}
-                  className="group rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-sm text-white hover:border-indigo-500/40 transition-all space-y-3 relative"
+                  className="group rounded-3xl bg-white border-2 border-teal-100 hover:border-teal-300 p-5 shadow-sm hover:shadow-md text-slate-900 transition-all space-y-3 relative flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
-                      {w.wilayah_id}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">{w.jumlah_jemaat} Jiwa</span>
-                  </div>
-
                   <div>
-                    <h4 className="font-bold text-base text-white tracking-tight">{w.nama_wilayah}</h4>
-                    <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                      <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                        {w.wilayah_id}
+                      </span>
+                      <span className="text-xs text-slate-500 font-bold">{w.jumlah_jemaat} Jiwa</span>
+                    </div>
+
+                    <h4 className="font-extrabold text-base text-slate-900 tracking-tight group-hover:text-teal-700 transition-colors">
+                      {w.nama_wilayah}
+                    </h4>
+                    <p className="text-xs text-slate-600 mt-1 flex items-center gap-1 font-medium">
+                      <Shield className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       <span className="truncate">Ketua: {w.ketua}</span>
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" />
+                  <div className="pt-2 border-t border-teal-100 flex items-center justify-between text-xs">
+                    <span className="text-teal-700 font-bold flex items-center gap-1 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 text-[11px]">
+                      <CheckCircle className="w-3 h-3 text-teal-600" />
                       <span>Aktif</span>
                     </span>
 
@@ -391,14 +397,14 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleOpenEditWilayah(w)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-300 hover:bg-slate-800 transition-all cursor-pointer"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-teal-700 hover:bg-teal-50 transition-all cursor-pointer"
                           title="Edit Wilayah"
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteWilayah(w)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
                           title="Hapus Wilayah Sektor Ini"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -418,13 +424,13 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <span>Daftar Komisi Kategorial Gereja</span>
-                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-purple-400 text-xs">
+                <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold">
                   {komisiList.length} Komisi
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Daftar komisi ini digunakan sebagai pilihan otomatis saat input jemaat baru. Admin dapat menambah dan menghapus komisi secara mandiri.
               </p>
             </div>
@@ -432,7 +438,7 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
             {isAdmin && (
               <button
                 onClick={handleOpenAddKomisi}
-                className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 bg-purple-500/10 hover:bg-purple-500/20 px-2.5 py-1.5 rounded-xl border border-purple-500/30 cursor-pointer"
+                className="text-xs font-bold text-purple-700 hover:text-purple-900 flex items-center gap-1 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-xl border border-purple-200 cursor-pointer shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Tambah Komisi</span>
@@ -444,22 +450,22 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
             {komisiList.map((komisiName, idx) => (
               <div
                 key={komisiName}
-                className="flex items-center justify-between p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-purple-500/40 transition-all"
+                className="flex items-center justify-between p-4 rounded-3xl bg-white border-2 border-teal-100 hover:border-purple-300 shadow-sm transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold text-xs">
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 font-bold text-xs">
                     {idx + 1}
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-white">{komisiName}</h4>
-                    <p className="text-[11px] text-slate-400">Komisi Resmi Gereja</p>
+                    <h4 className="font-extrabold text-sm text-slate-900">{komisiName}</h4>
+                    <p className="text-[11px] text-slate-500 font-medium">Komisi Resmi Gereja</p>
                   </div>
                 </div>
 
                 {isAdmin && (
                   <button
                     onClick={() => handleDeleteKomisi(komisiName)}
-                    className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/15 transition-all cursor-pointer"
+                    className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
                     title={`Hapus komisi "${komisiName}"`}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -476,13 +482,13 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <span>Daftar Tim Pelayanan Ibadah</span>
-                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-indigo-400 text-xs">
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold">
                   {pelayananList.length} Tim
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Tim pelayanan musik, multimedia, usher, sekolah minggu, dan divisi penatalayanan ibadah lainnya.
               </p>
             </div>
@@ -490,7 +496,7 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
             {isAdmin && (
               <button
                 onClick={handleOpenAddPelayanan}
-                className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1.5 rounded-xl border border-indigo-500/30 cursor-pointer"
+                className="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-xl border border-teal-200 cursor-pointer shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Tambah Pelayanan</span>
@@ -498,11 +504,11 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
             )}
           </div>
 
-          <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+          <div className="rounded-3xl bg-white border-2 border-teal-100 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs text-slate-300">
+              <table className="w-full text-left border-collapse text-xs text-slate-800">
                 <thead>
-                  <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
+                  <tr className="bg-teal-50/80 border-b border-teal-100 text-teal-950 font-bold uppercase tracking-wider">
                     <th className="p-3.5">Nama Pelayanan / Tim</th>
                     <th className="p-3.5">Kategori</th>
                     <th className="p-3.5">Penanggung Jawab</th>
@@ -510,30 +516,30 @@ export const WilayahView: React.FC<WilayahViewProps> = ({ currentUser }) => {
                     {isAdmin && <th className="p-3.5 text-right">Aksi</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-teal-100">
                   {pelayananList.map((p) => (
-                    <tr key={p.pelayanan_id} className="hover:bg-slate-800/40 transition-all">
-                      <td className="p-3.5 font-bold text-white text-sm">{p.nama}</td>
+                    <tr key={p.pelayanan_id} className="hover:bg-teal-50/40 transition-all">
+                      <td className="p-3.5 font-bold text-slate-900 text-sm">{p.nama}</td>
                       <td className="p-3.5">
-                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[10px] font-bold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold">
                           {p.kategori}
                         </span>
                       </td>
-                      <td className="p-3.5">{p.penanggung_jawab}</td>
-                      <td className="p-3.5 text-slate-400">{p.jadwal || '-'}</td>
+                      <td className="p-3.5 font-medium text-slate-700">{p.penanggung_jawab}</td>
+                      <td className="p-3.5 text-slate-500">{p.jadwal || '-'}</td>
                       {isAdmin && (
                         <td className="p-3.5 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => handleOpenEditPelayanan(p)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-300 hover:bg-slate-800 transition-all cursor-pointer"
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-teal-700 hover:bg-teal-50 transition-all cursor-pointer"
                               title="Edit Pelayanan"
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDeletePelayanan(p)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/15 transition-all cursor-pointer"
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
                               title="Hapus Tim Pelayanan"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

@@ -311,38 +311,42 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <Users className="w-6 h-6 text-indigo-400" />
-            <span>Master Data Jemaat & Kartu Keluarga</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Kelola data jemaat, wilayah, komisi, status baptis/sidi, dan kartu keluarga secara rinci.
-          </p>
+      {/* Header Card Proposional */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-teal-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 shadow-2xs shrink-0">
+            <Users className="w-6 h-6 sm:w-7 sm:h-7 text-teal-600" />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>Master Data Jemaat &amp; Kartu Keluarga</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+              Kelola data jemaat, wilayah, komisi, status baptis/sidi, dan kartu keluarga secara rinci.
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             onClick={handleExportExcel}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 transition-all"
+            className="px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <FileSpreadsheet className="w-4 h-4" />
+            <FileSpreadsheet className="w-4 h-4 text-teal-600" />
             <span>Export Excel</span>
           </button>
 
           <button
             onClick={handleExportPDF}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all"
+            className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <FileText className="w-4 h-4 text-rose-400" />
+            <FileText className="w-4 h-4 text-rose-600" />
             <span>Export PDF</span>
           </button>
 
           <button
             onClick={handleOpenAdd}
-            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 flex items-center gap-1.5 transition-all"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-bold shadow-md shadow-teal-600/25 flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Jemaat</span>
@@ -351,15 +355,15 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
       </div>
 
       {/* Filters & Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-white border-2 border-teal-100 p-4 rounded-3xl shadow-sm">
         <div className="sm:col-span-6 relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-teal-600" />
           <input
             type="text"
             placeholder="Cari berdasarkan NIK, No KK, Nama, Email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-teal-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 font-medium"
           />
         </div>
 
@@ -367,7 +371,7 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
           <select
             value={filterWilayah}
             onChange={(e) => setFilterWilayah(e.target.value)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+            className="w-full px-3 py-2 bg-slate-50 border border-teal-200 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
           >
             <option value="ALL">Semua Wilayah</option>
             {wilayahList.map((w) => (
@@ -382,7 +386,7 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
           <select
             value={filterKomisi}
             onChange={(e) => setFilterKomisi(e.target.value)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+            className="w-full px-3 py-2 bg-slate-50 border border-teal-200 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
           >
             <option value="ALL">Semua Komisi</option>
             {komisiList.map((k) => (
@@ -395,11 +399,11 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
       </div>
 
       {/* Jemaat Table */}
-      <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+      <div className="rounded-3xl bg-white border-2 border-teal-100 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs text-slate-300">
+          <table className="w-full text-left border-collapse text-xs text-slate-800">
             <thead>
-              <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
+              <tr className="bg-teal-50/80 border-b border-teal-100 text-teal-950 font-bold uppercase tracking-wider">
                 <th className="p-3.5">Foto & Nama</th>
                 <th className="p-3.5">NIK & No KK</th>
                 <th className="p-3.5">Wilayah</th>
@@ -409,56 +413,56 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
                 <th className="p-3.5 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-teal-100">
               {filteredJemaat.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-500">
+                  <td colSpan={7} className="p-8 text-center text-slate-500 font-medium">
                     Tidak ada data jemaat yang sesuai.
                   </td>
                 </tr>
               ) : (
                 filteredJemaat.map((j) => (
-                  <tr key={j.jemaat_id} className="hover:bg-slate-800/40 transition-all">
+                  <tr key={j.jemaat_id} className="hover:bg-teal-50/40 transition-all">
                     <td className="p-3.5">
                       <div className="flex items-center gap-3">
                         <img
                           src={j.foto}
                           alt={j.nama_lengkap}
-                          className="w-9 h-9 rounded-xl object-cover border border-slate-700"
+                          className="w-9 h-9 rounded-xl object-cover border border-teal-200 shadow-2xs"
                         />
                         <div>
-                          <p className="font-bold text-white text-sm">{j.nama_lengkap}</p>
-                          <p className="text-[10px] text-slate-400">{j.jemaat_id} • {j.jenis_kelamin}</p>
+                          <p className="font-bold text-slate-900 text-sm">{j.nama_lengkap}</p>
+                          <p className="text-[10px] text-slate-500 font-medium">{j.jemaat_id} • {j.jenis_kelamin}</p>
                         </div>
                       </div>
                     </td>
 
-                    <td className="p-3.5 font-mono text-slate-300">
-                      <div>NIK: {j.nik}</div>
+                    <td className="p-3.5 font-mono text-slate-700">
+                      <div className="font-bold text-slate-800">NIK: {j.nik}</div>
                       <div className="text-[10px] text-slate-500">KK: {j.no_kk}</div>
                     </td>
 
-                    <td className="p-3.5">{j.wilayah}</td>
+                    <td className="p-3.5 font-medium text-slate-700">{j.wilayah}</td>
 
                     <td className="p-3.5">
-                      <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[10px] font-bold">
+                      <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold">
                         {j.komisi}
                       </span>
                     </td>
 
                     <td className="p-3.5">
-                      <div className="space-y-0.5 text-[11px]">
-                        <span className={`inline-block px-1.5 py-0.2 rounded text-[10px] ${j.status_baptis === 'Sudah' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                      <div className="space-y-1 text-[11px]">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${j.status_baptis === 'Sudah' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}>
                           Baptis: {j.status_baptis}
                         </span>
                         <br />
-                        <span className={`inline-block px-1.5 py-0.2 rounded text-[10px] ${j.status_sidi === 'Sudah' ? 'bg-blue-500/20 text-blue-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${j.status_sidi === 'Sudah' ? 'bg-blue-50 text-blue-800 border-blue-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
                           Sidi: {j.status_sidi}
                         </span>
                       </div>
                     </td>
 
-                    <td className="p-3.5">
+                    <td className="p-3.5 font-medium text-slate-700">
                       <div>{j.nomor_hp}</div>
                       <div className="text-[10px] text-slate-500 truncate max-w-[120px]">{j.email}</div>
                     </td>
@@ -467,21 +471,21 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => setViewingJemaat(j)}
-                          className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
+                          className="p-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 transition-all cursor-pointer"
                           title="Detail"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(j)}
-                          className="p-1.5 rounded-lg bg-indigo-900/40 text-indigo-300 hover:bg-indigo-900/80"
+                          className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition-all cursor-pointer"
                           title="Edit"
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(j.jemaat_id, j.nama_lengkap)}
-                          className="p-1.5 rounded-lg bg-rose-900/40 text-rose-300 hover:bg-rose-900/80"
+                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-all cursor-pointer"
                           title="Hapus"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
