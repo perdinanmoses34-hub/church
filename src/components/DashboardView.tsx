@@ -46,6 +46,7 @@ import {
   Edit3,
   Settings2,
   Smartphone,
+  Monitor,
   ShieldCheck,
   X,
   Check,
@@ -528,7 +529,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Quick Customizer Modal State
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
-  const [customizerTab, setCustomizerTab] = useState<'warta' | 'theme' | 'layout' | 'identity' | 'widgets' | 'media'>('warta');
+  const [customizerTab, setCustomizerTab] = useState<'preview' | 'warta' | 'theme' | 'layout' | 'identity' | 'widgets' | 'media'>('preview');
+  const [customizerPreviewDevice, setCustomizerPreviewDevice] = useState<'DESKTOP' | 'MOBILE'>('DESKTOP');
   const [customForm, setCustomForm] = useState<AppSettings>(settings);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState(false);
 
@@ -1342,7 +1344,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       Role: {currentUser.role}
                     </span>
                   )}
-                  <span className="text-xs text-teal-200/80 font-semibold">Live Portal</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight mt-1 text-white">
                   {isGuestMode ? 'Shalom, Tamu & Pengunjung!' : `Shalom, ${currentUser.nama}!`}
@@ -1535,69 +1536,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span>Edit Warta (Toa)</span>
             </button>
           )}
-        </div>
-      )}
-
-      {/* BANNER PROMINEN UTAMA: KONVERSI ANDROID STUDIO & DOWNLOAD GOOGLE-SERVICES.JSON (KHUSUS ADMIN) */}
-      {isAdmin && (
-        <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${
-          isLightSystem
-            ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/70 border-2 border-emerald-300/80 shadow-md text-slate-800'
-            : 'bg-gradient-to-r from-indigo-950 via-slate-900 to-emerald-950 border-2 border-indigo-500/50 shadow-2xl text-white'
-        } flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-fade-in`}>
-          <div className="flex items-start gap-3.5">
-            <div className={`p-3 rounded-2xl ${
-              isLightSystem ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/40'
-            } shrink-0 mt-0.5 shadow-inner`}>
-              <Smartphone className={`w-6 h-6 ${isLightSystem ? 'text-emerald-700' : 'text-emerald-400'} animate-pulse`} />
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`px-2.5 py-0.5 rounded-full ${
-                  isLightSystem ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                } text-[10px] font-black`}>
-                  PROYEK ANDROID STUDIO
-                </span>
-                <span className={`px-2.5 py-0.5 rounded-full ${
-                  isLightSystem ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                } text-[10px] font-bold`}>
-                  FCM Push Notifikasi
-                </span>
-                <span className={`text-[11px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-mono hidden sm:inline`}>
-                  https://tntimbu.github.io/jesuskingdomchrist/
-                </span>
-              </div>
-              <h3 className={`font-extrabold text-sm sm:text-base ${isLightSystem ? 'text-slate-900' : 'text-white'}`}>
-                📱 Konversi Android Studio &amp; Berkas Firebase (FCM)
-              </h3>
-              <p className={`text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} max-w-2xl leading-relaxed`}>
-                Unduh berkas <code className={`${isLightSystem ? 'bg-emerald-100/80 text-emerald-900 border-emerald-300' : 'bg-slate-950 text-amber-300 border-slate-700'} px-1.5 py-0.5 rounded font-mono font-bold border`}>google-services.json</code> resmi untuk diletakkan di folder <code className={`${isLightSystem ? 'bg-emerald-100/80 text-emerald-900 border-emerald-300' : 'bg-slate-950 text-emerald-300 border-slate-700'} px-1.5 py-0.5 rounded font-mono font-bold border`}>app/</code> Android Studio, serta salin kode Java native (Status bar profesional, WebView, &amp; Push Notifikasi).
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                downloadGoogleServicesJsonFile(settings.firebase_package_name || settings.android_package_name || 'com.jesuskingdomchrist.app', settings);
-              }}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer active:scale-95 border border-amber-400/50"
-              title="Klik untuk langsung mendownload file google-services.json ke komputer Anda"
-            >
-              <Download className="w-4 h-4 text-slate-950" />
-              <span>📥 Download google-services.json</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsAndroidStudioModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md flex items-center gap-2 transition-all cursor-pointer active:scale-95 border border-emerald-400/40"
-            >
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>Buka Generator &amp; Kode Sumber</span>
-            </button>
-          </div>
         </div>
       )}
 
@@ -3910,6 +3848,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Navigation Tabs */}
             <div className="flex items-center gap-1.5 px-4 sm:px-6 pt-3 pb-2.5 border-b border-slate-800 overflow-x-auto scrollbar-none shrink-0 bg-slate-950/70">
               {[
+                { id: 'preview', label: '📱💻 Model Preview HP & Desktop' },
                 { id: 'warta', label: '📢 Warta Toa' },
                 { id: 'theme', label: '🎨 Tema & Warna' },
                 { id: 'layout', label: '📐 Lebar & Layout Kartu' },
@@ -3942,6 +3881,243 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <form onSubmit={handleSaveCustomizer} className="flex-1 flex flex-col min-h-0">
               {/* Tab Contents Area */}
               <div className="flex-1 overflow-y-auto p-5 sm:p-6 text-xs space-y-5">
+                {/* TAB 0: MODEL PREVIEW UNTUK TAMPILAN HANDPHONE & DESKTOP */}
+                {customizerTab === 'preview' && (
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30">
+                      <div>
+                        <h4 className="text-sm font-black text-white flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                          <span>Pratinjau Model Tampilan Realtime</span>
+                        </h4>
+                        <p className="text-[11px] text-slate-300 mt-0.5">
+                          Pilih model preview untuk melihat bagaimana header, warta, tema warna, dan kartu dashboard tampil di layar Handphone dan Desktop.
+                        </p>
+                      </div>
+
+                      {/* Device Switcher Toggle Buttons */}
+                      <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setCustomizerPreviewDevice('DESKTOP')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                            customizerPreviewDevice === 'DESKTOP'
+                              ? 'bg-indigo-600 text-white shadow-md'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <Monitor className="w-3.5 h-3.5" />
+                          <span>💻 Layar Desktop</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCustomizerPreviewDevice('MOBILE')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                            customizerPreviewDevice === 'MOBILE'
+                              ? 'bg-indigo-600 text-white shadow-md'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <Smartphone className="w-3.5 h-3.5" />
+                          <span>📱 Layar Handphone (HP)</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* DESKTOP MODEL PREVIEW */}
+                    {customizerPreviewDevice === 'DESKTOP' && (
+                      <div className="w-full rounded-2xl border border-slate-700/80 bg-slate-950 overflow-hidden shadow-2xl animate-fade-in">
+                        {/* Browser Chrome Header */}
+                        <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                          </div>
+                          <div className="px-3 py-0.5 rounded-md bg-slate-950 border border-slate-800 text-[10px] font-mono text-slate-400 flex items-center gap-1.5 truncate max-w-sm">
+                            <span className="text-emerald-400">🔒</span>
+                            <span>https://{customForm.nama_gereja?.toLowerCase().replace(/\s+/g, '') || 'gereja'}.org/dashboard</span>
+                          </div>
+                          <span className="text-[10px] font-mono font-bold text-slate-500 hidden sm:inline">1920 × 1080 (Desktop)</span>
+                        </div>
+
+                        {/* Desktop Header Banner */}
+                        <div className="p-4 sm:p-5 bg-gradient-to-r from-teal-900 via-slate-900 to-emerald-950 border-b border-teal-500/30 text-white flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={customForm.logo || DEFAULT_CHURCH_LOGO}
+                              alt="Logo"
+                              className="w-10 h-10 rounded-xl object-cover border border-white/20"
+                            />
+                            <div>
+                              <h3 className="text-base font-black text-white leading-tight">
+                                {customForm.header_title || customForm.nama_gereja || 'Jesus Kingdom Christ'}
+                              </h3>
+                              <p className="text-xs text-teal-200/80">
+                                {customForm.header_subtitle || 'Portal Informasi Utama Gereja'} &bull; Shalom, Administrator
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="px-3 py-1 rounded-xl bg-teal-500/20 text-teal-200 border border-teal-500/30 text-[10px] font-mono font-bold">
+                              10:30:15 WIB
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Desktop Body Content */}
+                        <div className="p-4 space-y-3 bg-slate-900/50">
+                          {/* Warta Toa Ticker */}
+                          {customForm.show_pinned_notif_banner !== false && (
+                            <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2">
+                                <Megaphone className="w-4 h-4 text-amber-400 animate-pulse" />
+                                <span className="font-bold text-amber-300">WARTA GEREJA:</span>
+                                <span className="text-slate-200 truncate">{customForm.jemaat_announcement_text || 'Ibadah Raya Minggu ini diadakan pukul 09:00 WIB di Gedung Utama.'}</span>
+                              </div>
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 font-bold">Toa Banner</span>
+                            </div>
+                          )}
+
+                          {/* Desktop Cards Grid */}
+                          <div className="grid grid-cols-4 gap-3 text-slate-300">
+                            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                              <p className="text-[10px] text-slate-400 font-bold uppercase">Total Jemaat</p>
+                              <p className="text-lg font-black text-white">1.250 Jiwa</p>
+                              <p className="text-[10px] text-emerald-400 font-medium">↑ 12 anggota baru</p>
+                            </div>
+                            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                              <p className="text-[10px] text-slate-400 font-bold uppercase">Saldo Kas</p>
+                              <p className="text-lg font-black text-emerald-400">Rp 85,4 Jt</p>
+                              <p className="text-[10px] text-teal-300 font-medium">Buku Kas Terverifikasi</p>
+                            </div>
+                            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                              <p className="text-[10px] text-slate-400 font-bold uppercase">Jadwal Minggu</p>
+                              <p className="text-lg font-black text-amber-300">09.00 WIB</p>
+                              <p className="text-[10px] text-slate-400 font-medium">Gedung Utama</p>
+                            </div>
+                            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                              <p className="text-[10px] text-slate-400 font-bold uppercase">Renungan Harian</p>
+                              <p className="text-xs font-bold text-white line-clamp-1">Kasih Yang Memulihkan</p>
+                              <p className="text-[10px] text-indigo-300 font-medium">1 Korintus 13:4-8</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* MOBILE / HANDPHONE MODEL PREVIEW */}
+                    {customizerPreviewDevice === 'MOBILE' && (
+                      <div className="w-72 sm:w-80 mx-auto rounded-[2.5rem] border-4 border-slate-700 bg-slate-950 p-2 shadow-2xl relative overflow-hidden animate-fade-in">
+                        {/* Dynamic Island / Speaker Pill */}
+                        <div className="flex items-center justify-center pt-1 pb-1.5">
+                          <div className="w-20 h-4 bg-slate-900 rounded-full flex items-center justify-center gap-1.5 border border-slate-800">
+                            <div className="w-2 h-2 rounded-full bg-slate-950" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-900" />
+                          </div>
+                        </div>
+
+                        {/* Mobile Status Bar */}
+                        <div className="flex items-center justify-between px-3 text-[10px] text-slate-400 font-mono pb-1">
+                          <span>09:41</span>
+                          <div className="flex items-center gap-1 text-[9px]">
+                            <span>5G</span>
+                            <span>📶 90%</span>
+                          </div>
+                        </div>
+
+                        {/* Mobile Header (Tanpa Portal Jemaat & Tanpa Jam Numpuk) */}
+                        <div className="p-3 rounded-2xl bg-gradient-to-r from-teal-900 to-slate-900 border border-teal-500/30 text-white flex items-center justify-between">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <img
+                              src={customForm.logo || DEFAULT_CHURCH_LOGO}
+                              alt="Logo"
+                              className="w-7 h-7 rounded-lg object-cover border border-white/20 shrink-0"
+                            />
+                            <div className="truncate">
+                              <h4 className="text-xs font-black truncate leading-tight">
+                                {customForm.header_title || customForm.nama_gereja || 'Jesus Kingdom Christ'}
+                              </h4>
+                              <p className="text-[9px] text-teal-200/80 truncate">
+                                {customForm.header_subtitle || 'Portal Gereja'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="w-6 h-6 rounded-lg bg-teal-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                            JM
+                          </span>
+                        </div>
+
+                        {/* Mobile Body Content */}
+                        <div className="py-2.5 px-1 space-y-2">
+                          {/* Warta Toa Ticker */}
+                          {customForm.show_pinned_notif_banner !== false && (
+                            <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[9px] text-amber-200 flex items-center gap-1.5">
+                              <Megaphone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                              <span className="truncate font-semibold">{customForm.jemaat_announcement_text || 'Ibadah Raya Minggu ini diadakan pukul 09:00 WIB di Gedung Utama.'}</span>
+                            </div>
+                          )}
+
+                          {/* Quick Circular Action Buttons */}
+                          <div className="grid grid-cols-4 gap-1.5 text-center text-[8px] font-bold text-slate-300">
+                            <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                              <div className="text-xs mb-0.5">📖</div>
+                              <span>Alkitab</span>
+                            </div>
+                            <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                              <div className="text-xs mb-0.5">🎵</div>
+                              <span>Pujian</span>
+                            </div>
+                            <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                              <div className="text-xs mb-0.5">🙏</div>
+                              <span>Doa</span>
+                            </div>
+                            <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                              <div className="text-xs mb-0.5">💰</div>
+                              <span>Persembahan</span>
+                            </div>
+                          </div>
+
+                          {/* Mobile 2x2 Mini Stats */}
+                          <div className="grid grid-cols-2 gap-1.5 text-[9px]">
+                            <div className="p-2 rounded-xl bg-slate-900 border border-slate-800">
+                              <p className="text-slate-400 text-[8px]">Jadwal Ibadah</p>
+                              <p className="font-bold text-amber-300">Minggu 09.00</p>
+                            </div>
+                            <div className="p-2 rounded-xl bg-slate-900 border border-slate-800">
+                              <p className="text-slate-400 text-[8px]">Renungan Harian</p>
+                              <p className="font-bold text-white truncate">Kasih Sejati</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Mobile Bottom Navigation Bar Preview */}
+                        <div className="mt-1 rounded-2xl p-1.5 bg-slate-900 border border-slate-800 flex items-center justify-around text-[8px] text-slate-400">
+                          <div className="flex flex-col items-center gap-0.5 text-teal-400 font-bold">
+                            <span>🏠</span>
+                            <span>Home</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span>📖</span>
+                            <span>Renungan</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span>📅</span>
+                            <span>Jadwal</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span>👤</span>
+                            <span>Profil</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span>⋯</span>
+                            <span>Lainnya</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* TAB 1: WARTA & PENGUMUMAN DENGAN ICON TOA */}
                 {customizerTab === 'warta' && (
                   <div className="space-y-4">

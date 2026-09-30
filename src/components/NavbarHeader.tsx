@@ -418,30 +418,8 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         </div>
       </div>
 
-      {/* Middle section: Search Box (Tampil di layar besar agar tidak menutup nama gereja) */}
-      <div className={`hidden xl:flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs w-48 2xl:w-56 cursor-pointer transition-all ${
-        isNavLight
-          ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
-          : 'bg-white/10 hover:bg-white/15 border-white/15 text-slate-200'
-      }`}>
-        <Search className={`w-3.5 h-3.5 shrink-0 ${isNavLight ? 'text-slate-500' : 'text-slate-300'}`} />
-        <span className="truncate">Cari Cepat...</span>
-        <kbd className={`ml-auto text-[10px] border rounded px-1.5 py-0.5 font-mono ${
-          isNavLight ? 'bg-white border-slate-300 text-slate-600' : 'bg-white/10 border-white/20 text-slate-300'
-        }`}>/</kbd>
-      </div>
-
-      {/* Right section: Admin Tools, Notifications, Profile Dropdown */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Admin Pill (hanya di layar ultra lebar agar navbar selalu proporsional) */}
-        <div className={`hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs border ${
-          isNavLight
-            ? 'bg-teal-50 border-teal-300 text-teal-900'
-            : 'bg-teal-950/60 border-teal-500/40 text-teal-200'
-        }`}>
-          <span className="w-2 h-2 rounded-full bg-teal-500" />
-          <span>{isAdmin ? 'Admin Gereja' : 'Jemaat Gereja'}</span>
-        </div>
+      {/* Right section: Admin Tools, Realtime Clock, Notifications, Profile Dropdown */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
 
         {currentUser.role === 'SUPER_ADMIN' && onOpenSuperAdminSaaSPanel && (
           <button
@@ -679,23 +657,6 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                     >
                       <Palette className="w-4 h-4 text-teal-600" />
                       <span>Kustom Warna &amp; Tema Navbar</span>
-                    </button>
-                  )}
-
-                  {isAdmin && (
-                    <button
-                      onClick={() => {
-                        setShowUserDropdown(false);
-                        if (onOpenAndroidStudioModal) {
-                          onOpenAndroidStudioModal();
-                        } else {
-                          window.dispatchEvent(new CustomEvent('open_android_studio_modal'));
-                        }
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-teal-800 hover:bg-teal-50 text-xs font-bold transition-all text-left cursor-pointer"
-                    >
-                      <Smartphone className="w-4 h-4 text-teal-600" />
-                      <span>📱 Android Studio &amp; FCM Pro</span>
                     </button>
                   )}
 

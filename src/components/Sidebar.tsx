@@ -289,9 +289,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* 3. Bottom Status Bar */}
       <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 shrink-0 text-[10px] flex items-center justify-between">
-        <span className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Firebase Cloud Live</span>
+        <span className="flex items-center gap-1.5 font-bold text-teal-800 dark:text-teal-300">
+          <span className="w-2 h-2 rounded-full bg-teal-500" />
+          <span>Sistem Informasi Gereja</span>
         </span>
         <span className="font-semibold text-slate-500 dark:text-slate-400">v2.4</span>
       </div>

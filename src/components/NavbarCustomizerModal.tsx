@@ -22,7 +22,10 @@ import {
   MoreHorizontal,
   Box,
   Circle,
-  Square
+  Square,
+  Monitor,
+  Smartphone,
+  Grid
 } from 'lucide-react';
 
 interface NavbarCustomizerModalProps {
@@ -220,6 +223,7 @@ export const NavbarCustomizerModal: React.FC<NavbarCustomizerModalProps> = ({
   onNavigateToSettings
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'NAVBAR' | 'FOOTER'>('NAVBAR');
+  const [previewDevice, setPreviewDevice] = useState<'DESKTOP' | 'MOBILE'>('DESKTOP');
   const [form, setForm] = useState<AppSettings>(settings);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [previewActiveIcon, setPreviewActiveIcon] = useState<'home' | 'renungan' | 'jadwal' | 'profil' | 'lainnya'>('home');
@@ -459,67 +463,270 @@ export const NavbarCustomizerModal: React.FC<NavbarCustomizerModalProps> = ({
           {/* TAB 1: NAVBAR ATAS */}
           {activeSubTab === 'NAVBAR' && (
             <>
-              {/* Live Mini Preview Bar */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-300">
-                  <span className="flex items-center gap-1.5 text-amber-300">
+              {/* Live Interactive Preview: Desktop & Handphone Modes */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
                     <Eye className="w-4 h-4 text-amber-400" />
-                    <span>Pratinjau Langsung Navbar Atas</span>
+                    <span>Pratinjau Model Tampilan:</span>
                   </span>
-                  <span className="text-[11px] text-emerald-400 font-mono">
-                    {savedSuccess ? 'Tersimpan!' : 'Live Interactive'}
-                  </span>
-                </div>
-                <div
-                  className={`w-full rounded-2xl p-3 sm:p-4 transition-all duration-300 border flex items-center justify-between ${currentNavbarTheme.containerClass} ${currentNavbarTheme.borderBottomClass} shadow-xl`}
-                  style={{
-                    ...currentNavbarTheme.containerStyle,
-                    ...currentNavbarTheme.borderBottomStyle
-                  }}
-                >
-                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+
+                  {/* Device Switcher Toggle: Desktop vs Handphone */}
+                  <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 shrink-0">
                     <button
                       type="button"
-                      className="px-2.5 py-1.5 rounded-xl text-white font-black text-[11px] shadow flex items-center gap-1.5 shrink-0"
-                      style={currentNavbarTheme.menuBtnStyle}
+                      onClick={() => setPreviewDevice('DESKTOP')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                        previewDevice === 'DESKTOP'
+                          ? 'bg-amber-500 text-slate-950 shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                      title="Lihat Pratinjau Tampilan Layar Desktop"
                     >
-                      <span>Kartu Menu</span>
+                      <Monitor className="w-3.5 h-3.5" />
+                      <span>💻 Layar Desktop</span>
                     </button>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <img
-                        src={form.logo || DEFAULT_CHURCH_LOGO}
-                        alt="Logo"
-                        className="w-7 h-7 rounded-lg object-cover border border-white/20 shrink-0"
-                      />
-                      <div className="truncate">
-                        <p className={`text-xs font-extrabold truncate ${currentNavbarTheme.titleClass}`}>
-                          {form.nama_gereja || 'Jesus Kingdom Christ'}
-                        </p>
-                        <p className={`text-[9px] uppercase tracking-wider font-bold leading-none ${
-                          currentNavbarTheme.isLight ? 'text-teal-700' : 'text-amber-400'
-                        }`}>
-                          Enterprise CMS Pro
-                        </p>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDevice('MOBILE')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                        previewDevice === 'MOBILE'
+                          ? 'bg-amber-500 text-slate-950 shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                      title="Lihat Pratinjau Tampilan Layar Handphone (HP)"
+                    >
+                      <Smartphone className="w-3.5 h-3.5" />
+                      <span>📱 Layar Handphone</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* DESKTOP MODEL PREVIEW */}
+                {previewDevice === 'DESKTOP' && (
+                  <div className="w-full rounded-2xl border border-slate-700/80 bg-slate-950 overflow-hidden shadow-2xl animate-fade-in">
+                    {/* Desktop Browser Window Header */}
+                    <div className="px-3.5 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                      </div>
+                      <div className="px-3 py-0.5 rounded-md bg-slate-950 border border-slate-800 text-[10px] font-mono text-slate-400 flex items-center gap-1.5 truncate max-w-xs">
+                        <span className="text-emerald-400">🔒</span>
+                        <span>https://{form.nama_gereja?.toLowerCase().replace(/\s+/g, '') || 'gereja'}.org/admin</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 font-mono hidden sm:inline">1440 × 900 (Desktop)</span>
+                    </div>
+
+                    {/* Desktop Header Navbar */}
+                    <div
+                      className={`w-full px-4 py-3 transition-all duration-300 border-b flex items-center justify-between ${currentNavbarTheme.containerClass} ${currentNavbarTheme.borderBottomClass}`}
+                      style={{
+                        ...currentNavbarTheme.containerStyle,
+                        ...currentNavbarTheme.borderBottomStyle
+                      }}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <button
+                          type="button"
+                          className="px-2.5 py-1.5 rounded-xl text-white font-black text-[11px] shadow-xs flex items-center gap-1.5 shrink-0"
+                          style={currentNavbarTheme.menuBtnStyle}
+                        >
+                          <Grid className="w-3.5 h-3.5" />
+                          <span>Menu</span>
+                        </button>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <img
+                            src={form.logo || DEFAULT_CHURCH_LOGO}
+                            alt="Logo"
+                            className="w-7 h-7 rounded-lg object-cover border border-white/20 shrink-0"
+                          />
+                          <div className="truncate">
+                            <p className={`text-xs font-black truncate leading-tight ${currentNavbarTheme.titleClass}`}>
+                              {form.nama_gereja || 'Jesus Kingdom Christ'}
+                            </p>
+                            <p className={`text-[9px] font-semibold leading-none mt-0.5 truncate ${currentNavbarTheme.subtextClass}`}>
+                              Sistem Informasi Manajemen Gereja
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold ${currentNavbarTheme.pillClass}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span>10:30:15 WIB • Realtime</span>
+                        </div>
+                        <div className="w-6 h-6 rounded-lg bg-teal-600 text-white text-[10px] font-black flex items-center justify-center">
+                          AD
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Desktop Content Mock Preview */}
+                    <div className="p-3 bg-slate-900/60 flex gap-3 text-slate-300">
+                      <div className="w-28 space-y-1 shrink-0 p-2 bg-slate-950/80 rounded-xl border border-slate-800 text-[9px] font-bold hidden sm:block">
+                        <div className="p-1 rounded bg-teal-600/30 text-teal-300">🏠 Dashboard</div>
+                        <div className="p-1 rounded text-slate-400">👥 Jemaat</div>
+                        <div className="p-1 rounded text-slate-400">💰 Keuangan</div>
+                        <div className="p-1 rounded text-slate-400">📅 Jadwal</div>
+                      </div>
+                      <div className="flex-1 space-y-2 min-w-0">
+                        <div className="p-2 rounded-xl bg-slate-950/80 border border-slate-800 text-[10px] flex items-center justify-between">
+                          <span className="font-bold text-amber-300 truncate">📢 Warta Jemaat: Ibadah Raya Minggu 09.00 WIB</span>
+                          <span className="text-[9px] text-emerald-400 font-mono shrink-0 ml-2">Live</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-[9px]">
+                          <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800">
+                            <p className="text-slate-400">Total Jemaat</p>
+                            <p className="text-xs font-black text-white mt-0.5">1.250 Jiwa</p>
+                          </div>
+                          <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800">
+                            <p className="text-slate-400">Saldo Kas</p>
+                            <p className="text-xs font-black text-emerald-400 mt-0.5">Rp 85,4 Jt</p>
+                          </div>
+                          <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800">
+                            <p className="text-slate-400">Kegiatan</p>
+                            <p className="text-xs font-black text-indigo-400 mt-0.5">4 Agenda</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                )}
 
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`hidden sm:flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-mono font-bold ${currentNavbarTheme.pillClass}`}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>09:41 WIB • Real-Time</span>
+                {/* MOBILE / HANDPHONE MODEL PREVIEW */}
+                {previewDevice === 'MOBILE' && (
+                  <div className="w-72 sm:w-80 mx-auto rounded-[2.5rem] border-4 border-slate-700 bg-slate-950 p-2 shadow-2xl relative overflow-hidden animate-fade-in">
+                    {/* Phone Dynamic Notch / Speaker */}
+                    <div className="flex items-center justify-center pt-1 pb-1.5">
+                      <div className="w-20 h-4 bg-slate-900 rounded-full flex items-center justify-center gap-1.5 border border-slate-800">
+                        <div className="w-2 h-2 rounded-full bg-slate-950" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-900" />
+                      </div>
                     </div>
+
+                    {/* Phone Status Bar */}
+                    <div className="flex items-center justify-between px-3 text-[10px] text-slate-400 font-mono pb-1">
+                      <span>09:41</span>
+                      <div className="flex items-center gap-1 text-[9px]">
+                        <span>LTE</span>
+                        <span>📶 85%</span>
+                      </div>
+                    </div>
+
+                    {/* Mobile Header Navbar Preview (Proporsional, Tanpa Portal Jemaat & Tanpa Jam Numpuk) */}
                     <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black ${
-                        currentNavbarTheme.isLight ? 'bg-indigo-600 text-white' : 'bg-indigo-500 text-white'
-                      }`}
+                      className={`rounded-2xl p-2.5 transition-all duration-300 border flex items-center justify-between ${currentNavbarTheme.containerClass} ${currentNavbarTheme.borderBottomClass} shadow-md`}
+                      style={{
+                        ...currentNavbarTheme.containerStyle,
+                        ...currentNavbarTheme.borderBottomStyle
+                      }}
                     >
-                      AD
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-lg bg-teal-600/30 flex items-center justify-center shrink-0">
+                          <Grid className="w-3.5 h-3.5 text-teal-400" />
+                        </div>
+                        <img
+                          src={form.logo || DEFAULT_CHURCH_LOGO}
+                          alt="Logo"
+                          className="w-6 h-6 rounded-lg object-cover border border-white/20 shrink-0"
+                        />
+                        <div className="truncate">
+                          <p className={`text-[11px] font-black truncate leading-tight ${currentNavbarTheme.titleClass}`}>
+                            {form.nama_gereja || 'Jesus Kingdom Christ'}
+                          </p>
+                          <p className={`text-[8px] font-semibold leading-none mt-0.5 truncate ${currentNavbarTheme.subtextClass}`}>
+                            Manajemen Gereja
+                          </p>
+                        </div>
+                      </div>
+                      <div className="w-6 h-6 rounded-lg bg-teal-600 text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                        JM
+                      </div>
+                    </div>
+
+                    {/* Mobile Screen Body Mock */}
+                    <div className="py-2.5 px-1 space-y-2">
+                      <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[9px] text-amber-200 flex items-center gap-1.5">
+                        <span>📢</span>
+                        <span className="truncate font-semibold">Ibadah Minggu 09.00 WIB di Gedung Utama</span>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-1.5 text-center text-[8px] font-bold text-slate-300">
+                        <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-xs mb-0.5">📖</div>
+                          <span>Alkitab</span>
+                        </div>
+                        <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-xs mb-0.5">🎵</div>
+                          <span>Pujian</span>
+                        </div>
+                        <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-xs mb-0.5">🙏</div>
+                          <span>Doa</span>
+                        </div>
+                        <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                          <div className="text-xs mb-0.5">💰</div>
+                          <span>Persembahan</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile Bottom Navigation Bar (BottomNav) */}
+                    <div
+                      className={`mt-1 rounded-2xl p-1.5 flex items-center justify-around border ${currentFooterTheme.containerClass}`}
+                      style={currentFooterTheme.containerStyle}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setPreviewActiveIcon('home')}
+                        style={currentFooterTheme.getItemStyle(previewActiveIcon === 'home')}
+                        className={currentFooterTheme.getItemClass(previewActiveIcon === 'home')}
+                      >
+                        <LayoutDashboard className="w-3.5 h-3.5" />
+                        <span className="text-[8px]">Home</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewActiveIcon('renungan')}
+                        style={currentFooterTheme.getItemStyle(previewActiveIcon === 'renungan')}
+                        className={currentFooterTheme.getItemClass(previewActiveIcon === 'renungan')}
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span className="text-[8px]">Renungan</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewActiveIcon('jadwal')}
+                        style={currentFooterTheme.getItemStyle(previewActiveIcon === 'jadwal')}
+                        className={currentFooterTheme.getItemClass(previewActiveIcon === 'jadwal')}
+                      >
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        <span className="text-[8px]">Jadwal</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewActiveIcon('profil')}
+                        style={currentFooterTheme.getItemStyle(previewActiveIcon === 'profil')}
+                        className={currentFooterTheme.getItemClass(previewActiveIcon === 'profil')}
+                      >
+                        <UserCheck className="w-3.5 h-3.5" />
+                        <span className="text-[8px]">Profil</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewActiveIcon('lainnya')}
+                        style={currentFooterTheme.getItemStyle(previewActiveIcon === 'lainnya')}
+                        className={currentFooterTheme.getItemClass(previewActiveIcon === 'lainnya')}
+                      >
+                        <MoreHorizontal className="w-3.5 h-3.5" />
+                        <span className="text-[8px]">Lainnya</span>
+                      </button>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Preset Theme Selection */}
