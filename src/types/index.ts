@@ -459,6 +459,7 @@ export interface ChatMessage {
   is_pinned?: boolean;
   // Jalur Chat Khusus Pribadi (1-on-1 Private Isolated Chat)
   is_private?: boolean;
+  conversation_id?: string; // Symmetric unique key: [idA, idB].sort().join('___')
   recipient_id?: string;
   recipient_name?: string;
   recipient_role?: 'SUPER_ADMIN' | 'ADMIN' | 'JEMAAT' | 'TAMU';

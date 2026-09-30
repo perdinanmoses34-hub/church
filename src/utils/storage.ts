@@ -1556,6 +1556,19 @@ export const StorageManager = {
   },
   saveEventReservations: (list: EventReservation[]): void => setItem(KEYS.EVENT_RESERVATIONS, list),
 
+  getOrCreateDeviceId: (): string => {
+    try {
+      let devId = localStorage.getItem('cms_device_unique_id');
+      if (!devId) {
+        devId = `DEV-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 8)}`;
+        localStorage.setItem('cms_device_unique_id', devId);
+      }
+      return devId;
+    } catch (e) {
+      return `DEV-TMP-${Date.now().toString(36)}`;
+    }
+  },
+
   getChatMessages: (): ChatMessage[] => {
     return getItem<ChatMessage[]>(KEYS.CHAT_MESSAGES, initialChatMessages);
   },
@@ -1564,8 +1577,14 @@ export const StorageManager = {
   },
   addChatMessage: (msg: Omit<ChatMessage, 'id' | 'created_at'>): ChatMessage => {
     const list = StorageManager.getChatMessages();
+    const convId =
+      msg.is_private && msg.sender_id && msg.recipient_id
+        ? [msg.sender_id, msg.recipient_id].sort().join('___')
+        : msg.conversation_id;
+
     const newMsg: ChatMessage = {
       ...msg,
+      conversation_id: convId,
       id: `CHAT-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       created_at: new Date().toISOString()
     };

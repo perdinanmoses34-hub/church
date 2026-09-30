@@ -23,8 +23,6 @@ import {
   Minimize2,
   Eye,
   EyeOff,
-  ChevronDown,
-  ChevronUp,
   Tag,
   Lock,
   Users,
@@ -124,7 +122,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showFilterBar, setShowFilterBar] = useState(false);
   const [showQuickBlessings, setShowQuickBlessings] = useState(false);
-  const [showTagSelector, setShowTagSelector] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isPinnedBannerDismissed, setIsPinnedBannerDismissed] = useState(false);
 
@@ -136,14 +133,21 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
   const [isEditingGuestName, setIsEditingGuestName] = useState(false);
   const [tempGuestName, setTempGuestName] = useState(guestName);
 
+  // Unique immutable identifier for the active user:
+  // If registered user, use their actual user_id; if guest, use a dedicated persistent device ID
+  const activeUserId = useMemo(() => {
+    if (!isGuest && currentUser.user_id) {
+      return currentUser.user_id;
+    }
+    return StorageManager.getOrCreateDeviceId();
+  }, [isGuest, currentUser.user_id]);
+
+  const activeUserName = isGuest ? guestName : currentUser.nama || currentUser.username;
+  const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
-  const effectiveDisplayName = isGuest ? guestName : currentUser.nama || currentUser.username;
-  const myUserId = currentUser.user_id || 'guest';
-  const myNormalizedName = effectiveDisplayName.toLowerCase().trim();
 
   // Theme & Color Mode Detection
   const isDark =
@@ -173,7 +177,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     window.addEventListener('cms_data_changed', handleDataChange);
     window.addEventListener('storage', handleDataChange);
 
-    // Heartbeat sync check every 4 seconds
     const interval = setInterval(() => {
       const latest = StorageManager.getChatMessages();
       setMessages((prev) => {
@@ -197,10 +200,9 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     const jemaatList = StorageManager.getJemaat();
     const contactsMap = new Map<string, ChatContact>();
 
-    // 1. Add all users (admins, pastors, staff, jemaat accounts)
+    // 1. Add registered users (admins, pastors, staff, jemaat accounts)
     users.forEach((u) => {
-      if (u.user_id === currentUser.user_id) return;
-      if (u.username === currentUser.username) return;
+      if (u.user_id === activeUserId || u.username === currentUser.username) return;
 
       contactsMap.set(u.user_id, {
         id: u.user_id,
@@ -208,14 +210,14 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         username: u.username,
         role: u.role,
         avatar: u.foto,
-        wilayah: 'Akun Terdaftar'
+        wilayah: 'Pengurus / User Terdaftar'
       });
     });
 
     // 2. Add all jemaat database members
     jemaatList.forEach((j) => {
-      if (j.jemaat_id === currentUser.user_id || j.jemaat_id === currentUser.jemaat_id) return;
-      if (j.nama_lengkap.toLowerCase().trim() === myNormalizedName) return;
+      if (j.jemaat_id === activeUserId || j.jemaat_id === currentUser.jemaat_id) return;
+      if (j.nama_lengkap.toLowerCase().trim() === activeUserName.toLowerCase().trim()) return;
 
       if (!contactsMap.has(j.jemaat_id)) {
         contactsMap.set(j.jemaat_id, {
@@ -232,34 +234,28 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       }
     });
 
-    // 3. Calculate last private message & unread count for each contact
+    // 3. AIRTIGHT PRIVACY: Calculate last private message & unread count strictly for activeUserId
     const result = Array.from(contactsMap.values()).map((contact) => {
-      const contactNameNorm = contact.name.toLowerCase().trim();
+      const expectedConvId = [activeUserId, contact.id].sort().join('___');
 
-      // Find private messages between currentUser and this contact
+      // Strictly isolated: only messages that belong to the exact pair (activeUserId and contact.id)
       const relatedPrivate = messages.filter((m) => {
         if (!m.is_private) return false;
-        const senderMatch =
-          m.sender_id === contact.id || (m.sender_name && m.sender_name.toLowerCase().trim() === contactNameNorm);
-        const recipientMatch =
-          m.recipient_id === contact.id || (m.recipient_name && m.recipient_name.toLowerCase().trim() === contactNameNorm);
-        const mySenderMatch =
-          m.sender_id === myUserId || (m.sender_name && m.sender_name.toLowerCase().trim() === myNormalizedName);
-        const myRecipientMatch =
-          m.recipient_id === myUserId || (m.recipient_name && m.recipient_name.toLowerCase().trim() === myNormalizedName);
-
-        return (senderMatch && myRecipientMatch) || (recipientMatch && mySenderMatch);
+        if (m.conversation_id) {
+          return m.conversation_id === expectedConvId;
+        }
+        if (!m.sender_id || !m.recipient_id) return false;
+        return (
+          (m.sender_id === activeUserId && m.recipient_id === contact.id) ||
+          (m.sender_id === contact.id && m.recipient_id === activeUserId)
+        );
       });
 
       const lastMsg = relatedPrivate[relatedPrivate.length - 1];
 
-      // Unread: messages where contact is sender and currentUser is recipient
+      // Unread: messages where contact is sender and activeUserId is recipient
       const unreadCount = relatedPrivate.filter((m) => {
-        const isFromContact =
-          m.sender_id === contact.id || (m.sender_name && m.sender_name.toLowerCase().trim() === contactNameNorm);
-        const isToMe =
-          m.recipient_id === myUserId || (m.recipient_name && m.recipient_name.toLowerCase().trim() === myNormalizedName);
-        return isFromContact && isToMe;
+        return m.sender_id === contact.id && m.recipient_id === activeUserId;
       }).length;
 
       return {
@@ -270,7 +266,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       };
     });
 
-    // Sort: contacts with active messages first, then alphabetically
     return result.sort((a, b) => {
       if (a.lastTime && b.lastTime) {
         return new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime();
@@ -279,21 +274,15 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       if (b.lastTime) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [messages, currentUser, myUserId, myNormalizedName]);
+  }, [messages, activeUserId, currentUser, activeUserName]);
 
-  // Total unread private messages across all contacts
+  // Total unread private messages strictly addressed to activeUserId
   const totalUnreadPrivateCount = useMemo(() => {
     return messages.filter((m) => {
       if (!m.is_private) return false;
-      const isForMe =
-        (myUserId && m.recipient_id === myUserId) ||
-        (m.recipient_name && m.recipient_name.toLowerCase().trim() === myNormalizedName);
-      const isFromMe =
-        (myUserId && m.sender_id === myUserId) ||
-        (m.sender_name && m.sender_name.toLowerCase().trim() === myNormalizedName);
-      return isForMe && !isFromMe;
+      return m.recipient_id === activeUserId && m.sender_id !== activeUserId;
     }).length;
-  }, [messages, myUserId, myNormalizedName]);
+  }, [messages, activeUserId]);
 
   // Filtered contacts based on search & role
   const filteredContacts = useMemo(() => {
@@ -316,7 +305,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     });
   }, [contactsList, contactRoleFilter, contactSearchQuery]);
 
-  // Auto-scroll to bottom on first mount and new messages
+  // Auto-scroll to bottom
   const scrollToBottom = (smooth = true) => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -333,7 +322,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     }
   }, [messages.length]);
 
-  // Track scroll position
   const handleScroll = () => {
     if (!chatContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
@@ -364,24 +352,38 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
     const isPrivate = chatMode === 'PRIVATE' && !!selectedContact;
 
-    StorageManager.addChatMessage({
-      sender_name: effectiveDisplayName,
-      sender_id: currentUser.user_id,
-      sender_role: senderRole,
-      message: trimmed,
-      tag: selectedTag,
-      is_private: isPrivate,
-      recipient_id: isPrivate ? selectedContact.id : undefined,
-      recipient_name: isPrivate ? selectedContact.name : undefined,
-      recipient_role: isPrivate ? selectedContact.role : undefined,
-      reply_to: replyTarget
-        ? {
-            id: replyTarget.id,
-            sender_name: replyTarget.sender_name,
-            message: replyTarget.message.slice(0, 100)
-          }
-        : undefined
-    });
+    if (isPrivate && selectedContact) {
+      const convId = [activeUserId, selectedContact.id].sort().join('___');
+
+      StorageManager.addChatMessage({
+        sender_name: activeUserName,
+        sender_id: activeUserId,
+        sender_role: senderRole,
+        message: trimmed,
+        tag: selectedTag,
+        is_private: true,
+        conversation_id: convId,
+        recipient_id: selectedContact.id,
+        recipient_name: selectedContact.name,
+        recipient_role: selectedContact.role
+      });
+    } else {
+      StorageManager.addChatMessage({
+        sender_name: activeUserName,
+        sender_id: activeUserId,
+        sender_role: senderRole,
+        message: trimmed,
+        tag: selectedTag,
+        is_private: false,
+        reply_to: replyTarget
+          ? {
+              id: replyTarget.id,
+              sender_name: replyTarget.sender_name,
+              message: replyTarget.message.slice(0, 100)
+            }
+          : undefined
+      });
+    }
 
     setMessages(StorageManager.getChatMessages());
     setInputMessage('');
@@ -401,17 +403,16 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     }
   };
 
-  // Switch to private chat with a specific sender
   const handleStartPrivateChat = (contact: ChatContact) => {
     setSelectedContact(contact);
     setChatMode('PRIVATE');
     setReplyTarget(null);
   };
 
-  // Start private chat from a community message
   const handleStartPrivateFromMessage = (msg: ChatMessage) => {
+    if (!msg.sender_id || msg.sender_id === activeUserId) return;
     const targetContact: ChatContact = {
-      id: msg.sender_id || `user_${msg.sender_name}`,
+      id: msg.sender_id,
       name: msg.sender_name,
       role: msg.sender_role || 'JEMAAT',
       avatar: msg.sender_avatar
@@ -419,7 +420,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     handleStartPrivateChat(targetContact);
   };
 
-  // Delete message
   const handleDeleteMessage = async (id: string) => {
     const msg = messages.find((m) => m.id === id);
     const isPinned = msg?.is_pinned;
@@ -445,59 +445,47 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     }
   };
 
-  // Toggle Pin message (Admin only)
   const handleTogglePin = (id: string) => {
     StorageManager.togglePinChatMessage(id);
     setMessages(StorageManager.getChatMessages());
   };
 
-  // Clear all messages (Admin only)
   const handleClearAllChat = () => {
     StorageManager.clearChatMessages();
     setMessages([]);
     setShowClearConfirm(false);
   };
 
-  // Strictly Filtered Messages for Community vs Private
+  // AIRTIGHT ISOLATION: Strict conversation filter
   const currentFeedMessages = useMemo(() => {
     if (chatMode === 'PRIVATE') {
       if (!selectedContact) return [];
-      const contactNameNorm = selectedContact.name.toLowerCase().trim();
+      const expectedConvId = [activeUserId, selectedContact.id].sort().join('___');
 
-      // STRICT ISOLATION: Only show messages between currentUser and selectedContact
+      // STRICT ISOLATION: A private message is ONLY shown if it explicitly belongs to this exact pair
       return messages.filter((msg) => {
         if (!msg.is_private) return false;
-
-        const isFromContact =
-          msg.sender_id === selectedContact.id ||
-          (msg.sender_name && msg.sender_name.toLowerCase().trim() === contactNameNorm);
-        const isToContact =
-          msg.recipient_id === selectedContact.id ||
-          (msg.recipient_name && msg.recipient_name.toLowerCase().trim() === contactNameNorm);
-
-        const isFromMe =
-          msg.sender_id === myUserId ||
-          (msg.sender_name && msg.sender_name.toLowerCase().trim() === myNormalizedName);
-        const isToMe =
-          msg.recipient_id === myUserId ||
-          (msg.recipient_name && msg.recipient_name.toLowerCase().trim() === myNormalizedName);
-
-        return (isFromContact && isToMe) || (isFromMe && isToContact);
+        if (msg.conversation_id) {
+          return msg.conversation_id === expectedConvId;
+        }
+        if (!msg.sender_id || !msg.recipient_id) return false;
+        return (
+          (msg.sender_id === activeUserId && msg.recipient_id === selectedContact.id) ||
+          (msg.sender_id === selectedContact.id && msg.recipient_id === activeUserId)
+        );
       });
     }
 
-    // Community Mode: STRICT FILTER - NEVER show private messages in community room!
+    // Community Mode: NEVER show private messages in the community feed!
     return messages.filter((msg) => {
       if (msg.is_private) return false;
 
-      // Filter by tag
       if (filterTag === 'PINNED') {
         if (!msg.is_pinned) return false;
       } else if (filterTag !== 'ALL') {
         if (msg.tag !== filterTag) return false;
       }
 
-      // Filter by search
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const matchesText = msg.message.toLowerCase().includes(query);
@@ -507,13 +495,12 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
       return true;
     });
-  }, [messages, chatMode, selectedContact, filterTag, searchQuery, myUserId, myNormalizedName]);
+  }, [messages, chatMode, selectedContact, filterTag, searchQuery, activeUserId]);
 
   const pinnedMessages = useMemo(() => {
     return messages.filter((m) => m.is_pinned && !m.is_private);
   }, [messages]);
 
-  // Format timestamp nicely
   const formatMessageTime = (isoString: string) => {
     try {
       const date = new Date(isoString);
@@ -557,7 +544,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         }`}
       >
         <div className="flex items-center justify-between gap-2 sm:gap-3">
-          {/* Church/Chat Identity & Inline Current User */}
+          {/* Identity & Inline Current User */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0"
@@ -581,14 +568,14 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shrink-0 ${
                     chatMode === 'PRIVATE'
-                      ? 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700'
                       : isLight
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>{chatMode === 'PRIVATE' ? 'Pribadi & Terisolasi' : 'Live Komunitas'}</span>
+                  <span>{chatMode === 'PRIVATE' ? '🔒 100% Terisolasi' : 'Live Komunitas'}</span>
                 </span>
               </div>
 
@@ -602,7 +589,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                     isLight ? 'text-slate-800' : 'text-slate-200'
                   }`}
                 >
-                  {effectiveDisplayName}
+                  {activeUserName}
                 </span>
                 <span
                   className={`px-1.5 py-0.2 rounded text-[9px] font-bold border shrink-0 ${
@@ -740,7 +727,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Lock className="w-4 h-4 text-amber-500" />
+            <Lock className="w-4 h-4 text-emerald-600" />
             <span>Pesan Pribadi (Jalur Khusus 1-on-1)</span>
             {totalUnreadPrivateCount > 0 && (
               <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black animate-pulse">
@@ -884,22 +871,27 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         {chatMode === 'PRIVATE' && !selectedContact && (
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {/* Header Advisory Banner */}
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-amber-900 dark:text-amber-200">
-              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
-                <Shield className="w-5 h-5" />
+            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3 text-emerald-900 dark:text-emerald-200 shadow-xs">
+              <div className="p-2.5 rounded-xl bg-emerald-600 text-white shrink-0 mt-0.5 shadow-xs">
+                <ShieldCheck className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <h3 className="font-extrabold text-xs sm:text-sm flex items-center gap-1.5">
-                  <span>Jalur Chat Pribadi Terisolasi (1-on-1)</span>
-                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-[10px] font-bold">
-                    Rahasia
+                <h3 className="font-black text-xs sm:text-sm flex items-center gap-2">
+                  <span>Jalur Chat Pribadi Terenkripsi &amp; Terisolasi (1-on-1)</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[9px] font-black uppercase tracking-wider">
+                    Privasi 100%
                   </span>
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Pilih salah satu jemaat atau pengurus gereja di bawah ini untuk memulai percakapan pribadi.
-                  Percakapan di jalur ini <strong>hanya dapat dibaca oleh Anda dan orang yang Anda tuju</strong>.
-                  Jemaat lain maupun orang luar <strong>sama sekali tidak dapat melihat isi pesan</strong>.
+                  Pilih salah satu jemaat atau pengurus gereja di bawah ini. Percakapan di ruang ini{' '}
+                  <strong>hanya dapat dibaca oleh Anda ({activeUserName}) dan orang yang Anda tuju</strong>.
+                  Jemaat lain, pengurus lain, maupun publik <strong>sama sekali tidak dapat melihat isi percakapan</strong>.
                 </p>
+                {isGuest && (
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300 font-semibold pt-1">
+                    💡 Anda sedang menggunakan akun Tamu (ID Perangkat: {activeUserId.slice(0, 12)}). Hanya perangkat ini yang dapat membaca balasan dari orang yang Anda hubungi.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -914,8 +906,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   placeholder="Cari jemaat, nama, wilayah, atau admin..."
                   className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs font-medium focus:outline-none ${
                     isLight
-                      ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20'
-                      : 'bg-slate-900 border-slate-800 text-white focus:ring-2 focus:ring-amber-500/20'
+                      ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500/20'
+                      : 'bg-slate-900 border-slate-800 text-white focus:ring-2 focus:ring-emerald-500/20'
                   }`}
                 />
               </div>
@@ -968,8 +960,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                     onClick={() => handleStartPrivateChat(contact)}
                     className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 group ${
                       isLight
-                        ? 'bg-white hover:bg-amber-50/40 border-slate-200/90 hover:border-amber-400 shadow-2xs hover:shadow-xs'
-                        : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 hover:border-amber-500/40'
+                        ? 'bg-white hover:bg-emerald-50/30 border-slate-200/90 hover:border-emerald-400 shadow-2xs hover:shadow-xs'
+                        : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 hover:border-emerald-500/40'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -1018,22 +1010,22 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                         </div>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                           {contact.lastMessage ? (
-                            <span className="italic">
+                            <span className="italic text-emerald-700 dark:text-emerald-300 font-medium">
                               "{contact.lastMessage.slice(0, 45)}
                               {contact.lastMessage.length > 45 ? '...' : ''}"
                             </span>
                           ) : (
-                            contact.wilayah || 'Belum ada obrolan sebelumnya'
+                            contact.wilayah || 'Belum ada obrolan pribadi dengan Anda'
                           )}
                         </p>
                       </div>
                     </div>
 
                     <button
-                      className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-xs shrink-0 flex items-center gap-1.5 group-hover:scale-105 transition-transform"
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-xs shrink-0 flex items-center gap-1.5 group-hover:scale-105 transition-transform"
                     >
-                      <Lock className="w-3 h-3" />
-                      <span>Chat</span>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Chat Pribadi</span>
                     </button>
                   </div>
                 ))
@@ -1049,7 +1041,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
             {chatMode === 'PRIVATE' && selectedContact && (
               <div
                 className={`p-2.5 px-4 border-b flex items-center justify-between gap-3 ${
-                  isLight ? 'bg-amber-50/70 border-amber-200/80' : 'bg-amber-950/30 border-amber-800/40'
+                  isLight ? 'bg-emerald-50/80 border-emerald-200' : 'bg-emerald-950/30 border-emerald-800/40'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -1073,13 +1065,13 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                         <h3 className="font-black text-xs sm:text-sm text-slate-900 dark:text-white truncate">
                           {selectedContact.name}
                         </h3>
-                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-400/40 shrink-0">
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-400/40 shrink-0">
                           {selectedContact.role}
                         </span>
                       </div>
-                      <p className="text-[10px] text-amber-800/80 dark:text-amber-300/80 flex items-center gap-1 truncate">
-                        <Shield className="w-3 h-3 text-amber-500 shrink-0" />
-                        <span>Jalur Pribadi Terisolasi &bull; Hanya Anda dan {selectedContact.name}</span>
+                      <p className="text-[10px] text-emerald-800/90 dark:text-emerald-300/90 flex items-center gap-1 truncate font-medium">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Jalur Terisolasi 100% &bull; Hanya Anda ({activeUserName}) dan {selectedContact.name}</span>
                       </p>
                     </div>
                   </div>
@@ -1087,9 +1079,9 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
                 <button
                   onClick={() => setSelectedContact(null)}
-                  className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-white/50 dark:hover:bg-slate-800 cursor-pointer"
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white px-2.5 py-1.5 rounded-xl bg-white/80 dark:bg-slate-800 border border-emerald-200/80 dark:border-emerald-800/40 hover:bg-white cursor-pointer shadow-2xs"
                 >
-                  Ganti Kontak
+                  Ganti Lawan Bicara
                 </button>
               </div>
             )}
@@ -1150,17 +1142,14 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       {chatMode === 'PRIVATE'
-                        ? 'Kirimkan salam, pertanyaan pribadi, atau pokok doa yang ingin disampaikan langsung tanpa terlihat oleh jemaat lain.'
+                        ? `Pesan yang Anda kirimkan di sini bersifat 100% rahasia, terisolasi khusus antara Anda dan ${selectedContact?.name}. Jemaat lain tidak akan pernah bisa membaca pesan ini.`
                         : 'Jadilah yang pertama mengirimkan sapaan, ayat berkat, atau pokok doa kepada sesama jemaat!'}
                     </p>
                   </div>
                 </div>
               ) : (
                 currentFeedMessages.map((msg) => {
-                  const isFromMe =
-                    (currentUser.user_id && msg.sender_id === currentUser.user_id) ||
-                    msg.sender_name.toLowerCase().trim() === myNormalizedName;
-
+                  const isFromMe = msg.sender_id === activeUserId;
                   const tagConfig = msg.tag ? TAG_CONFIG[msg.tag] : null;
 
                   return (
@@ -1202,13 +1191,13 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                           </span>
 
                           {msg.is_private && (
-                            <span className="px-1.5 py-0.2 rounded text-[8px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300/40 flex items-center gap-0.5">
+                            <span className="px-1.5 py-0.2 rounded text-[8px] font-bold bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300/40 flex items-center gap-0.5">
                               <Lock className="w-2.5 h-2.5" />
-                              <span>Pribadi</span>
+                              <span>Rahasia / Pribadi</span>
                             </span>
                           )}
 
-                          {tagConfig && (
+                          {tagConfig && !msg.is_private && (
                             <span
                               className={`px-1.5 py-0.2 rounded text-[8px] font-bold border ${
                                 isLight ? tagConfig.light.bg : tagConfig.dark.bg
@@ -1257,15 +1246,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                         {/* Footer: Time & Status */}
                         <div
                           className={`flex items-center justify-end gap-1.5 mt-1 text-[9px] font-mono ${
-                            isFromMe
-                              ? 'text-white/80'
-                              : isLight
-                              ? 'text-slate-400'
-                              : 'text-slate-400'
+                            isFromMe ? 'text-white/80' : isLight ? 'text-slate-400' : 'text-slate-400'
                           }`}
                         >
                           {msg.is_pinned && <Pin className="w-2.5 h-2.5 fill-current text-amber-300" />}
-                          {msg.is_private && <Lock className="w-2.5 h-2.5" />}
+                          {msg.is_private && <Lock className="w-2.5 h-2.5 text-emerald-300" />}
                           <span>{formatMessageTime(msg.created_at)}</span>
                           {isFromMe && <CheckCheck className="w-3 h-3 text-white" />}
                         </div>
@@ -1290,15 +1275,15 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                         {chatMode === 'COMMUNITY' && !isFromMe && (
                           <button
                             onClick={() => handleStartPrivateFromMessage(msg)}
-                            className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-800 dark:text-amber-300 hover:bg-amber-500/30 flex items-center gap-1 cursor-pointer shadow-2xs font-bold"
+                            className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/30 flex items-center gap-1 cursor-pointer shadow-2xs font-bold"
                             title="Balas secara pribadi (hanya Anda dan pengirim)"
                           >
-                            <Lock className="w-2.5 h-2.5 text-amber-500" />
+                            <Lock className="w-2.5 h-2.5 text-emerald-600" />
                             <span>Pribadi</span>
                           </button>
                         )}
 
-                        {/* Pin Message (Admin only) */}
+                        {/* Pin Message (Admin only, community only) */}
                         {isAdmin && !msg.is_private && (
                           <button
                             onClick={() => handleTogglePin(msg.id)}
@@ -1438,12 +1423,12 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   onChange={(e) => setInputMessage(e.target.value)}
                   placeholder={
                     chatMode === 'PRIVATE' && selectedContact
-                      ? `Ketik pesan pribadi untuk ${selectedContact.name} (rahasia)...`
+                      ? `Ketik pesan pribadi untuk ${selectedContact.name} (rahasia 1-on-1)...`
                       : 'Ketik pesan firman, doa, atau sapaan jemaat...'
                   }
                   className={`w-full px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium focus:outline-none transition-all ${
                     chatMode === 'PRIVATE'
-                      ? 'focus:ring-2 focus:ring-amber-500/30'
+                      ? 'focus:ring-2 focus:ring-emerald-500/30'
                       : 'focus:ring-2 focus:ring-emerald-500/30'
                   } ${
                     isLight

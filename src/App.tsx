@@ -267,9 +267,12 @@ export default function App() {
 
       // Keamanan & Privasi: Jika pesan bersifat pribadi, hanya penerima yang berhak menerima notifikasi!
       if (latest.is_private) {
-        const isForMe =
-          (effectiveUser.user_id && latest.recipient_id === effectiveUser.user_id) ||
-          (latest.recipient_name && latest.recipient_name.toLowerCase().trim() === myName);
+        const myActiveId =
+          effectiveUser.user_id && effectiveUser.user_id !== 'guest'
+            ? effectiveUser.user_id
+            : StorageManager.getOrCreateDeviceId();
+
+        const isForMe = latest.recipient_id === myActiveId;
         if (!isForMe) {
           return;
         }
@@ -593,7 +596,7 @@ export default function App() {
 
           {activeTab === 'jemaat_portal' && <JemaatPortalView key={`${activeTenantId}_portal`} currentUser={effectiveUser} settings={settings} />}
 
-          {activeTab === 'chat' && <ChatView key={`${activeTenantId}_chat`} currentUser={effectiveUser} settings={settings} />}
+          {activeTab === 'chat' && <ChatView key={`${activeTenantId}_${effectiveUser.user_id || 'guest'}_chat`} currentUser={effectiveUser} settings={settings} />}
 
           {activeTab === 'pustaka' && (
             <PustakaRohaniView
