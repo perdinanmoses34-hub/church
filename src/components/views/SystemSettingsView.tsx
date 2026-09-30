@@ -1343,28 +1343,32 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <label className="block text-slate-700 font-bold text-xs">Preset Background Admin</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'EMERALD_LIGHT', label: '🌿 Emerald Light (Universal)', bg: 'from-emerald-50 via-teal-50 to-white text-emerald-950', border: 'border-emerald-500' },
-                      { id: 'DARK_SLATE', label: '🌌 Dark Slate', bg: 'from-slate-900 to-indigo-950', border: 'border-indigo-500/50' },
-                      { id: 'MIDNIGHT_BLUE', label: '💙 Midnight Blue', bg: 'from-slate-950 to-blue-950', border: 'border-blue-500/50' },
-                      { id: 'DEEP_PURPLE', label: '💜 Amethyst Dark', bg: 'from-neutral-950 to-purple-950', border: 'border-purple-500/50' },
-                      { id: 'FOREST_GREEN', label: '🌲 Emerald Dark', bg: 'from-stone-950 to-emerald-950', border: 'border-emerald-500/50' },
-                      { id: 'WARM_GOLD', label: '⚜️ Warm Gold Luxe', bg: 'from-neutral-950 to-amber-950', border: 'border-amber-500/50' },
-                      { id: 'LUXE_LIGHT', label: '☀️ Minimalist Light', bg: 'from-slate-100 to-white text-slate-900', border: 'border-slate-300' }
-                    ].map((t) => (
-                      <button
-                        type="button"
-                        key={t.id}
-                        onClick={() => setMetaForm({ ...metaForm, theme_preset: t.id as any })}
-                        className={`p-2.5 rounded-xl bg-gradient-to-br ${t.bg} border text-left text-[11px] font-bold transition-all flex items-center justify-between ${
-                          (metaForm.theme_preset || 'EMERALD_LIGHT') === t.id
-                            ? `${t.border} ring-2 ring-teal-500 shadow-md scale-[1.02]`
-                            : 'border-slate-200 opacity-70 hover:opacity-100'
-                        }`}
-                      >
-                        <span className="truncate">{t.label}</span>
-                        {(metaForm.theme_preset || 'EMERALD_LIGHT') === t.id && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
-                      </button>
-                    ))}
+                      { id: 'EMERALD_LIGHT', label: '🌿 Emerald Light (Universal)', bg: 'from-emerald-50 via-teal-50 to-white', textColor: 'text-emerald-950', border: 'border-emerald-500' },
+                      { id: 'DARK_SLATE', label: '🌌 Dark Slate', bg: 'from-slate-900 to-indigo-950', textColor: 'text-white', border: 'border-indigo-500/50' },
+                      { id: 'MIDNIGHT_BLUE', label: '💙 Midnight Blue', bg: 'from-slate-950 to-blue-950', textColor: 'text-white', border: 'border-blue-500/50' },
+                      { id: 'DEEP_PURPLE', label: '💜 Amethyst Dark', bg: 'from-neutral-950 to-purple-950', textColor: 'text-white', border: 'border-purple-500/50' },
+                      { id: 'FOREST_GREEN', label: '🌲 Emerald Dark', bg: 'from-stone-950 to-emerald-950', textColor: 'text-white', border: 'border-emerald-500/50' },
+                      { id: 'WARM_GOLD', label: '⚜️ Warm Gold Luxe', bg: 'from-neutral-950 to-amber-950', textColor: 'text-white', border: 'border-amber-500/50' },
+                      { id: 'LUXE_LIGHT', label: '☀️ Minimalist Light', bg: 'from-slate-100 to-white', textColor: 'text-slate-900', border: 'border-slate-300' }
+                    ].map((t) => {
+                      const isSelected = (metaForm.theme_preset || 'EMERALD_LIGHT') === t.id;
+                      const isDark = t.textColor === 'text-white';
+                      return (
+                        <button
+                          type="button"
+                          key={t.id}
+                          onClick={() => setMetaForm({ ...metaForm, theme_preset: t.id as any })}
+                          className={`p-2.5 rounded-xl bg-gradient-to-br ${t.bg} ${t.textColor} border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? `${t.border} ring-2 ring-teal-500 shadow-md scale-[1.02]`
+                              : 'border-slate-300 hover:border-teal-400 opacity-90 hover:opacity-100'
+                          }`}
+                        >
+                          <span className="truncate drop-shadow-xs">{t.label}</span>
+                          {isSelected && <Check className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-teal-300' : 'text-teal-600'}`} />}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1380,7 +1384,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       </p>
                     </div>
                     <div
-                      className="w-12 h-12 rounded-2xl border-2 border-white shadow-md shrink-0 flex items-center justify-center font-mono text-[10px] text-white font-black"
+                      className={`w-12 h-12 rounded-2xl border-2 border-white shadow-md shrink-0 flex items-center justify-center font-mono text-[10px] font-black ${
+                        isColorLight(metaForm.warna_tema || '#059669') ? 'text-slate-950' : 'text-white'
+                      }`}
                       style={{ backgroundColor: metaForm.warna_tema || '#059669' }}
                     >
                       {metaForm.warna_tema || '#059669'}
@@ -1420,7 +1426,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       <span className="text-[11px] text-slate-500 font-semibold">Pratinjau:</span>
                       <button
                         type="button"
-                        className="px-3.5 py-1.5 rounded-xl text-white font-extrabold text-xs shadow-md transition-all"
+                        className={`px-4 py-2 rounded-xl font-extrabold text-xs shadow-md transition-all border border-black/10 ${
+                          isColorLight(metaForm.warna_tema || '#059669') ? 'text-slate-950' : 'text-white'
+                        }`}
                         style={{ backgroundColor: metaForm.warna_tema || '#059669' }}
                       >
                         Warna Utama
@@ -1430,7 +1438,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                   {/* Quick Preset Color Hex Chips */}
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 block mb-2">Rekomendasi Warna Hex Populer:</span>
+                    <span className="text-[11px] font-bold text-slate-700 block mb-2">
+                      Rekomendasi Warna Hex Populer:
+                    </span>
                     <div className="flex flex-wrap gap-2">
                       {[
                         { name: 'Terracotta', hex: '#CD5C5C' },
@@ -1443,21 +1453,31 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         { name: 'Fuchsia', hex: '#D946EF' },
                         { name: 'Deep Teal', hex: '#0F766E' },
                         { name: 'Warm Gold', hex: '#B45309' }
-                      ].map((chip) => (
-                        <button
-                          key={chip.hex}
-                          type="button"
-                          onClick={() => setMetaForm({ ...metaForm, warna_tema: chip.hex })}
-                          className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                            (metaForm.warna_tema || '#CD5C5C').toUpperCase() === chip.hex.toUpperCase()
-                              ? 'border-white text-white ring-2 ring-amber-400 shadow-md scale-105'
-                              : 'border-slate-800 text-slate-300 hover:border-slate-600 bg-slate-900'
-                          }`}
-                        >
-                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: chip.hex }} />
-                          <span>{chip.name} ({chip.hex})</span>
-                        </button>
-                      ))}
+                      ].map((chip) => {
+                        const isSelected = (metaForm.warna_tema || '#CD5C5C').toUpperCase() === chip.hex.toUpperCase();
+                        return (
+                          <button
+                            key={chip.hex}
+                            type="button"
+                            onClick={() => setMetaForm({ ...metaForm, warna_tema: chip.hex })}
+                            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'border-teal-700 bg-teal-900 text-white ring-2 ring-teal-400 shadow-md scale-105'
+                                : 'border-teal-200 bg-white text-slate-800 hover:border-teal-400 hover:bg-teal-50 shadow-2xs'
+                            }`}
+                          >
+                            <span
+                              className="w-3 h-3 rounded-full shrink-0 border border-slate-300 shadow-2xs"
+                              style={{ backgroundColor: chip.hex }}
+                            />
+                            <span>{chip.name}</span>
+                            <span className={`text-[10px] font-mono ${isSelected ? 'text-teal-200' : 'text-slate-500'}`}>
+                              ({chip.hex})
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-teal-300 shrink-0 ml-0.5" />}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -1473,23 +1493,27 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       { id: 'ROSE', label: '🔴 Crimson Rose', color: 'bg-rose-600' },
                       { id: 'CYAN', label: '🔵 Ocean Cyan', color: 'bg-cyan-600' },
                       { id: 'ROYAL_GOLD', label: '⚜️ Royal Gold', color: 'bg-yellow-600' }
-                    ].map((ac) => (
-                      <button
-                        type="button"
-                        key={ac.id}
-                        onClick={() => setMetaForm({ ...metaForm, accent_color: ac.id as any })}
-                        className={`p-2.5 rounded-xl border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
-                          (metaForm.accent_color || 'INDIGO') === ac.id
-                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
-                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <span className={`w-3 h-3 rounded-full ${ac.color}`} />
-                          <span>{ac.label}</span>
-                        </div>
-                      </button>
-                    ))}
+                    ].map((ac) => {
+                      const isSelected = (metaForm.accent_color || 'INDIGO') === ac.id;
+                      return (
+                        <button
+                          type="button"
+                          key={ac.id}
+                          onClick={() => setMetaForm({ ...metaForm, accent_color: ac.id as any })}
+                          className={`p-2.5 rounded-xl border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
+                              : 'border-slate-200 bg-white text-slate-800 hover:border-teal-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <span className={`w-3 h-3 rounded-full ${ac.color}`} />
+                            <span>{ac.label}</span>
+                          </div>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1502,21 +1526,27 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       { id: 'SOLID', label: '⬛ Solid Light', desc: 'Putih Pekat Bersih' },
                       { id: 'NEON', label: '💡 Neon Accent', desc: 'Glow Menyala' },
                       { id: 'FLAT', label: '📄 Flat Bordered', desc: 'Simpel Flat' }
-                    ].map((c) => (
-                      <button
-                        type="button"
-                        key={c.id}
-                        onClick={() => setMetaForm({ ...metaForm, card_style: c.id as any })}
-                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                          (metaForm.card_style || 'GLASS') === c.id
-                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
-                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
-                        }`}
-                      >
-                        <div className="font-bold text-[11px]">{c.label}</div>
-                        <div className="text-[9px] text-slate-400 mt-0.5">{c.desc}</div>
-                      </button>
-                    ))}
+                    ].map((c) => {
+                      const isSelected = (metaForm.card_style || 'GLASS') === c.id;
+                      return (
+                        <button
+                          type="button"
+                          key={c.id}
+                          onClick={() => setMetaForm({ ...metaForm, card_style: c.id as any })}
+                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
+                              : 'border-slate-200 bg-white text-slate-800 hover:border-teal-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="font-bold text-[11px] text-slate-900">{c.label}</div>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
+                          </div>
+                          <div className="text-[9px] text-slate-500 mt-0.5">{c.desc}</div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1529,21 +1559,27 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       { id: 'ACCENT_LEFT', label: '▌ Garis Kiri Tebal', desc: 'Aksen Garis Kiri' },
                       { id: 'ACCENT_TOP', label: '▀ Garis Atas Tebal', desc: 'Aksen Garis Atas' },
                       { id: 'ACCENT_GLOW', label: '✨ Glowing Border', desc: 'Efek Glow Transparan' }
-                    ].map((b) => (
-                      <button
-                        type="button"
-                        key={b.id}
-                        onClick={() => setMetaForm({ ...metaForm, card_border_accent: b.id as any })}
-                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                          (metaForm.card_border_accent || 'ACCENT_FULL') === b.id
-                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
-                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
-                        }`}
-                      >
-                        <div className="font-bold text-[11px]">{b.label}</div>
-                        <div className="text-[9px] text-slate-400 mt-0.5">{b.desc}</div>
-                      </button>
-                    ))}
+                    ].map((b) => {
+                      const isSelected = (metaForm.card_border_accent || 'ACCENT_FULL') === b.id;
+                      return (
+                        <button
+                          type="button"
+                          key={b.id}
+                          onClick={() => setMetaForm({ ...metaForm, card_border_accent: b.id as any })}
+                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
+                              : 'border-slate-200 bg-white text-slate-800 hover:border-teal-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="font-bold text-[11px] text-slate-900">{b.label}</div>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
+                          </div>
+                          <div className="text-[9px] text-slate-500 mt-0.5">{b.desc}</div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

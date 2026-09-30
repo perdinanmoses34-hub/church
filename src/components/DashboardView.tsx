@@ -4236,8 +4236,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                               onClick={() => setCustomForm({ ...customForm, theme_preset: t.id as any })}
                               className={`p-2.5 rounded-xl text-xs font-semibold border text-center transition-all cursor-pointer flex items-center justify-between px-3 ${
                                 isSelected
-                                  ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300 font-bold ring-1 ring-indigo-500/50'
-                                  : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
+                                  ? 'border-indigo-400 bg-indigo-600/30 text-white font-bold ring-2 ring-indigo-500/50 shadow-md'
+                                  : 'border-slate-800 bg-slate-900 text-slate-200 hover:text-white hover:border-slate-700'
                               }`}
                             >
                               <span className="truncate">{t.label}</span>
@@ -4268,8 +4268,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                               onClick={() => setCustomForm({ ...customForm, card_style: c.id as any })}
                               className={`p-2.5 rounded-xl text-xs font-semibold border text-left transition-all cursor-pointer flex items-center justify-between px-3 ${
                                 isSelected
-                                  ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300 font-bold ring-1 ring-indigo-500/50'
-                                  : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-white'
+                                  ? 'border-indigo-400 bg-indigo-600/30 text-white font-bold ring-2 ring-indigo-500/50 shadow-md'
+                                  : 'border-slate-800 bg-slate-900 text-slate-200 hover:text-white hover:border-slate-700'
                               }`}
                             >
                               <span className="truncate">{c.label}</span>
