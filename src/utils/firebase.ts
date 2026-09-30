@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, initializeFirestore, doc, getDoc, setLogLevel } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, doc, getDoc, getDocFromServer, setLogLevel } from 'firebase/firestore';
 import { AppSettings } from '../types';
 import defaultFirebaseConfig from '../../firebase-applet-config.json';
 
@@ -131,9 +131,15 @@ export async function testConnection() {
   }
   if (!firestoreDb) return false;
   try {
-    await getDoc(doc(firestoreDb, 'test', 'connection'));
+    await getDocFromServer(doc(firestoreDb, 'test', 'connection'));
     return true;
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.error("Please check your Firebase configuration.");
+    }
     return false;
   }
 }
+
+// Perform initial connection test
+testConnection();
