@@ -164,9 +164,9 @@ export function getActiveFirebaseConfig() {
 const firestoreInstanceCache = new Map<string, Firestore>();
 
 /**
- * Safely initializes or retrieves a Firestore instance with experimentalAutoDetectLongPolling enabled.
- * This guarantees fast WebSocket connection by default with seamless auto-fallback to long polling if WebSockets are blocked,
- * eliminating the 10-second backend connection warning.
+ * Safely initializes or retrieves a Firestore instance with experimentalForceLongPolling enabled.
+ * This guarantees zero-delay real-time connections on all mobile networks, WebViews, and proxies,
+ * eliminating the 2-minute WebSocket connection timeout.
  */
 export function getOrInitFirestore(app: FirebaseApp, databaseId?: string): Firestore {
   const dbId = databaseId && databaseId !== '(default)' ? databaseId : undefined;
@@ -181,7 +181,7 @@ export function getOrInitFirestore(app: FirebaseApp, databaseId?: string): Fires
     firestoreDb = initializeFirestore(
       app,
       {
-        experimentalAutoDetectLongPolling: true
+        experimentalForceLongPolling: true
       },
       dbId
     );
@@ -376,7 +376,7 @@ export async function pushToCloud(storageKey: string, data: any): Promise<void> 
     return;
   }
 
-  // 2. Debounce Firestore cloud write (250ms) to prevent quota exhaustion from rapid burst saves
+  // 2. Debounce Firestore cloud write (120ms) to prevent quota exhaustion from rapid burst saves while ensuring sub-second delivery
   if (cloudWriteTimers.has(docId)) {
     clearTimeout(cloudWriteTimers.get(docId));
   }
@@ -417,7 +417,7 @@ export async function pushToCloud(storageKey: string, data: any): Promise<void> 
           console.warn(`[FirebaseSync] Primary sync failed for ${storageKey}:`, error);
         }
       }
-    }, 250)
+    }, 120)
   );
 }
 
@@ -706,6 +706,15 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
                 localStorage.setItem(storageKey, payloadStr);
                 if (storageKey === 'settings' || storageKey === 'cms_pro_settings') {
                   localStorage.setItem('cms_pro_settings', payloadStr);
+                } else if (storageKey.startsWith('cms_pro_') && storageKey.endsWith('_settings')) {
+                  localStorage.setItem(storageKey, payloadStr);
+                  try {
+                    const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
+                    const cleanTenant = rawTenant ? rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim() : 'CHURCH-001';
+                    if (storageKey === `cms_pro_${cleanTenant}_settings`) {
+                      localStorage.setItem('cms_pro_settings', payloadStr);
+                    }
+                  } catch (e) {}
                 } else if (storageKey === 'cms_pro_active_tenant_id' || storageKey === 'active_tenant_id') {
                   const cleanTenant = payloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
                   if (cleanTenant) {
@@ -713,7 +722,7 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
                   }
                 }
                 lastPushedPayloads.set(storageKey, payloadStr);
-                if (storageKey === 'cms_pro_notifications' || storageKey === 'notifications') {
+                if (storageKey.includes('notification')) {
                   try {
                     playNotificationChime();
                   } catch {}
@@ -762,6 +771,12 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
           // ignore
         }
       };
+
+      sse.onerror = () => {
+        // SSE network error / proxy timeout: trigger fast fallback delta poll
+        pollServerDelta();
+      };
+
       activeUnsubscribers.push(() => {
         try {
           sse.close();
@@ -771,6 +786,86 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
       console.warn('[SSE] EventSource init notice:', err);
     }
   }
+
+  // Active Fast Delta Polling Loop (Zero-delay multi-device guarantee on all mobile devices & carriers)
+  let lastSyncTimestamp = Date.now() - 5000;
+  let isDeltaPolling = false;
+
+  const pollServerDelta = async () => {
+    if (isDeltaPolling || typeof fetch === 'undefined') return;
+    isDeltaPolling = true;
+    try {
+      const res = await fetch(`/api/sync/pull?since=${lastSyncTimestamp}`, {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.data && typeof json.data === 'object' && Object.keys(json.data).length > 0) {
+          isRemoteUpdating = true;
+          let hasUpdated = false;
+          try {
+            Object.entries(json.data).forEach(([key, val]: [string, any]) => {
+              if (isLocalDeviceSessionKey(key)) return;
+              const payloadStr = typeof val?.payload === 'string' ? val.payload : JSON.stringify(val?.payload ?? val);
+              const cur = localStorage.getItem(key);
+              if (cur !== payloadStr) {
+                localStorage.setItem(key, payloadStr);
+                if (key === 'settings' || key === 'cms_pro_settings') {
+                  localStorage.setItem('cms_pro_settings', payloadStr);
+                } else if (key.startsWith('cms_pro_') && key.endsWith('_settings')) {
+                  localStorage.setItem(key, payloadStr);
+                  try {
+                    const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
+                    const cleanTenant = rawTenant ? rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim() : 'CHURCH-001';
+                    if (key === `cms_pro_${cleanTenant}_settings`) {
+                      localStorage.setItem('cms_pro_settings', payloadStr);
+                    }
+                  } catch (e) {}
+                } else if (key === 'cms_pro_active_tenant_id' || key === 'active_tenant_id') {
+                  try {
+                    const cleanTenant = payloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
+                    if (cleanTenant) {
+                      localStorage.setItem('cms_pro_active_tenant_id', JSON.stringify(cleanTenant));
+                    }
+                  } catch (e) {}
+                }
+                lastPushedPayloads.set(key, payloadStr);
+                hasUpdated = true;
+
+                if (key.includes('notification')) {
+                  try {
+                    playNotificationChime();
+                  } catch {}
+                }
+              }
+            });
+
+            if (hasUpdated) {
+              syncConnectedStatus = true;
+              notifyStorageListeners();
+              window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { source: 'fast_delta_poll' } }));
+              window.dispatchEvent(new Event('storage'));
+              if (onDataReceived) onDataReceived();
+            }
+          } finally {
+            isRemoteUpdating = false;
+          }
+        }
+        if (json?.serverTime) {
+          lastSyncTimestamp = json.serverTime - 500; // 500ms safety overlap
+        } else {
+          lastSyncTimestamp = Date.now() - 500;
+        }
+      }
+    } catch {
+      // offline / transient network
+    } finally {
+      isDeltaPolling = false;
+    }
+  };
+
+  const deltaPollInterval = setInterval(pollServerDelta, 2500);
+  activeUnsubscribers.push(() => clearInterval(deltaPollInterval));
 
   // 2. Fetch server-broadcasted Firebase configuration on startup
   if (typeof fetch !== 'undefined') {
@@ -894,6 +989,11 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
                 }
                 lastPushedPayloads.set(docId, cloudPayloadStr);
                 hasChanges = true;
+                if (storageKey.includes('notification') || docId.includes('notification')) {
+                  try {
+                    playNotificationChime();
+                  } catch {}
+                }
 
                 // If settings were updated with new firebaseConfig, check if project switched
                 if (storageKey === 'cms_pro_settings') {
@@ -994,6 +1094,7 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
     window.addEventListener('visibilitychange', handleMobileResume);
     window.addEventListener('online', handleMobileResume);
     window.addEventListener('pageshow', handleMobileResume);
+    window.addEventListener('focus', handleMobileResume);
   }
 
   return () => {

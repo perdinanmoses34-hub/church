@@ -73,26 +73,47 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+  // CORS middleware for all API routes (essential for mobile devices, APK WebViews, and cross-origin access)
+  app.use('/api', (req: Request, res: Response, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(204);
+    }
+    next();
+  });
+
   // SSE (Server-Sent Events) Endpoint for instant Real-time Multi-Device Sync
   app.get('/api/sync/events', (req: Request, res: Response) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform, no-buffer');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', '*');
     res.flushHeaders?.();
+
+    // 2KB comment padding immediately defeats reverse proxy buffering (Envoy, GCP Cloud Run, NGINX)
+    res.write(': ' + ' '.repeat(2048) + '\n\n');
 
     // Send initial handshake
     res.write(`data: ${JSON.stringify({ type: 'connected', time: Date.now(), totalRecords: syncStore.size })}\n\n`);
+    (res as any).flush?.();
 
     sseClients.add(res);
 
+    // Keep mobile socket active through 3s ping (prevents carrier NAT & proxy timeouts)
     const heartbeat = setInterval(() => {
       try {
         res.write(': heartbeat\n\n');
+        (res as any).flush?.();
       } catch {
         clearInterval(heartbeat);
+        sseClients.delete(res);
       }
-    }, 15000);
+    }, 3000);
 
     req.on('close', () => {
       clearInterval(heartbeat);
@@ -103,6 +124,7 @@ async function startServer() {
   // Push updated data to all connected devices in real-time
   app.post('/api/sync/push', (req: Request, res: Response) => {
     try {
+      res.setHeader('Access-Control-Allow-Origin', '*');
       const { key, payload, updatedAt } = req.body;
       if (!key) {
         return res.status(400).json({ success: false, error: 'Key is required' });
@@ -126,6 +148,7 @@ async function startServer() {
       sseClients.forEach((client) => {
         try {
           client.write(broadcastMsg);
+          (client as any).flush?.();
           deliveredCount++;
         } catch {
           sseClients.delete(client);
@@ -144,15 +167,23 @@ async function startServer() {
     }
   });
 
-  // Pull all synchronized documents
+  // Pull synchronized documents (supports ?since=<timestamp> for lightning-fast delta sync)
   app.get('/api/sync/pull', (req: Request, res: Response) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    const since = req.query.since ? parseInt(req.query.since as string, 10) : 0;
     const data: Record<string, { payload: string; updatedAt: number }> = {};
+    let matchedCount = 0;
     syncStore.forEach((val, k) => {
-      data[k] = val;
+      if (!since || val.updatedAt > since) {
+        data[k] = val;
+        matchedCount++;
+      }
     });
     return res.json({
       success: true,
-      count: syncStore.size,
+      count: matchedCount,
+      total: syncStore.size,
+      serverTime: Date.now(),
       data
     });
   });

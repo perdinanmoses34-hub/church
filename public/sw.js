@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cms-pro-pwa-v8';
+const CACHE_NAME = 'cms-pro-pwa-v9';
 
 // Assets to precache for instant offline capability
 const PRECACHE_ASSETS = [
@@ -48,6 +48,19 @@ self.addEventListener('fetch', (event) => {
   
   // Ignore chrome extensions or non-http protocols
   if (!event.request.url.startsWith('http')) return;
+
+  // CRITICAL: NEVER intercept or cache live APIs, streaming SSE endpoints, or Firestore/Firebase cloud traffic!
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.hostname.includes('firestore.googleapis.com') ||
+    url.hostname.includes('firebase') ||
+    url.hostname.includes('googleapis.com') ||
+    url.hostname.includes('google.com') ||
+    url.hostname.includes('onesignal.com') ||
+    event.request.headers.get('accept')?.includes('text/event-stream')
+  ) {
+    return;
+  }
 
   // For navigation requests (HTML pages): try network first, then cache
   if (event.request.mode === 'navigate') {
