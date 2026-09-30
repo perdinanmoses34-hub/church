@@ -396,53 +396,76 @@ export const GaleriView: React.FC<GaleriViewProps> = ({ currentUser, initialTab 
 
   return (
     <div className="space-y-6">
-      {/* Header Galeri */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-            <ImageIcon className="w-6 h-6 text-teal-600" />
-            <span>Galeri &amp; Video Media Sosial</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Dokumentasi peribadatan dan kegiatan jemaat. Jemaat dapat melihat layar penuh (*full screen*) dan mengunduh foto berkualitas tinggi.
-          </p>
-        </div>
+      {/* Header Galeri & Video Media Sosial Proposional */}
+      <div className="bg-white p-4 sm:p-5 lg:p-6 rounded-3xl border border-teal-100 shadow-sm space-y-4">
+        {/* Baris 1: Judul Utama, Deskripsi & Tombol Info Kapasitas */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-100">
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <div className="p-2.5 sm:p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-700 shadow-2xs shrink-0">
+              <ImageIcon className="w-6 h-6 sm:w-7 sm:h-7 text-teal-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <span>Galeri &amp; Video Media Sosial</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5 leading-relaxed max-w-3xl">
+                Dokumentasi peribadatan dan kegiatan jemaat. Jemaat dapat melihat layar penuh (*full screen*) dan mengunduh foto berkualitas tinggi.
+              </p>
+            </div>
+          </div>
 
-        {/* Tab Selector & Add Buttons */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setShowStorageGuide(!showStorageGuide)}
-            className="px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 cursor-pointer shadow-2xs"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 cursor-pointer shadow-2xs self-start md:self-center shrink-0"
             title="Klik untuk melihat penjelasan database penyimpanan foto & kapasitas"
           >
-            <Database className="w-3.5 h-3.5 text-teal-600" />
+            <Database className="w-4 h-4 text-teal-600" />
             <span>Info Database &amp; Kapasitas</span>
           </button>
+        </div>
 
-          <div className="p-1 rounded-2xl bg-white border-2 border-teal-100 shadow-sm flex items-center gap-1">
+        {/* Baris 2: Tab Navigasi & Tombol Aksi Admin */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Switcher Tab: Galeri Foto / Video Media Sosial */}
+          <div className="p-1 rounded-2xl bg-slate-100/90 border border-slate-200 shadow-inner flex items-center gap-1 w-fit">
             <button
               onClick={() => setActiveTab('GALLERY')}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'GALLERY' ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md' : 'text-slate-600 hover:text-teal-800 hover:bg-teal-50/60'
+              className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'GALLERY'
+                  ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
               }`}
             >
               <ImageIcon className="w-4 h-4" />
               <span>Galeri Foto</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === 'GALLERY' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {photosOnly.length}
+              </span>
             </button>
             <button
               onClick={() => setActiveTab('SOCIAL_VIDEOS')}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'SOCIAL_VIDEOS' ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md' : 'text-slate-600 hover:text-teal-800 hover:bg-teal-50/60'
+              className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'SOCIAL_VIDEOS'
+                  ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
               }`}
             >
               <Video className="w-4 h-4" />
-              <span>Video Media Sosial ({featuredVideos.length})</span>
+              <span>Video Media Sosial</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === 'SOCIAL_VIDEOS' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {featuredVideos.length}
+              </span>
             </button>
           </div>
 
+          {/* Tombol Aksi Admin */}
           {isAdmin && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
               {activeTab === 'GALLERY' && (
                 <button
                   onClick={() => {
@@ -452,7 +475,7 @@ export const GaleriView: React.FC<GaleriViewProps> = ({ currentUser, initialTab 
                       fileInputRef.current?.click();
                     }, 200);
                   }}
-                  className="px-3.5 py-2.5 rounded-2xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs shadow-2xs flex items-center justify-center gap-1.5 transition-all active:scale-95 border-2 border-teal-200 cursor-pointer"
+                  className="px-3.5 py-2.5 rounded-2xl bg-white hover:bg-teal-50 text-teal-800 font-bold text-xs shadow-2xs flex items-center justify-center gap-2 transition-all active:scale-95 border border-teal-200 cursor-pointer"
                   title="Pilih dan upload file gambar dari galeri HP atau disk komputer lokal"
                 >
                   <HardDrive className="w-4 h-4 text-teal-600" />
