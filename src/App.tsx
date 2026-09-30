@@ -265,6 +265,16 @@ export default function App() {
         (effectiveUser.user_id && latest.sender_id === effectiveUser.user_id) ||
         (senderName && myName && senderName === myName);
 
+      // Keamanan & Privasi: Jika pesan bersifat pribadi, hanya penerima yang berhak menerima notifikasi!
+      if (latest.is_private) {
+        const isForMe =
+          (effectiveUser.user_id && latest.recipient_id === effectiveUser.user_id) ||
+          (latest.recipient_name && latest.recipient_name.toLowerCase().trim() === myName);
+        if (!isForMe) {
+          return;
+        }
+      }
+
       let seenId = '';
       try {
         seenId = sessionStorage.getItem('cms_last_seen_chat_id') || lastDismissedChatId;

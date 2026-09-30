@@ -457,6 +457,12 @@ export interface ChatMessage {
     message: string;
   };
   is_pinned?: boolean;
+  // Jalur Chat Khusus Pribadi (1-on-1 Private Isolated Chat)
+  is_private?: boolean;
+  recipient_id?: string;
+  recipient_name?: string;
+  recipient_role?: 'SUPER_ADMIN' | 'ADMIN' | 'JEMAAT' | 'TAMU';
+  recipient_avatar?: string;
 }
 
 export type HymnSongCategory = 'KJ' | 'NKB' | 'PKJ' | 'KONTEMPORER';

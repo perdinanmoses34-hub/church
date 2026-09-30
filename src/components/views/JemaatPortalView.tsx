@@ -383,8 +383,8 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
               </div>
 
               <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight mt-1 text-white">
-                {appSettings.jemaat_banner_title ? `${appSettings.jemaat_banner_title}, ` : 'Shalom, '}
-                {jemaatData?.nama_lengkap || currentUser.nama}!
+                {(appSettings.jemaat_banner_title || 'Shalom & Selamat Datang').replace(/\b(bos|boss)\b/gi, '').trim().replace(/,\s*$/, '') ? `${(appSettings.jemaat_banner_title || 'Shalom & Selamat Datang').replace(/\b(bos|boss)\b/gi, '').trim().replace(/,\s*$/, '')}, ` : 'Shalom, '}
+                {((jemaatData?.nama_lengkap || currentUser.nama || 'Jemaat').replace(/\b(bos|boss)\b/gi, '').trim()) || 'Jemaat'}!
               </h2>
               <p className="text-teal-100/90 text-xs sm:text-sm mt-0.5 flex items-center gap-2">
                 <span>{appSettings.jemaat_banner_subtitle || 'Portal Layanan Jemaat Resmi & Sistem Informasi Terpadu'}</span>

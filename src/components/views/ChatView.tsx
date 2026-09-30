@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { User, AppSettings, ChatMessage, ChatTag } from '../../types';
+import { User, AppSettings, ChatMessage, ChatTag, Jemaat } from '../../types';
 import { StorageManager } from '../../utils/storage';
 import { playNotificationChime } from '../../utils/soundHelper';
 import { confirmDialog } from '../../utils/confirmDialog';
@@ -25,12 +25,33 @@ import {
   EyeOff,
   ChevronDown,
   ChevronUp,
-  Tag
+  Tag,
+  Lock,
+  Users,
+  User as UserIcon,
+  ArrowLeft,
+  Shield,
+  Clock,
+  Check,
+  Building,
+  Heart
 } from 'lucide-react';
 
 interface ChatViewProps {
   currentUser: User;
   settings?: AppSettings;
+}
+
+interface ChatContact {
+  id: string;
+  name: string;
+  username?: string;
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'JEMAAT' | 'TAMU';
+  avatar?: string;
+  wilayah?: string;
+  lastMessage?: string;
+  lastTime?: string;
+  unreadCount?: number;
 }
 
 const TAG_CONFIG: Record<
@@ -85,6 +106,11 @@ const QUICK_BLESSINGS = [
 
 export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => StorageManager.getChatMessages());
+  const [chatMode, setChatMode] = useState<'COMMUNITY' | 'PRIVATE'>('COMMUNITY');
+  const [selectedContact, setSelectedContact] = useState<ChatContact | null>(null);
+  const [contactSearchQuery, setContactSearchQuery] = useState('');
+  const [contactRoleFilter, setContactRoleFilter] = useState<'ALL' | 'JEMAAT' | 'ADMIN'>('ALL');
+
   const [inputMessage, setInputMessage] = useState('');
   const [selectedTag, setSelectedTag] = useState<ChatTag>('UMUM');
   const [replyTarget, setReplyTarget] = useState<ChatMessage | null>(null);
@@ -116,6 +142,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
   const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
   const effectiveDisplayName = isGuest ? guestName : currentUser.nama || currentUser.username;
+  const myUserId = currentUser.user_id || 'guest';
+  const myNormalizedName = effectiveDisplayName.toLowerCase().trim();
 
   // Theme & Color Mode Detection
   const isDark =
@@ -163,6 +191,131 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     };
   }, [soundEnabled]);
 
+  // Build Contact List from registered Users & Jemaat
+  const contactsList = useMemo<ChatContact[]>(() => {
+    const users = StorageManager.getUsers();
+    const jemaatList = StorageManager.getJemaat();
+    const contactsMap = new Map<string, ChatContact>();
+
+    // 1. Add all users (admins, pastors, staff, jemaat accounts)
+    users.forEach((u) => {
+      if (u.user_id === currentUser.user_id) return;
+      if (u.username === currentUser.username) return;
+
+      contactsMap.set(u.user_id, {
+        id: u.user_id,
+        name: u.nama || u.username,
+        username: u.username,
+        role: u.role,
+        avatar: u.foto,
+        wilayah: 'Akun Terdaftar'
+      });
+    });
+
+    // 2. Add all jemaat database members
+    jemaatList.forEach((j) => {
+      if (j.jemaat_id === currentUser.user_id || j.jemaat_id === currentUser.jemaat_id) return;
+      if (j.nama_lengkap.toLowerCase().trim() === myNormalizedName) return;
+
+      if (!contactsMap.has(j.jemaat_id)) {
+        contactsMap.set(j.jemaat_id, {
+          id: j.jemaat_id,
+          name: j.nama_lengkap,
+          role: 'JEMAAT',
+          avatar: j.foto,
+          wilayah: j.wilayah || 'Jemaat Gereja'
+        });
+      } else {
+        const existing = contactsMap.get(j.jemaat_id)!;
+        existing.wilayah = j.wilayah || existing.wilayah;
+        if (!existing.avatar && j.foto) existing.avatar = j.foto;
+      }
+    });
+
+    // 3. Calculate last private message & unread count for each contact
+    const result = Array.from(contactsMap.values()).map((contact) => {
+      const contactNameNorm = contact.name.toLowerCase().trim();
+
+      // Find private messages between currentUser and this contact
+      const relatedPrivate = messages.filter((m) => {
+        if (!m.is_private) return false;
+        const senderMatch =
+          m.sender_id === contact.id || (m.sender_name && m.sender_name.toLowerCase().trim() === contactNameNorm);
+        const recipientMatch =
+          m.recipient_id === contact.id || (m.recipient_name && m.recipient_name.toLowerCase().trim() === contactNameNorm);
+        const mySenderMatch =
+          m.sender_id === myUserId || (m.sender_name && m.sender_name.toLowerCase().trim() === myNormalizedName);
+        const myRecipientMatch =
+          m.recipient_id === myUserId || (m.recipient_name && m.recipient_name.toLowerCase().trim() === myNormalizedName);
+
+        return (senderMatch && myRecipientMatch) || (recipientMatch && mySenderMatch);
+      });
+
+      const lastMsg = relatedPrivate[relatedPrivate.length - 1];
+
+      // Unread: messages where contact is sender and currentUser is recipient
+      const unreadCount = relatedPrivate.filter((m) => {
+        const isFromContact =
+          m.sender_id === contact.id || (m.sender_name && m.sender_name.toLowerCase().trim() === contactNameNorm);
+        const isToMe =
+          m.recipient_id === myUserId || (m.recipient_name && m.recipient_name.toLowerCase().trim() === myNormalizedName);
+        return isFromContact && isToMe;
+      }).length;
+
+      return {
+        ...contact,
+        lastMessage: lastMsg?.message,
+        lastTime: lastMsg?.created_at,
+        unreadCount
+      };
+    });
+
+    // Sort: contacts with active messages first, then alphabetically
+    return result.sort((a, b) => {
+      if (a.lastTime && b.lastTime) {
+        return new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime();
+      }
+      if (a.lastTime) return -1;
+      if (b.lastTime) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [messages, currentUser, myUserId, myNormalizedName]);
+
+  // Total unread private messages across all contacts
+  const totalUnreadPrivateCount = useMemo(() => {
+    return messages.filter((m) => {
+      if (!m.is_private) return false;
+      const isForMe =
+        (myUserId && m.recipient_id === myUserId) ||
+        (m.recipient_name && m.recipient_name.toLowerCase().trim() === myNormalizedName);
+      const isFromMe =
+        (myUserId && m.sender_id === myUserId) ||
+        (m.sender_name && m.sender_name.toLowerCase().trim() === myNormalizedName);
+      return isForMe && !isFromMe;
+    }).length;
+  }, [messages, myUserId, myNormalizedName]);
+
+  // Filtered contacts based on search & role
+  const filteredContacts = useMemo(() => {
+    return contactsList.filter((c) => {
+      if (contactRoleFilter === 'ADMIN' && c.role !== 'ADMIN' && c.role !== 'SUPER_ADMIN') {
+        return false;
+      }
+      if (contactRoleFilter === 'JEMAAT' && (c.role === 'ADMIN' || c.role === 'SUPER_ADMIN')) {
+        return false;
+      }
+      if (contactSearchQuery.trim()) {
+        const q = contactSearchQuery.toLowerCase();
+        return (
+          c.name.toLowerCase().includes(q) ||
+          (c.username && c.username.toLowerCase().includes(q)) ||
+          (c.wilayah && c.wilayah.toLowerCase().includes(q))
+        );
+      }
+      return true;
+    });
+  }, [contactsList, contactRoleFilter, contactSearchQuery]);
+
   // Auto-scroll to bottom on first mount and new messages
   const scrollToBottom = (smooth = true) => {
     if (messagesEndRef.current) {
@@ -172,7 +325,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
   useEffect(() => {
     scrollToBottom(false);
-  }, []);
+  }, [chatMode, selectedContact]);
 
   useEffect(() => {
     if (!showScrollBottom) {
@@ -180,7 +333,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     }
   }, [messages.length]);
 
-  // Track scroll position to show "Scroll to Bottom" button
+  // Track scroll position
   const handleScroll = () => {
     if (!chatContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
@@ -209,12 +362,18 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     else if (currentUser.role === 'ADMIN') senderRole = 'ADMIN';
     else if (isGuest) senderRole = 'TAMU';
 
+    const isPrivate = chatMode === 'PRIVATE' && !!selectedContact;
+
     StorageManager.addChatMessage({
       sender_name: effectiveDisplayName,
       sender_id: currentUser.user_id,
       sender_role: senderRole,
       message: trimmed,
       tag: selectedTag,
+      is_private: isPrivate,
+      recipient_id: isPrivate ? selectedContact.id : undefined,
+      recipient_name: isPrivate ? selectedContact.name : undefined,
+      recipient_role: isPrivate ? selectedContact.role : undefined,
       reply_to: replyTarget
         ? {
             id: replyTarget.id,
@@ -242,6 +401,24 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     }
   };
 
+  // Switch to private chat with a specific sender
+  const handleStartPrivateChat = (contact: ChatContact) => {
+    setSelectedContact(contact);
+    setChatMode('PRIVATE');
+    setReplyTarget(null);
+  };
+
+  // Start private chat from a community message
+  const handleStartPrivateFromMessage = (msg: ChatMessage) => {
+    const targetContact: ChatContact = {
+      id: msg.sender_id || `user_${msg.sender_name}`,
+      name: msg.sender_name,
+      role: msg.sender_role || 'JEMAAT',
+      avatar: msg.sender_avatar
+    };
+    handleStartPrivateChat(targetContact);
+  };
+
   // Delete message
   const handleDeleteMessage = async (id: string) => {
     const msg = messages.find((m) => m.id === id);
@@ -253,7 +430,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         : 'Hapus pesan ini dari ruang chat?',
       confirmText: 'Ya, Hapus',
       cancelText: 'Batal',
-      isDanger: true,
+      isDanger: true
     });
     if (!ok) return;
 
@@ -281,9 +458,38 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     setShowClearConfirm(false);
   };
 
-  // Filter messages
-  const filteredMessages = useMemo(() => {
+  // Strictly Filtered Messages for Community vs Private
+  const currentFeedMessages = useMemo(() => {
+    if (chatMode === 'PRIVATE') {
+      if (!selectedContact) return [];
+      const contactNameNorm = selectedContact.name.toLowerCase().trim();
+
+      // STRICT ISOLATION: Only show messages between currentUser and selectedContact
+      return messages.filter((msg) => {
+        if (!msg.is_private) return false;
+
+        const isFromContact =
+          msg.sender_id === selectedContact.id ||
+          (msg.sender_name && msg.sender_name.toLowerCase().trim() === contactNameNorm);
+        const isToContact =
+          msg.recipient_id === selectedContact.id ||
+          (msg.recipient_name && msg.recipient_name.toLowerCase().trim() === contactNameNorm);
+
+        const isFromMe =
+          msg.sender_id === myUserId ||
+          (msg.sender_name && msg.sender_name.toLowerCase().trim() === myNormalizedName);
+        const isToMe =
+          msg.recipient_id === myUserId ||
+          (msg.recipient_name && msg.recipient_name.toLowerCase().trim() === myNormalizedName);
+
+        return (isFromContact && isToMe) || (isFromMe && isToContact);
+      });
+    }
+
+    // Community Mode: STRICT FILTER - NEVER show private messages in community room!
     return messages.filter((msg) => {
+      if (msg.is_private) return false;
+
       // Filter by tag
       if (filterTag === 'PINNED') {
         if (!msg.is_pinned) return false;
@@ -301,10 +507,10 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
       return true;
     });
-  }, [messages, filterTag, searchQuery]);
+  }, [messages, chatMode, selectedContact, filterTag, searchQuery, myUserId, myNormalizedName]);
 
   const pinnedMessages = useMemo(() => {
-    return messages.filter((m) => m.is_pinned);
+    return messages.filter((m) => m.is_pinned && !m.is_private);
   }, [messages]);
 
   // Format timestamp nicely
@@ -319,14 +525,10 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
       const hours = date.getHours().toString().padStart(2, '0');
       const minutes = date.getMinutes().toString().padStart(2, '0');
+      const timeStr = `${hours}:${minutes}`;
 
-      if (isToday) {
-        return `${hours}:${minutes}`;
-      }
-
-      const day = date.getDate().toString().padStart(2, '0');
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-      return `${day} ${monthNames[date.getMonth()]} ${hours}:${minutes}`;
+      if (isToday) return timeStr;
+      return `${date.getDate()}/${date.getMonth() + 1} ${timeStr}`;
     } catch (e) {
       return '';
     }
@@ -341,14 +543,14 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                 ? 'bg-white border border-slate-300 shadow-slate-400/20 text-slate-800'
                 : 'bg-slate-950 border border-slate-700/80 shadow-black/90 text-white'
             }`
-          : `flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-220px)] min-h-[500px] w-full max-w-6xl xl:max-w-7xl mx-auto rounded-3xl shadow-xl overflow-hidden animate-fade-in relative ${
+          : `flex flex-col h-[calc(100vh-190px)] sm:h-[calc(100vh-210px)] min-h-[520px] w-full max-w-6xl xl:max-w-7xl mx-auto rounded-3xl shadow-xl overflow-hidden animate-fade-in relative ${
               isLight
                 ? 'bg-white border border-slate-200/90 shadow-slate-200/50 text-slate-800'
                 : 'bg-slate-950 border border-slate-800 shadow-2xl text-white'
             }`
       }
     >
-      {/* Top Header */}
+      {/* 1. TOP HEADER & ROOM MODE SWITCHER */}
       <div
         className={`p-2.5 sm:p-3.5 border-b backdrop-blur-xl flex flex-col gap-2 shrink-0 z-10 ${
           isLight ? 'bg-white/95 border-slate-200/90' : 'bg-slate-900/95 border-slate-800/80'
@@ -361,7 +563,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0"
               style={{ backgroundColor: themeHex }}
             >
-              <MessageCircle className="w-5 h-5 text-white" />
+              {chatMode === 'PRIVATE' ? (
+                <Lock className="w-5 h-5 text-white" />
+              ) : (
+                <MessageCircle className="w-5 h-5 text-white" />
+              )}
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -370,24 +576,19 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                     isLight ? 'text-slate-900' : 'text-white'
                   }`}
                 >
-                  Ruang Chat
+                  {chatMode === 'PRIVATE' ? 'Jalur Chat Pribadi' : 'Ruang Chat Komunitas'}
                 </h2>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shrink-0 ${
-                    isLight
+                    chatMode === 'PRIVATE'
+                      ? 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700'
+                      : isLight
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="hidden xs:inline">Live</span>
-                </span>
-                <span
-                  className={`text-[11px] font-medium hidden md:inline ${
-                    isLight ? 'text-slate-500' : 'text-slate-400'
-                  }`}
-                >
-                  • {messages.length} Pesan
+                  <span>{chatMode === 'PRIVATE' ? 'Pribadi & Terisolasi' : 'Live Komunitas'}</span>
                 </span>
               </div>
 
@@ -440,54 +641,32 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
           {/* Action & Toggle Toolbar Buttons */}
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-            {/* Toggle Filter & Search Bar */}
-            <button
-              onClick={() => setShowFilterBar(!showFilterBar)}
-              title={showFilterBar ? "Sembunyikan Filter & Cari" : "Tampilkan Filter & Pencarian"}
-              className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                showFilterBar || filterTag !== 'ALL' || searchQuery
-                  ? 'text-white shadow-md'
-                  : isLight
-                  ? 'bg-slate-100/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
-                  : 'bg-slate-800/90 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
-              }`}
-              style={
-                showFilterBar || filterTag !== 'ALL' || searchQuery
-                  ? { backgroundColor: themeHex, borderColor: themeHex }
-                  : {}
-              }
-            >
-              <Search className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">
-                {showFilterBar ? "Tutup Filter" : "Filter/Cari"}
-              </span>
-              {(filterTag !== 'ALL' || searchQuery) && (
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              )}
-            </button>
-
-            {/* Toggle Focus Mode */}
-            <button
-              onClick={() => setIsFocusMode(!isFocusMode)}
-              title={isFocusMode ? "Nonaktifkan Mode Fokus" : "Mode Fokus"}
-              className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                isFocusMode
-                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                  : isLight
-                  ? 'bg-slate-100/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
-                  : 'bg-slate-800/90 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
-              }`}
-            >
-              {isFocusMode ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-              <span className="hidden md:inline">
-                {isFocusMode ? "Lengkap" : "Fokus"}
-              </span>
-            </button>
+            {chatMode === 'COMMUNITY' && (
+              <button
+                onClick={() => setShowFilterBar(!showFilterBar)}
+                title={showFilterBar ? 'Tutup Filter' : 'Filter & Cari Pesan'}
+                className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                  showFilterBar || filterTag !== 'ALL' || searchQuery
+                    ? 'text-white shadow-md'
+                    : isLight
+                    ? 'bg-slate-100/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
+                    : 'bg-slate-800/90 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+                style={
+                  showFilterBar || filterTag !== 'ALL' || searchQuery
+                    ? { backgroundColor: themeHex, borderColor: themeHex }
+                    : {}
+                }
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{showFilterBar ? 'Tutup' : 'Cari'}</span>
+              </button>
+            )}
 
             {/* Toggle Full Screen */}
             <button
               onClick={() => setIsFullScreen(!isFullScreen)}
-              title={isFullScreen ? "Kecilkan Tampilan Chat" : "Perluas Layar Penuh"}
+              title={isFullScreen ? 'Kecilkan Tampilan Chat' : 'Perluas Layar Penuh'}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${
                 isFullScreen
                   ? 'bg-amber-500 text-slate-950 font-black border-amber-300 shadow-lg'
@@ -516,11 +695,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
             </button>
 
-            {/* Admin Clear Chat */}
-            {isAdmin && (
+            {/* Admin Clear Chat (Community only) */}
+            {isAdmin && chatMode === 'COMMUNITY' && (
               <button
                 onClick={() => setShowClearConfirm(true)}
-                title="Bersihkan Semua Percakapan (Admin)"
+                title="Bersihkan Semua Percakapan Komunitas (Admin)"
                 className={`p-2 rounded-xl border transition-all cursor-pointer ${
                   isLight
                     ? 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100'
@@ -531,6 +710,44 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               </button>
             )}
           </div>
+        </div>
+
+        {/* 2. CHAT ROOM MODE SWITCHER: RUANG KOMUNITAS vs PESAN PRIBADI */}
+        <div className="flex items-center gap-2 p-1 rounded-2xl bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-xs font-bold shadow-2xs">
+          <button
+            onClick={() => {
+              setChatMode('COMMUNITY');
+              setReplyTarget(null);
+            }}
+            className={`flex-1 py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              chatMode === 'COMMUNITY'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs ring-1 ring-slate-200 dark:ring-slate-700'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Users className="w-4 h-4 text-emerald-600" />
+            <span>Ruang Komunitas Publik</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setChatMode('PRIVATE');
+              setReplyTarget(null);
+            }}
+            className={`flex-1 py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer relative ${
+              chatMode === 'PRIVATE'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs ring-1 ring-slate-200 dark:ring-slate-700'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Lock className="w-4 h-4 text-amber-500" />
+            <span>Pesan Pribadi (Jalur Khusus 1-on-1)</span>
+            {totalUnreadPrivateCount > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black animate-pulse">
+                {totalUnreadPrivateCount} baru
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Guest Nickname Editor Drawer */}
@@ -565,15 +782,17 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
             </button>
             <button
               onClick={() => setIsEditingGuestName(false)}
-              className={`p-1 cursor-pointer ${isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-white'}`}
+              className={`p-1 cursor-pointer ${
+                isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-white'
+              }`}
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
-        {/* Collapsible Filter & Search Bar */}
-        {showFilterBar && !isFocusMode && (
+        {/* Collapsible Community Filter & Search Bar */}
+        {chatMode === 'COMMUNITY' && showFilterBar && !isFocusMode && (
           <div
             className={`pt-2 border-t flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 animate-fade-in ${
               isLight ? 'border-slate-200' : 'border-slate-800/80'
@@ -649,11 +868,9 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className={`absolute right-2.5 top-1/2 -translate-y-1/2 ${
-                    isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-white'
-                  }`}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3 h-3" />
                 </button>
               )}
             </div>
@@ -661,550 +878,623 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         )}
       </div>
 
-      {/* Pinned Messages Banner (if any) */}
-      {pinnedMessages.length > 0 && filterTag !== 'PINNED' && !isFocusMode && !isPinnedBannerDismissed && (
-        <div
-          className={`px-3 sm:px-4 py-1.5 flex items-center justify-between gap-2 text-xs shrink-0 animate-fade-in ${
-            isLight
-              ? 'bg-amber-50/90 border-b border-amber-200/80 text-amber-950'
-              : 'bg-amber-950/30 border-b border-amber-800/30 text-slate-300'
-          }`}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <Pin className="w-3.5 h-3.5 text-amber-500 fill-current shrink-0" />
-            <span className={`font-bold shrink-0 ${isLight ? 'text-amber-800' : 'text-amber-300'}`}>
-              Disematkan:
-            </span>
-            <span className={`truncate ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-              {pinnedMessages[pinnedMessages.length - 1].sender_name}: {pinnedMessages[pinnedMessages.length - 1].message}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {isAdmin && (
-              <button
-                onClick={() => handleDeleteMessage(pinnedMessages[pinnedMessages.length - 1].id)}
-                className={`text-[11px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-lg border cursor-pointer transition-all ${
-                  isLight
-                    ? 'text-rose-700 bg-rose-100/70 hover:bg-rose-100 border-rose-200'
-                    : 'text-rose-400 hover:text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/30'
-                }`}
-                title="Hapus Pesan yang Sedang Disematkan Ini"
-              >
-                <Trash2 className="w-3 h-3" />
-                <span>Hapus</span>
-              </button>
-            )}
-            <button
-              onClick={() => {
-                setFilterTag('PINNED');
-                setShowFilterBar(true);
-              }}
-              className={`text-[11px] font-bold hover:underline cursor-pointer ${
-                isLight ? 'text-amber-700' : 'text-amber-400'
-              }`}
-            >
-              Lihat Semua ({pinnedMessages.length})
-            </button>
-            <button
-              onClick={() => setIsPinnedBannerDismissed(true)}
-              title="Tutup banner sematan"
-              className={`p-1 rounded cursor-pointer ${
-                isLight ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Messages Feed */}
-      <div
-        ref={chatContainerRef}
-        onScroll={handleScroll}
-        className={`flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 scroll-smooth ${
-          isLight
-            ? 'bg-gradient-to-b from-slate-50/90 via-[#f8fafc] to-slate-100/80'
-            : 'bg-gradient-to-b from-slate-950 via-slate-950/90 to-slate-900/60'
-        }`}
-      >
-        {filteredMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6">
-            <div
-              className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-3 ${
-                isLight
-                  ? 'bg-white border-slate-200 text-slate-400 shadow-sm'
-                  : 'bg-slate-900 border-slate-800 text-slate-400'
-              }`}
-            >
-              <MessageCircle className="w-7 h-7" />
-            </div>
-            <p className={`font-bold text-sm ${isLight ? 'text-slate-800' : 'text-white'}`}>
-              Belum ada percakapan
-            </p>
-            <p className={`text-xs mt-1 max-w-sm ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-              Jadilah yang pertama mengirimkan salam kasih atau pokok doa di Ruang Chat ini!
-            </p>
-          </div>
-        ) : (
-          filteredMessages.map((msg) => {
-            const isMine =
-              (!isGuest && msg.sender_id === currentUser.user_id) ||
-              (isGuest && msg.sender_name === effectiveDisplayName);
-
-            const isSenderAdmin =
-              msg.sender_role === 'ADMIN' || msg.sender_role === 'SUPER_ADMIN';
-
-            const tagInfo = msg.tag && msg.tag !== 'UMUM' ? TAG_CONFIG[msg.tag] : null;
-            const tagClasses = tagInfo ? (isLight ? tagInfo.light : tagInfo.dark) : null;
-
-            return (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} group animate-fade-in`}
-              >
-                {/* Sender Identity & Role Badge */}
-                <div className="flex items-center gap-2 mb-1 px-1">
-                  <span
-                    className={`text-xs font-black ${
-                      isLight ? 'text-slate-700' : 'text-slate-300'
-                    }`}
-                  >
-                    {isMine ? 'Anda' : msg.sender_name}
+      {/* 3. MAIN CHAT AREA */}
+      <div className="flex-1 overflow-hidden flex flex-col relative">
+        {/* === SCENARIO A: PRIVATE MODE - DIRECTORY VIEW (NO CONTACT SELECTED) === */}
+        {chatMode === 'PRIVATE' && !selectedContact && (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            {/* Header Advisory Banner */}
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-amber-900 dark:text-amber-200">
+              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-extrabold text-xs sm:text-sm flex items-center gap-1.5">
+                  <span>Jalur Chat Pribadi Terisolasi (1-on-1)</span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-[10px] font-bold">
+                    Rahasia
                   </span>
-                  {isSenderAdmin && (
-                    <span
-                      className={`px-1.5 py-0.2 rounded text-[9px] font-black border flex items-center gap-0.5 ${
-                        isLight
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                          : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30'
-                      }`}
-                    >
-                      <ShieldCheck className="w-2.5 h-2.5" />
-                      Admin
-                    </span>
-                  )}
-                  {msg.sender_role === 'TAMU' && !isSenderAdmin && (
-                    <span
-                      className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                        isLight
-                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
-                          : 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      Tamu
-                    </span>
-                  )}
-                  {msg.is_pinned && (
-                    <span
-                      className={`px-1.5 py-0.2 rounded text-[9px] font-bold border flex items-center gap-0.5 ${
-                        isLight
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                      }`}
-                    >
-                      <Pin className="w-2.5 h-2.5 fill-current" />
-                      Disematkan
-                    </span>
-                  )}
-                </div>
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Pilih salah satu jemaat atau pengurus gereja di bawah ini untuk memulai percakapan pribadi.
+                  Percakapan di jalur ini <strong>hanya dapat dibaca oleh Anda dan orang yang Anda tuju</strong>.
+                  Jemaat lain maupun orang luar <strong>sama sekali tidak dapat melihat isi pesan</strong>.
+                </p>
+              </div>
+            </div>
 
-                {/* Message Bubble */}
-                <div
-                  className={`max-w-[85%] sm:max-w-md md:max-w-lg p-3.5 rounded-2xl relative group transition-all ${
-                    isMine
-                      ? 'text-white rounded-tr-none shadow-md'
-                      : isLight
-                      ? 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-sm'
-                      : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-lg'
+            {/* Contact Search & Role Filter */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={contactSearchQuery}
+                  onChange={(e) => setContactSearchQuery(e.target.value)}
+                  placeholder="Cari jemaat, nama, wilayah, atau admin..."
+                  className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs font-medium focus:outline-none ${
+                    isLight
+                      ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500/20'
+                      : 'bg-slate-900 border-slate-800 text-white focus:ring-2 focus:ring-amber-500/20'
                   }`}
-                  style={isMine ? { backgroundColor: themeHex } : {}}
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold">
+                <button
+                  onClick={() => setContactRoleFilter('ALL')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    contactRoleFilter === 'ALL'
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
                 >
-                  {/* Quoted Reply Preview */}
-                  {msg.reply_to && (
-                    <div
-                      className={`mb-2 p-2 rounded-xl border-l-4 text-xs ${
-                        isMine
-                          ? 'bg-black/20 border-amber-300 text-white/90'
-                          : isLight
-                          ? 'bg-slate-50 border-teal-500 text-slate-700'
-                          : 'bg-black/25 border-amber-400 text-slate-300'
-                      }`}
-                    >
-                      <span
-                        className={`font-bold block text-[11px] ${
-                          isMine ? 'text-amber-200' : isLight ? 'text-teal-800' : 'text-amber-300'
-                        }`}
-                      >
-                        Membalas {msg.reply_to.sender_name}:
-                      </span>
-                      <span className="line-clamp-2 italic opacity-90 text-[11px]">
-                        "{msg.reply_to.message}"
-                      </span>
-                    </div>
-                  )}
+                  Semua ({contactsList.length})
+                </button>
+                <button
+                  onClick={() => setContactRoleFilter('JEMAAT')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    contactRoleFilter === 'JEMAAT'
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Jemaat
+                </button>
+                <button
+                  onClick={() => setContactRoleFilter('ADMIN')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    contactRoleFilter === 'ADMIN'
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Pengurus &amp; Admin
+                </button>
+              </div>
+            </div>
 
-                  {/* Category Tag Badge */}
-                  {tagInfo && tagClasses && (
-                    <div className="mb-1.5">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${tagClasses.bg} ${tagClasses.text} ${tagClasses.border}`}
-                      >
-                        <span>{tagInfo.icon}</span>
-                        <span>{tagInfo.label}</span>
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Text Message Content */}
-                  <p className="text-xs sm:text-sm whitespace-pre-wrap break-words leading-relaxed font-normal">
-                    {msg.message}
-                  </p>
-
-                  {/* Timestamp & Meta */}
+            {/* Contacts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              {filteredContacts.length === 0 ? (
+                <div className="col-span-full p-8 text-center bg-slate-50/60 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-400">
+                  <UserIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs font-bold">Tidak ada jemaat yang cocok dengan pencarian.</p>
+                </div>
+              ) : (
+                filteredContacts.map((contact) => (
                   <div
-                    className={`flex items-center justify-end gap-1.5 mt-2 text-[10px] ${
-                      isMine
-                        ? 'text-white/80'
-                        : isLight
-                        ? 'text-slate-400'
-                        : 'text-slate-500'
+                    key={contact.id}
+                    onClick={() => handleStartPrivateChat(contact)}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 group ${
+                      isLight
+                        ? 'bg-white hover:bg-amber-50/40 border-slate-200/90 hover:border-amber-400 shadow-2xs hover:shadow-xs'
+                        : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 hover:border-amber-500/40'
                     }`}
                   >
-                    <span>{formatMessageTime(msg.created_at)}</span>
-                    {isMine && <CheckCheck className="w-3.5 h-3.5" />}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative shrink-0">
+                        {contact.avatar ? (
+                          <img
+                            src={contact.avatar}
+                            alt={contact.name}
+                            className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700"
+                          />
+                        ) : (
+                          <div
+                            className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow-xs"
+                            style={{ backgroundColor: themeHex }}
+                          >
+                            {contact.name.substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        {contact.unreadCount && contact.unreadCount > 0 ? (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white font-black text-[9px] flex items-center justify-center shadow-xs">
+                            {contact.unreadCount}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                            {contact.name}
+                          </h4>
+                          <span
+                            className={`px-1.5 py-0.2 rounded text-[9px] font-bold border shrink-0 ${
+                              contact.role === 'SUPER_ADMIN'
+                                ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300'
+                                : contact.role === 'ADMIN'
+                                ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300'
+                                : 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300'
+                            }`}
+                          >
+                            {contact.role === 'SUPER_ADMIN'
+                              ? 'SuperAdmin'
+                              : contact.role === 'ADMIN'
+                              ? 'Admin'
+                              : 'Jemaat'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          {contact.lastMessage ? (
+                            <span className="italic">
+                              "{contact.lastMessage.slice(0, 45)}
+                              {contact.lastMessage.length > 45 ? '...' : ''}"
+                            </span>
+                          ) : (
+                            contact.wilayah || 'Belum ada obrolan sebelumnya'
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-xs shrink-0 flex items-center gap-1.5 group-hover:scale-105 transition-transform"
+                    >
+                      <Lock className="w-3 h-3" />
+                      <span>Chat</span>
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* === SCENARIO B: ACTIVE CHAT FEED (COMMUNITY OR SPECIFIC PRIVATE CONTACT) === */}
+        {(chatMode === 'COMMUNITY' || (chatMode === 'PRIVATE' && selectedContact)) && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Private Contact Active Header Sub-Bar */}
+            {chatMode === 'PRIVATE' && selectedContact && (
+              <div
+                className={`p-2.5 px-4 border-b flex items-center justify-between gap-3 ${
+                  isLight ? 'bg-amber-50/70 border-amber-200/80' : 'bg-amber-950/30 border-amber-800/40'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <button
+                    onClick={() => setSelectedContact(null)}
+                    className="p-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 cursor-pointer shadow-2xs"
+                    title="Kembali ke Daftar Kontak"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-extrabold text-xs shadow-2xs shrink-0"
+                      style={{ backgroundColor: themeHex }}
+                    >
+                      {selectedContact.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-black text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                          {selectedContact.name}
+                        </h3>
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-400/40 shrink-0">
+                          {selectedContact.role}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-amber-800/80 dark:text-amber-300/80 flex items-center gap-1 truncate">
+                        <Shield className="w-3 h-3 text-amber-500 shrink-0" />
+                        <span>Jalur Pribadi Terisolasi &bull; Hanya Anda dan {selectedContact.name}</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Action Bar (Reply, Pin, Delete) */}
+                <button
+                  onClick={() => setSelectedContact(null)}
+                  className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-white/50 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Ganti Kontak
+                </button>
+              </div>
+            )}
+
+            {/* Pinned Messages Banner (Community mode only) */}
+            {chatMode === 'COMMUNITY' &&
+              pinnedMessages.length > 0 &&
+              !isPinnedBannerDismissed &&
+              !isFocusMode && (
                 <div
-                  className={`flex items-center gap-1.5 mt-1.5 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity px-1 text-[11px] ${
-                    isLight ? 'text-slate-600' : 'text-slate-400'
+                  className={`p-2 sm:p-2.5 border-b flex items-center justify-between gap-2 text-xs animate-fade-in ${
+                    isLight
+                      ? 'bg-amber-50/90 border-amber-200 text-amber-950'
+                      : 'bg-amber-950/40 border-amber-800/40 text-amber-200'
                   }`}
                 >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Pin className="w-3.5 h-3.5 text-amber-500 shrink-0 fill-current" />
+                    <span className="font-extrabold text-[11px] shrink-0 text-amber-700 dark:text-amber-400">
+                      Disematkan:
+                    </span>
+                    <p className="truncate text-[11px] font-medium">
+                      <strong className="font-bold">{pinnedMessages[0].sender_name}:</strong>{' '}
+                      {pinnedMessages[0].message}
+                    </p>
+                  </div>
                   <button
-                    onClick={() => {
-                      setReplyTarget(msg);
-                      inputRef.current?.focus();
-                    }}
-                    title="Balas Pesan"
-                    className={`flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer ${
-                      isLight
-                        ? 'hover:text-slate-900 hover:bg-slate-200/80'
-                        : 'hover:text-white hover:bg-slate-800'
-                    }`}
+                    onClick={() => setIsPinnedBannerDismissed(true)}
+                    className="p-1 rounded text-amber-600 hover:text-amber-900 cursor-pointer"
+                    title="Tutup banner"
                   >
-                    <Reply className="w-3 h-3" />
-                    <span>Balas</span>
+                    <X className="w-3.5 h-3.5" />
                   </button>
-
-                  {isAdmin && (
-                    <button
-                      onClick={() => handleTogglePin(msg.id)}
-                      title={msg.is_pinned ? 'Lepas Sematan' : 'Sematkan Pesan'}
-                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer ${
-                        msg.is_pinned
-                          ? isLight
-                            ? 'text-amber-800 bg-amber-100 border border-amber-300'
-                            : 'text-amber-400 bg-amber-950/40 border border-amber-800/30'
-                          : isLight
-                          ? 'hover:text-amber-700 hover:bg-slate-200/80'
-                          : 'hover:text-amber-400 hover:bg-slate-800'
-                      }`}
-                    >
-                      <Pin className="w-3 h-3" />
-                      <span>{msg.is_pinned ? 'Lepas Semat' : 'Sematkan'}</span>
-                    </button>
-                  )}
-
-                  {(isAdmin || isMine) && (
-                    <button
-                      onClick={() => handleDeleteMessage(msg.id)}
-                      title={isAdmin ? 'Admin: Hapus Pesan Ini' : 'Hapus Pesan Anda'}
-                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded border cursor-pointer font-medium ${
-                        isLight
-                          ? 'text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border-rose-200'
-                          : 'text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/20'
-                      }`}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      <span>Hapus</span>
-                    </button>
-                  )}
                 </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+              )}
 
-      {/* Floating Scroll to Bottom Button */}
-      {showScrollBottom && (
-        <button
-          onClick={() => scrollToBottom(true)}
-          style={{ backgroundColor: themeHex }}
-          className="absolute bottom-20 sm:bottom-24 right-4 sm:right-6 p-2 sm:p-2.5 rounded-full text-white shadow-xl hover:brightness-110 transition-all z-20 active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
-        >
-          <ArrowDown className="w-4 h-4" />
-          <span>Ke Pesan Baru</span>
-        </button>
-      )}
+            {/* Scrollable Messages Stream */}
+            <div
+              ref={chatContainerRef}
+              onScroll={handleScroll}
+              className={`flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scrollbar-thin transition-colors ${
+                isLight ? 'bg-slate-50/50' : 'bg-slate-950'
+              }`}
+            >
+              {currentFeedMessages.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-3">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md opacity-80"
+                    style={{ backgroundColor: themeHex }}
+                  >
+                    {chatMode === 'PRIVATE' ? <Lock className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
+                  </div>
+                  <div className="space-y-1 max-w-sm">
+                    <p className="font-extrabold text-sm text-slate-700 dark:text-slate-200">
+                      {chatMode === 'PRIVATE'
+                        ? `Belum ada pesan pribadi dengan ${selectedContact?.name}`
+                        : 'Belum ada percakapan di ruang komunitas'}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {chatMode === 'PRIVATE'
+                        ? 'Kirimkan salam, pertanyaan pribadi, atau pokok doa yang ingin disampaikan langsung tanpa terlihat oleh jemaat lain.'
+                        : 'Jadilah yang pertama mengirimkan sapaan, ayat berkat, atau pokok doa kepada sesama jemaat!'}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                currentFeedMessages.map((msg) => {
+                  const isFromMe =
+                    (currentUser.user_id && msg.sender_id === currentUser.user_id) ||
+                    msg.sender_name.toLowerCase().trim() === myNormalizedName;
 
-      {/* Bottom Input Area */}
-      <div
-        className={`p-2 sm:p-3 border-t shrink-0 z-10 flex flex-col gap-1.5 ${
-          isLight ? 'bg-white/95 border-slate-200' : 'bg-slate-900/95 border-slate-800'
-        }`}
-      >
-        {/* Active Reply Banner */}
-        {replyTarget && (
-          <div
-            className={`flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl border text-xs ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-800/90 border-slate-700'
-            }`}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <Reply
-                className={`w-3.5 h-3.5 shrink-0 ${isLight ? 'text-teal-600' : 'text-indigo-400'}`}
-              />
-              <div className="min-w-0">
-                <span className={`font-bold block ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  Membalas {replyTarget.sender_name}
-                </span>
-                <span
-                  className={`text-[11px] truncate block ${
-                    isLight ? 'text-slate-500' : 'text-slate-400'
-                  }`}
-                >
-                  "{replyTarget.message}"
-                </span>
-              </div>
+                  const tagConfig = msg.tag ? TAG_CONFIG[msg.tag] : null;
+
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col group animate-fade-in ${
+                        isFromMe ? 'items-end' : 'items-start'
+                      }`}
+                    >
+                      {/* Sender Info for Inbound Messages */}
+                      {!isFromMe && (
+                        <div className="flex items-center gap-1.5 mb-1 px-1 text-[11px]">
+                          <span
+                            className={`font-extrabold ${
+                              isLight ? 'text-slate-900' : 'text-slate-200'
+                            }`}
+                          >
+                            {msg.sender_name}
+                          </span>
+
+                          <span
+                            className={`px-1.5 py-0.2 rounded text-[8px] font-bold border ${
+                              msg.sender_role === 'SUPER_ADMIN'
+                                ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300'
+                                : msg.sender_role === 'ADMIN'
+                                ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300'
+                                : msg.sender_role === 'TAMU'
+                                ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                                : 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300'
+                            }`}
+                          >
+                            {msg.sender_role === 'SUPER_ADMIN'
+                              ? 'SuperAdmin'
+                              : msg.sender_role === 'ADMIN'
+                              ? 'Admin'
+                              : msg.sender_role === 'TAMU'
+                              ? 'Tamu'
+                              : 'Jemaat'}
+                          </span>
+
+                          {msg.is_private && (
+                            <span className="px-1.5 py-0.2 rounded text-[8px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300/40 flex items-center gap-0.5">
+                              <Lock className="w-2.5 h-2.5" />
+                              <span>Pribadi</span>
+                            </span>
+                          )}
+
+                          {tagConfig && (
+                            <span
+                              className={`px-1.5 py-0.2 rounded text-[8px] font-bold border ${
+                                isLight ? tagConfig.light.bg : tagConfig.dark.bg
+                              } ${isLight ? tagConfig.light.text : tagConfig.dark.text} ${
+                                isLight ? tagConfig.light.border : tagConfig.dark.border
+                              }`}
+                            >
+                              {tagConfig.icon} {tagConfig.label}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Bubble Message */}
+                      <div
+                        className={`max-w-[85%] sm:max-w-[70%] rounded-2xl p-3 shadow-xs relative transition-all ${
+                          isFromMe
+                            ? 'text-white rounded-br-xs'
+                            : isLight
+                            ? 'bg-white border border-slate-200/90 text-slate-900 rounded-bl-xs shadow-xs'
+                            : 'bg-slate-900 border border-slate-800 text-slate-100 rounded-bl-xs'
+                        }`}
+                        style={isFromMe ? { backgroundColor: themeHex } : {}}
+                      >
+                        {/* Reply Header inside bubble */}
+                        {msg.reply_to && (
+                          <div
+                            className={`mb-2 p-2 rounded-xl text-[10px] border-l-2 ${
+                              isFromMe
+                                ? 'bg-black/15 text-white/90 border-white/60'
+                                : isLight
+                                ? 'bg-slate-100 text-slate-700 border-slate-400'
+                                : 'bg-slate-800 text-slate-300 border-slate-600'
+                            }`}
+                          >
+                            <span className="font-extrabold block">{msg.reply_to.sender_name}:</span>
+                            <span className="line-clamp-1 italic">"{msg.reply_to.message}"</span>
+                          </div>
+                        )}
+
+                        {/* Message Content */}
+                        <p className="text-xs sm:text-sm whitespace-pre-wrap break-words leading-relaxed font-normal">
+                          {msg.message}
+                        </p>
+
+                        {/* Footer: Time & Status */}
+                        <div
+                          className={`flex items-center justify-end gap-1.5 mt-1 text-[9px] font-mono ${
+                            isFromMe
+                              ? 'text-white/80'
+                              : isLight
+                              ? 'text-slate-400'
+                              : 'text-slate-400'
+                          }`}
+                        >
+                          {msg.is_pinned && <Pin className="w-2.5 h-2.5 fill-current text-amber-300" />}
+                          {msg.is_private && <Lock className="w-2.5 h-2.5" />}
+                          <span>{formatMessageTime(msg.created_at)}</span>
+                          {isFromMe && <CheckCheck className="w-3 h-3 text-white" />}
+                        </div>
+                      </div>
+
+                      {/* Action Hover Tooltip on Message */}
+                      <div
+                        className={`flex items-center gap-1.5 mt-0.5 px-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] ${
+                          isFromMe ? 'flex-row-reverse' : ''
+                        }`}
+                      >
+                        {/* Reply Action */}
+                        <button
+                          onClick={() => setReplyTarget(msg)}
+                          className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 cursor-pointer shadow-2xs"
+                        >
+                          <Reply className="w-2.5 h-2.5" />
+                          <span>Balas</span>
+                        </button>
+
+                        {/* Start Private Chat (If in community mode and from another user) */}
+                        {chatMode === 'COMMUNITY' && !isFromMe && (
+                          <button
+                            onClick={() => handleStartPrivateFromMessage(msg)}
+                            className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-800 dark:text-amber-300 hover:bg-amber-500/30 flex items-center gap-1 cursor-pointer shadow-2xs font-bold"
+                            title="Balas secara pribadi (hanya Anda dan pengirim)"
+                          >
+                            <Lock className="w-2.5 h-2.5 text-amber-500" />
+                            <span>Pribadi</span>
+                          </button>
+                        )}
+
+                        {/* Pin Message (Admin only) */}
+                        {isAdmin && !msg.is_private && (
+                          <button
+                            onClick={() => handleTogglePin(msg.id)}
+                            className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <Pin className="w-2.5 h-2.5" />
+                            <span>{msg.is_pinned ? 'Lepas' : 'Sematkan'}</span>
+                          </button>
+                        )}
+
+                        {/* Delete Message */}
+                        {(isAdmin || isFromMe) && (
+                          <button
+                            onClick={() => handleDeleteMessage(msg.id)}
+                            className="px-2 py-0.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 cursor-pointer shadow-2xs"
+                          >
+                            <Trash2 className="w-2.5 h-2.5" />
+                            <span>Hapus</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={messagesEndRef} />
             </div>
-            <button
-              onClick={() => setReplyTarget(null)}
-              className={`p-1 rounded-lg cursor-pointer shrink-0 ${
-                isLight
-                  ? 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
-              }`}
-              title="Batalkan Balasan"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
 
-        {/* Collapsible Quick Blessings Drawer */}
-        {showQuickBlessings && (
-          <div
-            className={`flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-xl border scrollbar-none text-xs animate-fade-in ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/80 border-slate-800'
-            }`}
-          >
-            <span
-              className={`text-[11px] font-bold shrink-0 flex items-center gap-1 ${
-                isLight ? 'text-slate-600' : 'text-slate-400'
-              }`}
-            >
-              <Sparkles className="w-3 h-3 text-amber-500" />
-              <span>Pintasan Doa:</span>
-            </span>
-            {QUICK_BLESSINGS.map((blessing) => (
+            {/* Scroll to bottom button */}
+            {showScrollBottom && (
               <button
-                key={blessing}
-                type="button"
-                onClick={() => {
-                  setInputMessage((prev) => (prev ? `${prev} ${blessing}` : blessing));
-                  inputRef.current?.focus();
-                }}
-                className={`px-2 py-0.5 rounded-lg text-xs whitespace-nowrap transition-all border cursor-pointer hover:scale-105 active:scale-95 ${
-                  isLight
-                    ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 shadow-xs'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                onClick={() => scrollToBottom(true)}
+                className="absolute bottom-20 right-4 p-2.5 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-lg cursor-pointer hover:scale-105 transition-all z-20 flex items-center gap-1 text-xs font-bold"
+              >
+                <ArrowDown className="w-4 h-4 text-emerald-600" />
+                <span className="hidden sm:inline">Pesan Baru</span>
+              </button>
+            )}
+
+            {/* Active Reply Banner above Input */}
+            {replyTarget && (
+              <div
+                className={`p-2 px-4 border-t flex items-center justify-between text-xs animate-fade-in ${
+                  isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-slate-900 border-slate-800'
                 }`}
               >
-                {blessing}
+                <div className="flex items-center gap-2 min-w-0">
+                  <Reply className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                  <span className="font-bold shrink-0">Membalas {replyTarget.sender_name}:</span>
+                  <span className="truncate italic text-slate-500">"{replyTarget.message}"</span>
+                </div>
+                <button
+                  onClick={() => setReplyTarget(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Quick Blessings Row Toggle */}
+            {showQuickBlessings && (
+              <div
+                className={`p-2 px-3 border-t flex items-center gap-1.5 overflow-x-auto scrollbar-none animate-fade-in text-xs ${
+                  isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+                }`}
+              >
+                {QUICK_BLESSINGS.map((blessing) => (
+                  <button
+                    key={blessing}
+                    onClick={() => {
+                      setInputMessage((prev) => (prev ? `${prev} ${blessing}` : blessing));
+                      setShowQuickBlessings(false);
+                      if (inputRef.current) inputRef.current.focus();
+                    }}
+                    className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                      isLight
+                        ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'
+                        : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+                    }`}
+                  >
+                    {blessing}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Input Form Box */}
+            <form
+              onSubmit={handleSendMessage}
+              className={`p-2.5 sm:p-3 border-t flex items-center gap-2 ${
+                isLight ? 'bg-white border-slate-200' : 'bg-slate-900/95 border-slate-800'
+              }`}
+            >
+              {/* Quick Blessings & Tag Toggles */}
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShowQuickBlessings(!showQuickBlessings)}
+                  title="Pintasan Doa & Berkat"
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    showQuickBlessings
+                      ? 'bg-amber-500 text-slate-950 font-black border-amber-300'
+                      : isLight
+                      ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                </button>
+
+                {chatMode === 'COMMUNITY' && (
+                  <select
+                    value={selectedTag}
+                    onChange={(e) => setSelectedTag(e.target.value as ChatTag)}
+                    className={`px-2 py-2 rounded-xl border text-xs font-bold focus:outline-none cursor-pointer ${
+                      isLight
+                        ? 'bg-slate-50 border-slate-200 text-slate-800'
+                        : 'bg-slate-800 border-slate-700 text-slate-200'
+                    }`}
+                  >
+                    <option value="UMUM">💬 Umum</option>
+                    <option value="DOA">🙏 Doa</option>
+                    <option value="AYAT">✝️ Ayat</option>
+                    <option value="SALAM">🕊️ Salam</option>
+                    <option value="INFO">📢 Info</option>
+                  </select>
+                )}
+              </div>
+
+              {/* Text Input */}
+              <div className="relative flex-1">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder={
+                    chatMode === 'PRIVATE' && selectedContact
+                      ? `Ketik pesan pribadi untuk ${selectedContact.name} (rahasia)...`
+                      : 'Ketik pesan firman, doa, atau sapaan jemaat...'
+                  }
+                  className={`w-full px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium focus:outline-none transition-all ${
+                    chatMode === 'PRIVATE'
+                      ? 'focus:ring-2 focus:ring-amber-500/30'
+                      : 'focus:ring-2 focus:ring-emerald-500/30'
+                  } ${
+                    isLight
+                      ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
+                      : 'bg-slate-800/90 border-slate-700 text-white focus:bg-slate-800'
+                  }`}
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={!inputMessage.trim()}
+                style={{ backgroundColor: themeHex }}
+                className="px-4 sm:px-5 py-2.5 rounded-2xl text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 active:scale-95 shrink-0"
+              >
+                {chatMode === 'PRIVATE' ? <Lock className="w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
+                <span className="hidden sm:inline">Kirim</span>
               </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setShowQuickBlessings(false)}
-              className={`p-1 rounded-lg ml-auto shrink-0 cursor-pointer ${
-                isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-slate-200'
-              }`}
-              title="Tutup Pintasan Doa"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
+            </form>
           </div>
         )}
-
-        {/* Collapsible Tag Selector Drawer */}
-        {showTagSelector && (
-          <div
-            className={`flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-xl border scrollbar-none text-xs animate-fade-in ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/80 border-slate-800'
-            }`}
-          >
-            <span
-              className={`text-[11px] font-bold shrink-0 flex items-center gap-1 ${
-                isLight ? 'text-slate-600' : 'text-slate-400'
-              }`}
-            >
-              <Tag className={`w-3 h-3 ${isLight ? 'text-teal-600' : 'text-indigo-400'}`} />
-              <span>Kategori Pesan:</span>
-            </span>
-            {(['UMUM', 'DOA', 'AYAT', 'SALAM', 'INFO'] as ChatTag[]).map((tag) => {
-              const tagClasses = isLight ? TAG_CONFIG[tag].light : TAG_CONFIG[tag].dark;
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => {
-                    setSelectedTag(tag);
-                    setShowTagSelector(false);
-                    inputRef.current?.focus();
-                  }}
-                  className={`px-2.5 py-1 rounded-lg font-bold text-xs whitespace-nowrap transition-all cursor-pointer ${
-                    selectedTag === tag
-                      ? `${tagClasses.bg} ${tagClasses.text} border ${tagClasses.border} shadow-sm`
-                      : isLight
-                      ? 'bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200'
-                      : 'bg-slate-800/60 text-slate-400 hover:text-white border border-transparent'
-                  }`}
-                >
-                  <span className="mr-1">{TAG_CONFIG[tag].icon}</span>
-                  <span>{TAG_CONFIG[tag].label}</span>
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() => setShowTagSelector(false)}
-              className={`p-1 rounded-lg ml-auto shrink-0 cursor-pointer ${
-                isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-slate-200'
-              }`}
-              title="Tutup Pilihan Kategori"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-
-        {/* Input Text Form with Inline Accessory Icon Buttons */}
-        <form onSubmit={handleSendMessage} className="flex items-center gap-1.5 sm:gap-2">
-          {/* Quick Drawer Toggles */}
-          <div className="flex items-center gap-1 shrink-0">
-            {/* Quick Blessings Toggle Icon */}
-            <button
-              type="button"
-              onClick={() => setShowQuickBlessings(!showQuickBlessings)}
-              title={showQuickBlessings ? "Sembunyikan Pintasan Doa" : "Pintasan Doa & Berkat Cepat"}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${
-                showQuickBlessings
-                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-500'
-                  : isLight
-                  ? 'bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-            </button>
-
-            {/* Tag Selector Toggle Icon */}
-            {(() => {
-              const currentTagClasses = isLight ? TAG_CONFIG[selectedTag].light : TAG_CONFIG[selectedTag].dark;
-              return (
-                <button
-                  type="button"
-                  onClick={() => setShowTagSelector(!showTagSelector)}
-                  title={`Kategori: ${TAG_CONFIG[selectedTag].label}. Klik untuk ganti.`}
-                  className={`px-2 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                    selectedTag !== 'UMUM' || showTagSelector
-                      ? `${currentTagClasses.bg} ${currentTagClasses.text} border ${currentTagClasses.border}`
-                      : isLight
-                      ? 'bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <span>{TAG_CONFIG[selectedTag].icon}</span>
-                  <span className="hidden md:inline text-[11px]">{TAG_CONFIG[selectedTag].label}</span>
-                  {showTagSelector ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
-                </button>
-              );
-            })()}
-          </div>
-
-          <div className="flex-1 relative">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Tulis pesan atau pokok doa di sini... (Enter untuk kirim)"
-              className={`w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl border text-xs sm:text-sm focus:outline-none ${
-                isLight
-                  ? 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20'
-                  : 'bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500'
-              }`}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={!inputMessage.trim()}
-            style={{
-              backgroundColor: inputMessage.trim() ? themeHex : undefined
-            }}
-            className={`p-2 sm:p-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-white transition-all shrink-0 cursor-pointer shadow-lg active:scale-95 ${
-              inputMessage.trim()
-                ? 'hover:brightness-110'
-                : isLight
-                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-            }`}
-          >
-            <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-        </form>
       </div>
 
-      {/* Modal Konfirmasi Bersihkan Chat (Admin Only) */}
+      {/* Clear All Confirmation Modal */}
       {showClearConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div
-            className={`w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-4 animate-scale-up border ${
-              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
-            }`}
-          >
-            <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mx-auto">
-              <AlertCircle className="w-8 h-8" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-sm w-full space-y-4 shadow-2xl text-center">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
+              <Trash2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className={`text-base font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                Bersihkan Semua Percakapan?
+              <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
+                Bersihkan Ruang Chat?
               </h3>
-              <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                Tindakan ini akan mengosongkan riwayat percakapan di ruang chat ini untuk seluruh perangkat.
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Tindakan ini akan menghapus seluruh riwayat pesan komunitas. Tindakan ini tidak dapat dibatalkan.
               </p>
             </div>
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-bold cursor-pointer ${
-                  isLight
-                    ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-                }`}
+                className="flex-1 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer"
               >
                 Batal
               </button>
               <button
                 onClick={handleClearAllChat}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer shadow-md"
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer"
               >
-                Ya, Bersihkan
+                Hapus Semua
               </button>
             </div>
           </div>

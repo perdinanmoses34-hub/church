@@ -831,6 +831,10 @@ export const StorageManager = {
     if (settings.video_url && settings.video_url.includes('5qap5aO4i9A')) {
       settings.video_url = 'https://www.youtube.com/watch?v=wX2S6AebnI8';
     }
+    // Auto sanitize any 'bos' in jemaat banner title
+    if (settings.jemaat_banner_title && /\bbos\b/i.test(settings.jemaat_banner_title)) {
+      settings.jemaat_banner_title = settings.jemaat_banner_title.replace(/\bbos\b/gi, '').trim().replace(/,\s*$/, '');
+    }
 
     const activeTenantId = StorageManager.getActiveTenantId();
     if (activeTenantId === 'CHURCH-001') {
