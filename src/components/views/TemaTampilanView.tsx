@@ -218,7 +218,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
 
   const activeColorHex = form.warna_tema?.trim() || '#059669';
   const isThemeLight = form.theme_preset === 'EMERALD_LIGHT' || form.theme_preset === 'LUXE_LIGHT';
-  const churchName = form.nama_gereja || 'SLH OIKUMENE';
+  const churchName = form.nama_gereja || 'Jesus Kingdom Christ';
 
   const getBadgeStyle = (type: DesignPreset['badgeType']) => {
     switch (type) {
@@ -256,7 +256,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                 Tema &amp; Tampilan Sistem
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Kustomisasi warna tema institusi, bentuk &amp; jarak kartu atas-bawah, dan bilah menu ikon bawah.
+                Kustomisasi warna tema gereja, bentuk &amp; jarak kartu atas-bawah, dan bilah menu ikon bawah.
               </p>
             </div>
           </div>
@@ -355,10 +355,10 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
               <div>
                 <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-amber-500" />
-                  <span>Koleksi Preset Desain Institusi</span>
+                  <span>Koleksi Preset Desain Gereja</span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Pilih salah satu tema profesional yang telah dikurasi dengan perpaduan warna, radius kartu, dan bayangan yang harmonis.
+                  Pilih salah satu tema profesional yang telah dikurasi dengan perpaduan warna, radius kartu, dan bayangan yang harmonis untuk jemaat dan admin.
                 </p>
               </div>
 
@@ -783,7 +783,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                           <Church className="w-3.5 h-3.5" />
                         </div>
                         <span className="font-extrabold text-[11px] tracking-tight">
-                          SIAKAD SEKOLAH
+                          CMS GEREJA
                         </span>
                       </div>
                       <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
@@ -804,7 +804,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                           Selamat Datang,
                         </span>
                         <span className="font-black text-xs block tracking-tight">
-                          Akun SIAKAD
+                          Portal Jemaat
                         </span>
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-white/20 text-[9px] font-bold backdrop-blur-xs">
@@ -826,7 +826,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                             {churchName}
                           </h4>
                           <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate">
-                            Akreditasi A (Unggul - Nilai 96) • 2024/2025
+                            Portal Jemaat &amp; Manajemen Gereja
                           </p>
                         </div>
                       </div>
@@ -839,7 +839,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                     <div className="grid grid-cols-2 gap-2">
                       <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
                         <span className="text-[9px] text-slate-500 dark:text-slate-400 block font-medium">
-                          Total Siswa
+                          Total Jemaat
                         </span>
                         <span className="text-sm font-black text-slate-900 dark:text-white block mt-0.5">
                           1,248
@@ -848,7 +848,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
 
                       <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
                         <span className="text-[9px] text-slate-500 dark:text-slate-400 block font-medium">
-                          Kehadiran
+                          Kehadiran Ibadah
                         </span>
                         <span className="text-sm font-black text-emerald-600 dark:text-emerald-400 block mt-0.5">
                           98.4%
@@ -890,10 +890,10 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                         <span className="text-[8px] font-extrabold px-1">Beranda</span>
                       </div>
 
-                      {/* 2. Akademik / Warta */}
+                      {/* 2. Warta */}
                       <div className="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-700 cursor-pointer">
                         <BookOpen className="w-3.5 h-3.5" />
-                        <span className="text-[8px]">Akademik</span>
+                        <span className="text-[8px]">Warta</span>
                       </div>
 
                       {/* 3. Jadwal */}
