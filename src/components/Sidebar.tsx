@@ -199,12 +199,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
     .toUpperCase() || 'JKC';
 
   const sidebarContent = (
-    <div className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between h-full text-slate-700 select-none overflow-hidden">
+    <div className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200/90 dark:border-slate-800 flex flex-col justify-between h-full text-slate-800 dark:text-slate-100 select-none overflow-hidden">
       {/* 1. Header Box: Brand / School / Church Info */}
-      <div className="p-3.5 border-b border-slate-100 shrink-0">
-        <div className="p-2.5 rounded-2xl bg-teal-50/80 border border-teal-200/80 flex items-center justify-between gap-2.5">
+      <div className="p-3.5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div className="p-2.5 rounded-2xl bg-teal-50/90 dark:bg-slate-800/90 border border-teal-200/90 dark:border-slate-700 flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-white border border-teal-200 flex items-center justify-center p-1 shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-white border border-teal-200 dark:border-slate-700 flex items-center justify-center p-1 shadow-xs shrink-0">
               <img
                 src={settings?.logo || DEFAULT_CHURCH_LOGO}
                 alt="Logo"
@@ -215,10 +215,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             </div>
             <div className="min-w-0">
-              <h2 className="text-xs font-black text-slate-800 tracking-tight truncate leading-tight">
+              <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-tight truncate leading-tight">
                 {shortCode}
               </h2>
-              <p className="text-[10px] text-teal-700 font-bold truncate">
+              <p className="text-[10px] text-teal-800 dark:text-teal-300 font-bold truncate">
                 ID: {settings?.header_title?.substring(0, 14) || '20104523'}
               </p>
             </div>
@@ -227,7 +227,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
-              className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+              className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <X className="w-4 h-4" />
             </button>
@@ -245,7 +245,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           return (
             <div key={idx} className="space-y-1">
-              <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+              <p className="px-3 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 {section.group}
               </p>
               <div className="space-y-1">
@@ -263,14 +263,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       style={isActive ? { backgroundColor: settings?.warna_tema || '#0d9488' } : undefined}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${
                         isActive
-                          ? 'bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-xs'
-                          : 'text-slate-600 hover:text-teal-800 hover:bg-teal-50/70 font-semibold'
+                          ? 'bg-teal-600 hover:bg-teal-700 text-white font-extrabold shadow-xs'
+                          : 'text-slate-700 dark:text-slate-200 hover:text-teal-900 dark:hover:text-teal-300 hover:bg-teal-50/90 dark:hover:bg-slate-800/80 font-bold'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <Icon
                           className={`w-4 h-4 shrink-0 ${
-                            isActive ? 'text-white' : 'text-slate-400'
+                            isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'
                           }`}
                         />
                         <span className="truncate">{item.label}</span>
@@ -288,12 +288,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* 3. Bottom Status Bar */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/70 shrink-0 text-[10px] text-slate-500 flex items-center justify-between">
-        <span className="flex items-center gap-1.5 font-bold text-emerald-700">
+      <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 shrink-0 text-[10px] flex items-center justify-between">
+        <span className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Firebase Cloud Live</span>
         </span>
-        <span className="font-semibold text-slate-400">v2.4</span>
+        <span className="font-semibold text-slate-500 dark:text-slate-400">v2.4</span>
       </div>
     </div>
   );

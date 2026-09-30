@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.theme-dark, .theme-dark *));
+
 :root {
   --theme-custom-primary: #0d9488;
   --theme-custom-border: #14b8a6;

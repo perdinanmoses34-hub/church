@@ -356,8 +356,8 @@ export const getFooterTheme = (settings?: AppSettings): FooterThemeStyles => {
     const activeStateClass = isActive
       ? `font-black scale-105 ${glowClass}`
       : isLight
-      ? 'hover:text-emerald-700 opacity-80 hover:opacity-100'
-      : 'hover:text-slate-200 opacity-80 hover:opacity-100';
+      ? 'text-slate-700 hover:text-emerald-800 font-bold opacity-90 hover:opacity-100'
+      : 'text-slate-300 hover:text-white font-medium opacity-90 hover:opacity-100';
 
     return `flex flex-col items-center gap-1 text-[10px] transition-all cursor-pointer border ${shapeClass} ${activeStateClass}`;
   };

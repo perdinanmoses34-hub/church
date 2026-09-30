@@ -234,11 +234,11 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'SUPER_ADMIN':
-        return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
+        return 'bg-purple-100 text-purple-900 border-purple-300 font-extrabold';
       case 'ADMIN':
-        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+        return 'bg-blue-100 text-blue-900 border-blue-300 font-extrabold';
       default:
-        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+        return 'bg-emerald-100 text-emerald-900 border-emerald-300 font-extrabold';
     }
   };
 
@@ -366,11 +366,6 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                   <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${showChurchSwitcher ? 'rotate-180' : ''} ${isNavLight ? 'text-slate-600' : 'text-slate-300'}`} />
                 )}
               </button>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                isNavLight ? 'bg-teal-50 text-teal-900 border border-teal-300' : 'bg-white/15 text-white border border-white/20'
-              }`}>
-                Portal Jemaat
-              </span>
             </div>
             <p className={`text-[10px] sm:text-[11px] font-medium leading-none mt-0.5 truncate max-w-[160px] xs:max-w-none ${
               isNavLight ? 'text-slate-600 font-semibold' : 'text-slate-300'
@@ -470,20 +465,21 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           </button>
         )}
 
-        {canInstallPWA && !isGuest && currentUser.role !== 'GUEST' && (
-          <button
-            onClick={onInstallPWA}
-            className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all border cursor-pointer ${
-              isNavLight
-                ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-emerald-300'
-                : 'bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border-emerald-500/30'
-            }`}
-            title="Download File APK Android (.apk)"
-          >
-            <Download className={`w-3.5 h-3.5 ${isNavLight ? 'text-emerald-800' : 'text-emerald-400'}`} />
-            <span>Download APK</span>
-          </button>
-        )}
+        {/* Waktu & Jam Realtime */}
+        <div
+          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold shadow-2xs transition-all shrink-0 ${
+            isNavLight
+              ? 'bg-slate-100/90 border-slate-300/80 text-slate-800'
+              : 'bg-white/10 border-white/20 text-white'
+          }`}
+          title={dateStr ? `${dateStr} · Waktu Realtime` : 'Jam Realtime'}
+        >
+          <Clock className={`w-3.5 h-3.5 shrink-0 ${isNavLight ? 'text-teal-700' : 'text-teal-300'}`} />
+          <div className="flex items-center gap-1.5 leading-none font-mono">
+            <span className="font-bold tracking-tight">{timeStr || '00:00:00 WIB'}</span>
+            <span className="hidden xl:inline text-[11px] font-sans font-medium opacity-75">· {dateStr}</span>
+          </div>
+        </div>
 
         {/* Tombol Akses Cepat Konversi Android Studio & Download google-services.json (Khusus Admin) */}
         {isAdmin && (

@@ -1671,7 +1671,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-blue-600 text-white shadow-lg group-hover:scale-110 transition-transform">
                   <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30">
+                <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-blue-950/70 text-blue-200 border border-blue-500/40'}`}>
                   {jemaatList.length} Jiwa
                 </span>
               </div>
@@ -1679,7 +1679,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className={`font-extrabold text-xs sm:text-sm ${isLightSystem ? 'text-slate-900 group-hover:text-blue-600' : 'text-white group-hover:text-blue-300'} transition-colors block`}>
                   Data Jemaat &amp; KK
                 </span>
-                <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} block mt-0.5`}>Database, KK &amp; KTA</span>
+                <span className={`text-[10px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-medium block mt-0.5`}>Database, KK &amp; KTA</span>
               </div>
             </button>
 
@@ -1696,7 +1696,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-emerald-600 text-white shadow-lg group-hover:scale-110 transition-transform">
                   <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-emerald-950/70 text-emerald-200 border border-emerald-500/40'}`}>
                   Kas &amp; Transfer
                 </span>
               </div>
@@ -1704,7 +1704,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className={`font-extrabold text-xs sm:text-sm ${isLightSystem ? 'text-slate-900 group-hover:text-emerald-600' : 'text-white group-hover:text-emerald-300'} transition-colors block`}>
                   Keuangan &amp; Kas
                 </span>
-                <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} block mt-0.5`}>Kas, Persembahan &amp; Bank</span>
+                <span className={`text-[10px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-medium block mt-0.5`}>Kas, Persembahan &amp; Bank</span>
               </div>
             </button>
 
@@ -1721,7 +1721,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-purple-600 text-white shadow-lg group-hover:scale-110 transition-transform">
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+                <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-purple-50 text-purple-800 border border-purple-200' : 'bg-purple-950/70 text-purple-200 border border-purple-500/40'}`}>
                   Surat Sakramen
                 </span>
               </div>
@@ -1729,7 +1729,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className={`font-extrabold text-xs sm:text-sm ${isLightSystem ? 'text-slate-900 group-hover:text-purple-600' : 'text-white group-hover:text-purple-300'} transition-colors block`}>
                   Administrasi Surat
                 </span>
-                <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} block mt-0.5`}>Baptis, Sidi &amp; Pernikahan</span>
+                <span className={`text-[10px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-medium block mt-0.5`}>Baptis, Sidi &amp; Pernikahan</span>
               </div>
             </button>
 
@@ -1746,7 +1746,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-amber-600 text-white shadow-lg group-hover:scale-110 transition-transform">
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-amber-950/70 text-amber-200 border border-amber-500/40'}`}>
                   {eventsList.length} Event
                 </span>
               </div>
@@ -1754,7 +1754,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className={`font-extrabold text-xs sm:text-sm ${isLightSystem ? 'text-slate-900 group-hover:text-amber-600' : 'text-white group-hover:text-amber-300'} transition-colors block`}>
                   Agenda &amp; Event
                 </span>
-                <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} block mt-0.5`}>Jadwal &amp; Reservasi Kursi</span>
+                <span className={`text-[10px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-medium block mt-0.5`}>Jadwal &amp; Reservasi Kursi</span>
               </div>
             </button>
 
@@ -1771,7 +1771,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-indigo-600 text-white shadow-lg group-hover:scale-110 transition-transform">
                   <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
+                <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : 'bg-indigo-950/70 text-indigo-200 border border-indigo-500/40'}`}>
                   Live Chat
                 </span>
               </div>
@@ -1779,7 +1779,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className={`font-extrabold text-xs sm:text-sm ${isLightSystem ? 'text-slate-900 group-hover:text-indigo-600' : 'text-white group-hover:text-indigo-300'} transition-colors block`}>
                   Ruang Chat
                 </span>
-                <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} block mt-0.5`}>Komunitas Jemaat</span>
+                <span className={`text-[10px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-medium block mt-0.5`}>Komunitas Jemaat</span>
               </div>
             </button>
 
@@ -1796,7 +1796,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-amber-500 text-slate-950 shadow-lg group-hover:scale-110 transition-transform">
                   <BookMarked className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-amber-950/70 text-amber-200 border border-amber-500/40'}`}>
                   Alkitab &amp; Lagu
                 </span>
               </div>
@@ -1804,7 +1804,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className={`font-extrabold text-xs sm:text-sm ${isLightSystem ? 'text-slate-900 group-hover:text-amber-600' : 'text-white group-hover:text-amber-300'} transition-colors block`}>
                   Alkitab &amp; Pujian
                 </span>
-                <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} block mt-0.5`}>KJ, NKB, PKJ, Lagu</span>
+                <span className={`text-[10px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-medium block mt-0.5`}>KJ, NKB, PKJ, Lagu</span>
               </div>
             </button>
 
@@ -1821,7 +1821,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-cyan-600 text-white shadow-lg group-hover:scale-110 transition-transform">
                   <Grid className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
+                <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-cyan-50 text-cyan-800 border border-cyan-200' : 'bg-cyan-950/70 text-cyan-200 border border-cyan-500/40'}`}>
                   All Modul
                 </span>
               </div>
@@ -1829,7 +1829,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className={`font-extrabold text-xs sm:text-sm ${isLightSystem ? 'text-slate-900 group-hover:text-cyan-600' : 'text-white group-hover:text-cyan-300'} transition-colors block`}>
                   Menu Lainnya
                 </span>
-                <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} block mt-0.5`}>Semua Modul &amp; Fitur</span>
+                <span className={`text-[10px] ${isLightSystem ? 'text-slate-600' : 'text-slate-300'} font-medium block mt-0.5`}>Semua Modul &amp; Fitur</span>
               </div>
             </button>
           </div>
