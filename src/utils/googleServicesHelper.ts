@@ -10,11 +10,11 @@ export function generateGoogleServicesJson(
   settings?: AppSettings
 ): any {
   const cleanPackage = (packageName || 'com.jesuskingdomchrist.app').trim().toLowerCase();
-  const projectId = settings?.firebase_project_id || defaultFirebaseConfig.projectId || 'gen-lang-client-0499830391';
-  const projectNumber = settings?.firebase_messaging_sender_id || defaultFirebaseConfig.messagingSenderId || '248780279971';
-  const apiKey = settings?.firebase_api_key || defaultFirebaseConfig.apiKey || 'AIzaSyARxHT9QiZMBGMG0lF4AHLF1ZiQqLl_bHM';
+  const projectId = settings?.firebase_project_id || defaultFirebaseConfig.projectId || '';
+  const projectNumber = settings?.firebase_messaging_sender_id || defaultFirebaseConfig.messagingSenderId || '';
+  const apiKey = settings?.firebase_api_key || defaultFirebaseConfig.apiKey || '';
   const storageBucket = settings?.firebase_storage_bucket || defaultFirebaseConfig.storageBucket || `${projectId}.firebasestorage.app`;
-  const oauthClientId = defaultFirebaseConfig.oAuthClientId || `${projectNumber}-8teokfdp2sdlqqceu6bca0m0o9rledj1.apps.googleusercontent.com`;
+  const oauthClientId = defaultFirebaseConfig.oAuthClientId || `${projectNumber}.apps.googleusercontent.com`;
 
   // Generate synthetic but compliant mobile SDK app id for Android
   const packageHash = cleanPackage.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16) || 'gkfcapp12345';
