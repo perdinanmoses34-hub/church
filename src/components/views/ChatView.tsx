@@ -10,21 +10,15 @@ import {
   Trash2,
   Reply,
   X,
-  Smile,
   Volume2,
   VolumeX,
   Search,
-  Filter,
-  User as UserIcon,
   ShieldCheck,
   CheckCheck,
-  Heart,
   Sparkles,
   ArrowDown,
   AlertCircle,
-  RotateCcw,
   Edit2,
-  Info,
   Maximize2,
   Minimize2,
   Eye,
@@ -41,42 +35,42 @@ interface ChatViewProps {
 
 const TAG_CONFIG: Record<
   ChatTag,
-  { label: string; icon: string; bg: string; text: string; border: string }
+  {
+    label: string;
+    icon: string;
+    dark: { bg: string; text: string; border: string };
+    light: { bg: string; text: string; border: string };
+  }
 > = {
   UMUM: {
     label: 'Umum',
     icon: '💬',
-    bg: 'bg-slate-800/80',
-    text: 'text-slate-300',
-    border: 'border-slate-700'
+    dark: { bg: 'bg-slate-800/80', text: 'text-slate-300', border: 'border-slate-700' },
+    light: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200' }
   },
   DOA: {
     label: 'Pokok Doa',
     icon: '🙏',
-    bg: 'bg-rose-950/70',
-    text: 'text-rose-300',
-    border: 'border-rose-800/60'
+    dark: { bg: 'bg-rose-950/70', text: 'text-rose-300', border: 'border-rose-800/60' },
+    light: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' }
   },
   AYAT: {
     label: 'Ayat Alkitab',
     icon: '✝️',
-    bg: 'bg-amber-950/70',
-    text: 'text-amber-300',
-    border: 'border-amber-800/60'
+    dark: { bg: 'bg-amber-950/70', text: 'text-amber-300', border: 'border-amber-800/60' },
+    light: { bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200' }
   },
   SALAM: {
     label: 'Salam & Sapaan',
     icon: '🕊️',
-    bg: 'bg-teal-950/70',
-    text: 'text-teal-300',
-    border: 'border-teal-800/60'
+    dark: { bg: 'bg-teal-950/70', text: 'text-teal-300', border: 'border-teal-800/60' },
+    light: { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200' }
   },
   INFO: {
     label: 'Warta / Info',
     icon: '📢',
-    bg: 'bg-blue-950/70',
-    text: 'text-blue-300',
-    border: 'border-blue-800/60'
+    dark: { bg: 'bg-blue-950/70', text: 'text-blue-300', border: 'border-blue-800/60' },
+    light: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' }
   }
 };
 
@@ -118,13 +112,20 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
   const effectiveDisplayName = isGuest ? guestName : currentUser.nama || currentUser.username;
 
-  // Sync custom theme color
-  const themeHex = settings?.warna_tema?.trim() || '#059669';
+  // Theme & Color Mode Detection
+  const isDark =
+    settings?.theme_preset === 'DARK_SLATE' ||
+    settings?.theme_preset === 'MIDNIGHT_BLUE' ||
+    settings?.theme_preset === 'DEEP_PURPLE' ||
+    settings?.theme_preset === 'FOREST_GREEN' ||
+    settings?.theme_preset === 'WARM_GOLD';
+  const isLight = !isDark;
+  const themeHex = settings?.warna_tema?.trim() || '#0d9488';
 
   // Load and subscribe to storage & real-time changes
   useEffect(() => {
@@ -208,7 +209,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     else if (currentUser.role === 'ADMIN') senderRole = 'ADMIN';
     else if (isGuest) senderRole = 'TAMU';
 
-    const newMsg = StorageManager.addChatMessage({
+    StorageManager.addChatMessage({
       sender_name: effectiveDisplayName,
       sender_id: currentUser.user_id,
       sender_role: senderRole,
@@ -238,14 +239,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
     if (inputRef.current) {
       inputRef.current.focus();
-    }
-  };
-
-  // Handle Enter key (Shift+Enter for newline)
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
     }
   };
 
@@ -343,42 +336,80 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     <div
       className={
         isFullScreen
-          ? "fixed inset-0 sm:inset-3 z-50 rounded-none sm:rounded-3xl bg-slate-950 border border-slate-700/80 shadow-2xl shadow-black/90 flex flex-col overflow-hidden animate-fade-in"
-          : "flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-220px)] min-h-[500px] w-full max-w-6xl xl:max-w-7xl mx-auto rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl overflow-hidden animate-fade-in relative"
+          ? `fixed inset-0 sm:inset-3 z-50 rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-fade-in ${
+              isLight
+                ? 'bg-white border border-slate-300 shadow-slate-400/20 text-slate-800'
+                : 'bg-slate-950 border border-slate-700/80 shadow-black/90 text-white'
+            }`
+          : `flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-220px)] min-h-[500px] w-full max-w-6xl xl:max-w-7xl mx-auto rounded-3xl shadow-xl overflow-hidden animate-fade-in relative ${
+              isLight
+                ? 'bg-white border border-slate-200/90 shadow-slate-200/50 text-slate-800'
+                : 'bg-slate-950 border border-slate-800 shadow-2xl text-white'
+            }`
       }
     >
       {/* Top Header */}
-      <div className="p-2.5 sm:p-3.5 bg-slate-900/95 border-b border-slate-800/80 backdrop-blur-xl flex flex-col gap-2 shrink-0 z-10">
+      <div
+        className={`p-2.5 sm:p-3.5 border-b backdrop-blur-xl flex flex-col gap-2 shrink-0 z-10 ${
+          isLight ? 'bg-white/95 border-slate-200/90' : 'bg-slate-900/95 border-slate-800/80'
+        }`}
+      >
         <div className="flex items-center justify-between gap-2 sm:gap-3">
           {/* Church/Chat Identity & Inline Current User */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0"
               style={{ backgroundColor: themeHex }}
             >
               <MessageCircle className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <h2 className="text-sm sm:text-base font-black text-white tracking-tight truncate">
+                <h2
+                  className={`text-sm sm:text-base font-black tracking-tight truncate ${
+                    isLight ? 'text-slate-900' : 'text-white'
+                  }`}
+                >
                   Ruang Chat
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shrink-0 ${
+                    isLight
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span className="hidden xs:inline">Live</span>
                 </span>
-                <span className="text-slate-400 text-[11px] font-medium hidden md:inline">
+                <span
+                  className={`text-[11px] font-medium hidden md:inline ${
+                    isLight ? 'text-slate-500' : 'text-slate-400'
+                  }`}
+                >
                   • {messages.length} Pesan
                 </span>
               </div>
-              
+
               {/* Space-Saving Compact User Identity in Header */}
               <div className="flex items-center gap-1.5 mt-0.5 text-[11px]">
-                <span className="text-slate-400 hidden sm:inline">Sebagai:</span>
-                <span className="font-bold text-slate-200 truncate max-w-[110px] sm:max-w-[170px]">
+                <span className={`${isLight ? 'text-slate-500' : 'text-slate-400'} hidden sm:inline`}>
+                  Sebagai:
+                </span>
+                <span
+                  className={`font-bold truncate max-w-[110px] sm:max-w-[170px] ${
+                    isLight ? 'text-slate-800' : 'text-slate-200'
+                  }`}
+                >
                   {effectiveDisplayName}
                 </span>
-                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                <span
+                  className={`px-1.5 py-0.2 rounded text-[9px] font-bold border shrink-0 ${
+                    isLight
+                      ? 'bg-slate-100 text-slate-700 border-slate-200'
+                      : 'bg-slate-800 text-slate-300 border-slate-700'
+                  }`}
+                >
                   {currentUser.role === 'SUPER_ADMIN'
                     ? 'SuperAdmin'
                     : currentUser.role === 'ADMIN'
@@ -394,7 +425,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                       setIsEditingGuestName(true);
                     }}
                     title="Ubah Nama Tamu"
-                    className="p-0.5 rounded text-indigo-400 hover:text-indigo-300 hover:bg-slate-800 cursor-pointer"
+                    className={`p-0.5 rounded cursor-pointer ${
+                      isLight
+                        ? 'text-teal-700 hover:text-teal-900 hover:bg-slate-100'
+                        : 'text-indigo-400 hover:text-indigo-300 hover:bg-slate-800'
+                    }`}
                   >
                     <Edit2 className="w-2.5 h-2.5" />
                   </button>
@@ -411,9 +446,16 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               title={showFilterBar ? "Sembunyikan Filter & Cari" : "Tampilkan Filter & Pencarian"}
               className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
                 showFilterBar || filterTag !== 'ALL' || searchQuery
-                  ? 'bg-indigo-600 text-white border-indigo-400 shadow-md'
+                  ? 'text-white shadow-md'
+                  : isLight
+                  ? 'bg-slate-100/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
                   : 'bg-slate-800/90 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
               }`}
+              style={
+                showFilterBar || filterTag !== 'ALL' || searchQuery
+                  ? { backgroundColor: themeHex, borderColor: themeHex }
+                  : {}
+              }
             >
               <Search className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">
@@ -424,13 +466,15 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               )}
             </button>
 
-            {/* Toggle Focus Mode (Hides all non-essential banners) */}
+            {/* Toggle Focus Mode */}
             <button
               onClick={() => setIsFocusMode(!isFocusMode)}
-              title={isFocusMode ? "Nonaktifkan Mode Fokus (Tampilkan Panel Tambahan)" : "Mode Fokus (Sembunyikan Semua Panel Tambahan agar Chat Sangat Luas)"}
+              title={isFocusMode ? "Nonaktifkan Mode Fokus" : "Mode Fokus"}
               className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
                 isFocusMode
-                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-md'
+                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
+                  : isLight
+                  ? 'bg-slate-100/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
                   : 'bg-slate-800/90 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
               }`}
             >
@@ -440,13 +484,15 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               </span>
             </button>
 
-            {/* Toggle Full Screen / Expand View */}
+            {/* Toggle Full Screen */}
             <button
               onClick={() => setIsFullScreen(!isFullScreen)}
-              title={isFullScreen ? "Kecilkan Tampilan Chat" : "Perluas Layar Penuh (Maksimal)"}
+              title={isFullScreen ? "Kecilkan Tampilan Chat" : "Perluas Layar Penuh"}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${
                 isFullScreen
                   ? 'bg-amber-500 text-slate-950 font-black border-amber-300 shadow-lg'
+                  : isLight
+                  ? 'bg-slate-100/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
                   : 'bg-slate-800/90 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
               }`}
             >
@@ -459,7 +505,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               title={soundEnabled ? 'Matikan Suara Notifikasi' : 'Aktifkan Suara Notifikasi'}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${
                 soundEnabled
-                  ? 'bg-indigo-950/60 border-indigo-800 text-indigo-300 hover:bg-indigo-900/80'
+                  ? isLight
+                    ? 'bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100'
+                    : 'bg-indigo-950/60 border-indigo-800 text-indigo-300 hover:bg-indigo-900/80'
+                  : isLight
+                  ? 'bg-slate-100 border-slate-200 text-slate-400 hover:text-slate-700'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
               }`}
             >
@@ -471,7 +521,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               <button
                 onClick={() => setShowClearConfirm(true)}
                 title="Bersihkan Semua Percakapan (Admin)"
-                className="p-2 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-400 hover:bg-rose-900/60 hover:text-rose-200 transition-all cursor-pointer"
+                className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                  isLight
+                    ? 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100'
+                    : 'bg-rose-950/40 border-rose-800/60 text-rose-400 hover:bg-rose-900/60 hover:text-rose-200'
+                }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -481,26 +535,37 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
         {/* Guest Nickname Editor Drawer */}
         {isEditingGuestName && (
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs animate-fade-in">
-            <span className="text-indigo-300 font-bold">Nama Tamu:</span>
+          <div
+            className={`flex items-center gap-2 p-2 rounded-xl border text-xs animate-fade-in ${
+              isLight
+                ? 'bg-teal-50/80 border-teal-200 text-slate-800'
+                : 'bg-indigo-950/40 border-indigo-500/30 text-white'
+            }`}
+          >
+            <span className={`font-bold ${isLight ? 'text-teal-800' : 'text-indigo-300'}`}>Nama Tamu:</span>
             <input
               type="text"
               value={tempGuestName}
               onChange={(e) => setTempGuestName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSaveGuestName()}
               placeholder="Ketik nama Anda..."
-              className="flex-1 px-2.5 py-1 rounded-lg bg-slate-950 border border-indigo-500 text-white text-xs focus:outline-none"
+              className={`flex-1 px-2.5 py-1 rounded-lg border text-xs focus:outline-none ${
+                isLight
+                  ? 'bg-white border-slate-300 text-slate-900'
+                  : 'bg-slate-950 border-indigo-500 text-white'
+              }`}
               autoFocus
             />
             <button
               onClick={handleSaveGuestName}
-              className="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500 cursor-pointer"
+              style={{ backgroundColor: themeHex }}
+              className="px-2.5 py-1 rounded-lg text-white font-bold hover:brightness-110 cursor-pointer"
             >
               Simpan
             </button>
             <button
               onClick={() => setIsEditingGuestName(false)}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              className={`p-1 cursor-pointer ${isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-white'}`}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -509,16 +574,25 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
         {/* Collapsible Filter & Search Bar */}
         {showFilterBar && !isFocusMode && (
-          <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 animate-fade-in">
+          <div
+            className={`pt-2 border-t flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 animate-fade-in ${
+              isLight ? 'border-slate-200' : 'border-slate-800/80'
+            }`}
+          >
             {/* Tag Filter Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs">
               <button
                 onClick={() => setFilterTag('ALL')}
                 className={`px-2.5 py-1 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
                   filterTag === 'ALL'
-                    ? 'bg-white text-slate-900 shadow-md'
+                    ? isLight
+                      ? 'text-white shadow-sm'
+                      : 'bg-white text-slate-900 shadow-md'
+                    : isLight
+                    ? 'bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200'
                     : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                 }`}
+                style={filterTag === 'ALL' && isLight ? { backgroundColor: themeHex } : {}}
               >
                 Semua
               </button>
@@ -528,6 +602,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   className={`px-2.5 py-1 rounded-xl font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
                     filterTag === 'PINNED'
                       ? 'bg-amber-400 text-slate-950 font-black shadow-md'
+                      : isLight
+                      ? 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
                       : 'bg-slate-900 text-amber-400 hover:bg-amber-950/40 border border-amber-800/40'
                   }`}
                 >
@@ -535,36 +611,47 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   <span>Disematkan ({pinnedMessages.length})</span>
                 </button>
               )}
-              {(['DOA', 'AYAT', 'SALAM', 'INFO'] as ChatTag[]).map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => setFilterTag(tag)}
-                  className={`px-2.5 py-1 rounded-xl font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
-                    filterTag === tag
-                      ? `${TAG_CONFIG[tag].bg} ${TAG_CONFIG[tag].text} border ${TAG_CONFIG[tag].border} shadow-md`
-                      : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-                  }`}
-                >
-                  <span>{TAG_CONFIG[tag].icon}</span>
-                  <span>{TAG_CONFIG[tag].label}</span>
-                </button>
-              ))}
+              {(['DOA', 'AYAT', 'SALAM', 'INFO'] as ChatTag[]).map((tag) => {
+                const tagClasses = isLight ? TAG_CONFIG[tag].light : TAG_CONFIG[tag].dark;
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => setFilterTag(tag)}
+                    className={`px-2.5 py-1 rounded-xl font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
+                      filterTag === tag
+                        ? `${tagClasses.bg} ${tagClasses.text} border ${tagClasses.border} shadow-sm`
+                        : isLight
+                        ? 'bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200'
+                        : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    <span>{TAG_CONFIG[tag].icon}</span>
+                    <span>{TAG_CONFIG[tag].label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Search Box */}
             <div className="relative shrink-0 sm:w-56">
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari pesan / jemaat..."
-                className="w-full pl-8 pr-7 py-1 rounded-xl bg-slate-900/90 border border-slate-800 text-white text-xs focus:outline-none focus:border-indigo-500 placeholder-slate-500"
+                className={`w-full pl-8 pr-7 py-1 rounded-xl border text-xs focus:outline-none placeholder-slate-400 ${
+                  isLight
+                    ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:border-teal-500'
+                    : 'bg-slate-900/90 border-slate-800 text-white focus:border-indigo-500 placeholder-slate-500'
+                }`}
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className={`absolute right-2.5 top-1/2 -translate-y-1/2 ${
+                    isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-white'
+                  }`}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -576,11 +663,19 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
       {/* Pinned Messages Banner (if any) */}
       {pinnedMessages.length > 0 && filterTag !== 'PINNED' && !isFocusMode && !isPinnedBannerDismissed && (
-        <div className="bg-amber-950/30 border-b border-amber-800/30 px-3 sm:px-4 py-1.5 flex items-center justify-between gap-2 text-xs shrink-0 animate-fade-in">
+        <div
+          className={`px-3 sm:px-4 py-1.5 flex items-center justify-between gap-2 text-xs shrink-0 animate-fade-in ${
+            isLight
+              ? 'bg-amber-50/90 border-b border-amber-200/80 text-amber-950'
+              : 'bg-amber-950/30 border-b border-amber-800/30 text-slate-300'
+          }`}
+        >
           <div className="flex items-center gap-2 min-w-0">
-            <Pin className="w-3.5 h-3.5 text-amber-400 fill-current shrink-0" />
-            <span className="font-bold text-amber-300 shrink-0">Disematkan:</span>
-            <span className="text-slate-300 truncate">
+            <Pin className="w-3.5 h-3.5 text-amber-500 fill-current shrink-0" />
+            <span className={`font-bold shrink-0 ${isLight ? 'text-amber-800' : 'text-amber-300'}`}>
+              Disematkan:
+            </span>
+            <span className={`truncate ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
               {pinnedMessages[pinnedMessages.length - 1].sender_name}: {pinnedMessages[pinnedMessages.length - 1].message}
             </span>
           </div>
@@ -588,7 +683,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
             {isAdmin && (
               <button
                 onClick={() => handleDeleteMessage(pinnedMessages[pinnedMessages.length - 1].id)}
-                className="text-[11px] font-bold text-rose-400 hover:text-rose-300 flex items-center gap-1 bg-rose-500/15 hover:bg-rose-500/25 px-2 py-0.5 rounded-lg border border-rose-500/30 cursor-pointer transition-all"
+                className={`text-[11px] font-bold flex items-center gap-1 px-2 py-0.5 rounded-lg border cursor-pointer transition-all ${
+                  isLight
+                    ? 'text-rose-700 bg-rose-100/70 hover:bg-rose-100 border-rose-200'
+                    : 'text-rose-400 hover:text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/30'
+                }`}
                 title="Hapus Pesan yang Sedang Disematkan Ini"
               >
                 <Trash2 className="w-3 h-3" />
@@ -600,14 +699,18 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                 setFilterTag('PINNED');
                 setShowFilterBar(true);
               }}
-              className="text-[11px] font-bold text-amber-400 hover:underline cursor-pointer"
+              className={`text-[11px] font-bold hover:underline cursor-pointer ${
+                isLight ? 'text-amber-700' : 'text-amber-400'
+              }`}
             >
               Lihat Semua ({pinnedMessages.length})
             </button>
             <button
               onClick={() => setIsPinnedBannerDismissed(true)}
               title="Tutup banner sematan"
-              className="p-1 text-slate-400 hover:text-slate-200 rounded cursor-pointer"
+              className={`p-1 rounded cursor-pointer ${
+                isLight ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-slate-200'
+              }`}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -619,15 +722,27 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       <div
         ref={chatContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 bg-gradient-to-b from-slate-950 via-slate-950/90 to-slate-900/60 scroll-smooth"
+        className={`flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 scroll-smooth ${
+          isLight
+            ? 'bg-gradient-to-b from-slate-50/90 via-[#f8fafc] to-slate-100/80'
+            : 'bg-gradient-to-b from-slate-950 via-slate-950/90 to-slate-900/60'
+        }`}
       >
         {filteredMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6 text-slate-500">
-            <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-3 text-slate-400">
+          <div className="flex flex-col items-center justify-center h-full text-center p-6">
+            <div
+              className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-3 ${
+                isLight
+                  ? 'bg-white border-slate-200 text-slate-400 shadow-sm'
+                  : 'bg-slate-900 border-slate-800 text-slate-400'
+              }`}
+            >
               <MessageCircle className="w-7 h-7" />
             </div>
-            <p className="font-bold text-white text-sm">Belum ada percakapan</p>
-            <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            <p className={`font-bold text-sm ${isLight ? 'text-slate-800' : 'text-white'}`}>
+              Belum ada percakapan
+            </p>
+            <p className={`text-xs mt-1 max-w-sm ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
               Jadilah yang pertama mengirimkan salam kasih atau pokok doa di Ruang Chat ini!
             </p>
           </div>
@@ -641,6 +756,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               msg.sender_role === 'ADMIN' || msg.sender_role === 'SUPER_ADMIN';
 
             const tagInfo = msg.tag && msg.tag !== 'UMUM' ? TAG_CONFIG[msg.tag] : null;
+            const tagClasses = tagInfo ? (isLight ? tagInfo.light : tagInfo.dark) : null;
 
             return (
               <div
@@ -649,22 +765,44 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               >
                 {/* Sender Identity & Role Badge */}
                 <div className="flex items-center gap-2 mb-1 px-1">
-                  <span className="text-xs font-black text-slate-300">
+                  <span
+                    className={`text-xs font-black ${
+                      isLight ? 'text-slate-700' : 'text-slate-300'
+                    }`}
+                  >
                     {isMine ? 'Anda' : msg.sender_name}
                   </span>
                   {isSenderAdmin && (
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center gap-0.5">
+                    <span
+                      className={`px-1.5 py-0.2 rounded text-[9px] font-black border flex items-center gap-0.5 ${
+                        isLight
+                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                          : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30'
+                      }`}
+                    >
                       <ShieldCheck className="w-2.5 h-2.5" />
                       Admin
                     </span>
                   )}
                   {msg.sender_role === 'TAMU' && !isSenderAdmin && (
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-800 text-slate-400">
+                    <span
+                      className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                        isLight
+                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}
+                    >
                       Tamu
                     </span>
                   )}
                   {msg.is_pinned && (
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-0.5">
+                    <span
+                      className={`px-1.5 py-0.2 rounded text-[9px] font-bold border flex items-center gap-0.5 ${
+                        isLight
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      }`}
+                    >
                       <Pin className="w-2.5 h-2.5 fill-current" />
                       Disematkan
                     </span>
@@ -673,30 +811,44 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
                 {/* Message Bubble */}
                 <div
-                  className={`max-w-[85%] sm:max-w-md md:max-w-lg p-3.5 rounded-2xl shadow-lg relative group transition-all ${
+                  className={`max-w-[85%] sm:max-w-md md:max-w-lg p-3.5 rounded-2xl relative group transition-all ${
                     isMine
-                      ? 'text-white rounded-tr-none'
-                      : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none'
+                      ? 'text-white rounded-tr-none shadow-md'
+                      : isLight
+                      ? 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-sm'
+                      : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-lg'
                   }`}
                   style={isMine ? { backgroundColor: themeHex } : {}}
                 >
                   {/* Quoted Reply Preview */}
                   {msg.reply_to && (
-                    <div className="mb-2 p-2 rounded-xl bg-black/25 border-l-4 border-amber-400 text-xs">
-                      <span className="font-bold text-amber-300 block text-[11px]">
+                    <div
+                      className={`mb-2 p-2 rounded-xl border-l-4 text-xs ${
+                        isMine
+                          ? 'bg-black/20 border-amber-300 text-white/90'
+                          : isLight
+                          ? 'bg-slate-50 border-teal-500 text-slate-700'
+                          : 'bg-black/25 border-amber-400 text-slate-300'
+                      }`}
+                    >
+                      <span
+                        className={`font-bold block text-[11px] ${
+                          isMine ? 'text-amber-200' : isLight ? 'text-teal-800' : 'text-amber-300'
+                        }`}
+                      >
                         Membalas {msg.reply_to.sender_name}:
                       </span>
-                      <span className="line-clamp-2 text-slate-300 italic opacity-90 text-[11px]">
+                      <span className="line-clamp-2 italic opacity-90 text-[11px]">
                         "{msg.reply_to.message}"
                       </span>
                     </div>
                   )}
 
                   {/* Category Tag Badge */}
-                  {tagInfo && (
+                  {tagInfo && tagClasses && (
                     <div className="mb-1.5">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${tagInfo.bg} ${tagInfo.text} ${tagInfo.border}`}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${tagClasses.bg} ${tagClasses.text} ${tagClasses.border}`}
                       >
                         <span>{tagInfo.icon}</span>
                         <span>{tagInfo.label}</span>
@@ -712,7 +864,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   {/* Timestamp & Meta */}
                   <div
                     className={`flex items-center justify-end gap-1.5 mt-2 text-[10px] ${
-                      isMine ? 'text-white/80' : 'text-slate-500'
+                      isMine
+                        ? 'text-white/80'
+                        : isLight
+                        ? 'text-slate-400'
+                        : 'text-slate-500'
                     }`}
                   >
                     <span>{formatMessageTime(msg.created_at)}</span>
@@ -720,15 +876,23 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   </div>
                 </div>
 
-                {/* Action Bar (Reply, Pin, Delete) - Visible on mobile/touch, hover on desktop */}
-                <div className="flex items-center gap-1.5 mt-1.5 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity px-1 text-[11px]">
+                {/* Action Bar (Reply, Pin, Delete) */}
+                <div
+                  className={`flex items-center gap-1.5 mt-1.5 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity px-1 text-[11px] ${
+                    isLight ? 'text-slate-600' : 'text-slate-400'
+                  }`}
+                >
                   <button
                     onClick={() => {
                       setReplyTarget(msg);
                       inputRef.current?.focus();
                     }}
                     title="Balas Pesan"
-                    className="flex items-center gap-1 text-slate-400 hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                    className={`flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer ${
+                      isLight
+                        ? 'hover:text-slate-900 hover:bg-slate-200/80'
+                        : 'hover:text-white hover:bg-slate-800'
+                    }`}
                   >
                     <Reply className="w-3 h-3" />
                     <span>Balas</span>
@@ -740,8 +904,12 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                       title={msg.is_pinned ? 'Lepas Sematan' : 'Sematkan Pesan'}
                       className={`flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer ${
                         msg.is_pinned
-                          ? 'text-amber-400 bg-amber-950/40 border border-amber-800/30'
-                          : 'text-slate-400 hover:text-amber-400 hover:bg-slate-800'
+                          ? isLight
+                            ? 'text-amber-800 bg-amber-100 border border-amber-300'
+                            : 'text-amber-400 bg-amber-950/40 border border-amber-800/30'
+                          : isLight
+                          ? 'hover:text-amber-700 hover:bg-slate-200/80'
+                          : 'hover:text-amber-400 hover:bg-slate-800'
                       }`}
                     >
                       <Pin className="w-3 h-3" />
@@ -752,8 +920,12 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   {(isAdmin || isMine) && (
                     <button
                       onClick={() => handleDeleteMessage(msg.id)}
-                      title={isAdmin ? 'Admin: Hapus Pesan Ini (Termasuk yang Disematkan)' : 'Hapus Pesan Anda'}
-                      className="flex items-center gap-1 text-rose-400 hover:text-rose-300 px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 cursor-pointer font-medium"
+                      title={isAdmin ? 'Admin: Hapus Pesan Ini' : 'Hapus Pesan Anda'}
+                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded border cursor-pointer font-medium ${
+                        isLight
+                          ? 'text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border-rose-200'
+                          : 'text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/20'
+                      }`}
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>Hapus</span>
@@ -771,7 +943,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       {showScrollBottom && (
         <button
           onClick={() => scrollToBottom(true)}
-          className="absolute bottom-20 sm:bottom-24 right-4 sm:right-6 p-2 sm:p-2.5 rounded-full bg-indigo-600 text-white shadow-2xl hover:bg-indigo-500 transition-all z-20 active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+          style={{ backgroundColor: themeHex }}
+          className="absolute bottom-20 sm:bottom-24 right-4 sm:right-6 p-2 sm:p-2.5 rounded-full text-white shadow-xl hover:brightness-110 transition-all z-20 active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
         >
           <ArrowDown className="w-4 h-4" />
           <span>Ke Pesan Baru</span>
@@ -779,24 +952,42 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       )}
 
       {/* Bottom Input Area */}
-      <div className="p-2 sm:p-3 bg-slate-900/95 border-t border-slate-800 shrink-0 z-10 flex flex-col gap-1.5">
+      <div
+        className={`p-2 sm:p-3 border-t shrink-0 z-10 flex flex-col gap-1.5 ${
+          isLight ? 'bg-white/95 border-slate-200' : 'bg-slate-900/95 border-slate-800'
+        }`}
+      >
         {/* Active Reply Banner */}
         {replyTarget && (
-          <div className="flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl bg-slate-800/90 border border-slate-700 text-xs">
+          <div
+            className={`flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl border text-xs ${
+              isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-800/90 border-slate-700'
+            }`}
+          >
             <div className="flex items-center gap-2 min-w-0">
-              <Reply className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <Reply
+                className={`w-3.5 h-3.5 shrink-0 ${isLight ? 'text-teal-600' : 'text-indigo-400'}`}
+              />
               <div className="min-w-0">
-                <span className="font-bold text-white block">
+                <span className={`font-bold block ${isLight ? 'text-slate-900' : 'text-white'}`}>
                   Membalas {replyTarget.sender_name}
                 </span>
-                <span className="text-slate-400 text-[11px] truncate block">
+                <span
+                  className={`text-[11px] truncate block ${
+                    isLight ? 'text-slate-500' : 'text-slate-400'
+                  }`}
+                >
                   "{replyTarget.message}"
                 </span>
               </div>
             </div>
             <button
               onClick={() => setReplyTarget(null)}
-              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 cursor-pointer shrink-0"
+              className={`p-1 rounded-lg cursor-pointer shrink-0 ${
+                isLight
+                  ? 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
+              }`}
               title="Batalkan Balasan"
             >
               <X className="w-4 h-4" />
@@ -806,9 +997,17 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
         {/* Collapsible Quick Blessings Drawer */}
         {showQuickBlessings && (
-          <div className="flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-xl bg-slate-950/80 border border-slate-800 scrollbar-none text-xs animate-fade-in">
-            <span className="text-[11px] font-bold text-slate-400 shrink-0 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
+          <div
+            className={`flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-xl border scrollbar-none text-xs animate-fade-in ${
+              isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/80 border-slate-800'
+            }`}
+          >
+            <span
+              className={`text-[11px] font-bold shrink-0 flex items-center gap-1 ${
+                isLight ? 'text-slate-600' : 'text-slate-400'
+              }`}
+            >
+              <Sparkles className="w-3 h-3 text-amber-500" />
               <span>Pintasan Doa:</span>
             </span>
             {QUICK_BLESSINGS.map((blessing) => (
@@ -819,7 +1018,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                   setInputMessage((prev) => (prev ? `${prev} ${blessing}` : blessing));
                   inputRef.current?.focus();
                 }}
-                className="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs whitespace-nowrap transition-all border border-slate-700 cursor-pointer hover:scale-105 active:scale-95"
+                className={`px-2 py-0.5 rounded-lg text-xs whitespace-nowrap transition-all border cursor-pointer hover:scale-105 active:scale-95 ${
+                  isLight
+                    ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 shadow-xs'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                }`}
               >
                 {blessing}
               </button>
@@ -827,7 +1030,9 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
             <button
               type="button"
               onClick={() => setShowQuickBlessings(false)}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-200 ml-auto shrink-0 cursor-pointer"
+              className={`p-1 rounded-lg ml-auto shrink-0 cursor-pointer ${
+                isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-slate-200'
+              }`}
               title="Tutup Pintasan Doa"
             >
               <X className="w-3.5 h-3.5" />
@@ -837,34 +1042,49 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
         {/* Collapsible Tag Selector Drawer */}
         {showTagSelector && (
-          <div className="flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-xl bg-slate-950/80 border border-slate-800 scrollbar-none text-xs animate-fade-in">
-            <span className="text-[11px] font-bold text-slate-400 shrink-0 flex items-center gap-1">
-              <Tag className="w-3 h-3 text-indigo-400" />
+          <div
+            className={`flex items-center gap-1.5 overflow-x-auto p-1.5 rounded-xl border scrollbar-none text-xs animate-fade-in ${
+              isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/80 border-slate-800'
+            }`}
+          >
+            <span
+              className={`text-[11px] font-bold shrink-0 flex items-center gap-1 ${
+                isLight ? 'text-slate-600' : 'text-slate-400'
+              }`}
+            >
+              <Tag className={`w-3 h-3 ${isLight ? 'text-teal-600' : 'text-indigo-400'}`} />
               <span>Kategori Pesan:</span>
             </span>
-            {(['UMUM', 'DOA', 'AYAT', 'SALAM', 'INFO'] as ChatTag[]).map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => {
-                  setSelectedTag(tag);
-                  setShowTagSelector(false);
-                  inputRef.current?.focus();
-                }}
-                className={`px-2.5 py-1 rounded-lg font-bold text-xs whitespace-nowrap transition-all cursor-pointer ${
-                  selectedTag === tag
-                    ? `${TAG_CONFIG[tag].bg} ${TAG_CONFIG[tag].text} border ${TAG_CONFIG[tag].border}`
-                    : 'bg-slate-800/60 text-slate-400 hover:text-white border border-transparent'
-                }`}
-              >
-                <span className="mr-1">{TAG_CONFIG[tag].icon}</span>
-                <span>{TAG_CONFIG[tag].label}</span>
-              </button>
-            ))}
+            {(['UMUM', 'DOA', 'AYAT', 'SALAM', 'INFO'] as ChatTag[]).map((tag) => {
+              const tagClasses = isLight ? TAG_CONFIG[tag].light : TAG_CONFIG[tag].dark;
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => {
+                    setSelectedTag(tag);
+                    setShowTagSelector(false);
+                    inputRef.current?.focus();
+                  }}
+                  className={`px-2.5 py-1 rounded-lg font-bold text-xs whitespace-nowrap transition-all cursor-pointer ${
+                    selectedTag === tag
+                      ? `${tagClasses.bg} ${tagClasses.text} border ${tagClasses.border} shadow-sm`
+                      : isLight
+                      ? 'bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200'
+                      : 'bg-slate-800/60 text-slate-400 hover:text-white border border-transparent'
+                  }`}
+                >
+                  <span className="mr-1">{TAG_CONFIG[tag].icon}</span>
+                  <span>{TAG_CONFIG[tag].label}</span>
+                </button>
+              );
+            })}
             <button
               type="button"
               onClick={() => setShowTagSelector(false)}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-200 ml-auto shrink-0 cursor-pointer"
+              className={`p-1 rounded-lg ml-auto shrink-0 cursor-pointer ${
+                isLight ? 'text-slate-400 hover:text-slate-700' : 'text-slate-400 hover:text-slate-200'
+              }`}
               title="Tutup Pilihan Kategori"
             >
               <X className="w-3.5 h-3.5" />
@@ -883,7 +1103,9 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               title={showQuickBlessings ? "Sembunyikan Pintasan Doa" : "Pintasan Doa & Berkat Cepat"}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${
                 showQuickBlessings
-                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-500'
+                  : isLight
+                  ? 'bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
                   : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
@@ -891,20 +1113,27 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
             </button>
 
             {/* Tag Selector Toggle Icon */}
-            <button
-              type="button"
-              onClick={() => setShowTagSelector(!showTagSelector)}
-              title={`Kategori: ${TAG_CONFIG[selectedTag].label}. Klik untuk ganti.`}
-              className={`px-2 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                selectedTag !== 'UMUM' || showTagSelector
-                  ? `${TAG_CONFIG[selectedTag].bg} ${TAG_CONFIG[selectedTag].text} border ${TAG_CONFIG[selectedTag].border}`
-                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <span>{TAG_CONFIG[selectedTag].icon}</span>
-              <span className="hidden md:inline text-[11px]">{TAG_CONFIG[selectedTag].label}</span>
-              {showTagSelector ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
-            </button>
+            {(() => {
+              const currentTagClasses = isLight ? TAG_CONFIG[selectedTag].light : TAG_CONFIG[selectedTag].dark;
+              return (
+                <button
+                  type="button"
+                  onClick={() => setShowTagSelector(!showTagSelector)}
+                  title={`Kategori: ${TAG_CONFIG[selectedTag].label}. Klik untuk ganti.`}
+                  className={`px-2 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                    selectedTag !== 'UMUM' || showTagSelector
+                      ? `${currentTagClasses.bg} ${currentTagClasses.text} border ${currentTagClasses.border}`
+                      : isLight
+                      ? 'bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <span>{TAG_CONFIG[selectedTag].icon}</span>
+                  <span className="hidden md:inline text-[11px]">{TAG_CONFIG[selectedTag].label}</span>
+                  {showTagSelector ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
+                </button>
+              );
+            })()}
           </div>
 
           <div className="flex-1 relative">
@@ -914,7 +1143,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder="Tulis pesan atau pokok doa di sini... (Enter untuk kirim)"
-              className="w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl bg-slate-950 border border-slate-800 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500 placeholder-slate-500"
+              className={`w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl border text-xs sm:text-sm focus:outline-none ${
+                isLight
+                  ? 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/20'
+                  : 'bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500'
+              }`}
             />
           </div>
 
@@ -927,6 +1160,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
             className={`p-2 sm:p-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-white transition-all shrink-0 cursor-pointer shadow-lg active:scale-95 ${
               inputMessage.trim()
                 ? 'hover:brightness-110'
+                : isLight
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed'
             }`}
           >
@@ -937,27 +1172,37 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
       {/* Modal Konfirmasi Bersihkan Chat (Admin Only) */}
       {showClearConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-800 p-6 shadow-2xl text-center space-y-4 animate-scale-up">
-            <div className="w-14 h-14 rounded-2xl bg-rose-950/60 border border-rose-800/60 flex items-center justify-center text-rose-400 mx-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div
+            className={`w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-4 animate-scale-up border ${
+              isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
+            }`}
+          >
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mx-auto">
               <AlertCircle className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white">Bersihkan Semua Percakapan?</h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <h3 className={`text-base font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                Bersihkan Semua Percakapan?
+              </h3>
+              <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                 Tindakan ini akan mengosongkan riwayat percakapan di ruang chat ini untuk seluruh perangkat.
               </p>
             </div>
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer"
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold cursor-pointer ${
+                  isLight
+                    ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                }`}
               >
                 Batal
               </button>
               <button
                 onClick={handleClearAllChat}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer shadow-md"
               >
                 Ya, Bersihkan
               </button>
