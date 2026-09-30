@@ -398,11 +398,11 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
         </button>
       </div>
 
-      {/* 3. Main Split View: Independent Scroll Containers for Left Controls & Right Preview */}
+      {/* 3. Main Split View: Left Main Menu (Scrollable) & Right Full Preview (Non-Scrollable) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* === LEFT COLUMN: Configuration Controls (Independent Scroll) === */}
+        {/* === LEFT COLUMN: Menu Utama Pengaturan Tema (Scrollable) === */}
         <div
-          className={`lg:col-span-7 max-h-[60vh] lg:max-h-[calc(100vh-14rem)] overflow-y-auto overscroll-contain pr-1 space-y-4 scroll-smooth ${
+          className={`lg:col-span-7 lg:max-h-[calc(100vh-10.5rem)] lg:overflow-y-auto overscroll-contain lg:pr-1.5 space-y-4 scroll-smooth ${
             pinPreviewTopMobile ? 'order-2 lg:order-1' : 'order-1'
           }`}
         >
@@ -754,24 +754,24 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
           )}
         </div>
 
-        {/* === RIGHT COLUMN: INDEPENDENT SCROLL PREVIEW PANEL & MOCKUP === */}
+        {/* === RIGHT COLUMN: FULL VIEW PREVIEW PANEL (NON-SCROLLABLE, STICKY) === */}
         <div
-          className={`lg:col-span-5 lg:sticky lg:top-4 max-h-[78vh] lg:max-h-[calc(100vh-14rem)] flex flex-col bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden ${
+          className={`lg:col-span-5 lg:sticky lg:top-20 flex flex-col bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-xs ${
             pinPreviewTopMobile ? 'order-1 lg:order-2' : 'order-2'
           }`}
         >
-          {/* Header of Preview Panel (Pinned Top) */}
-          <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          {/* Header of Preview Panel */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
               <Eye className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Pratinjau Mandiri</span>
+              <span>Pratinjau Layar Penuh</span>
             </div>
 
             <div className="flex items-center gap-2">
               {/* Live Status Badge */}
               <div className="px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Scroll Terpisah &amp; Live</span>
+                <span>Full Tampilan &amp; Live</span>
               </div>
 
               {/* Device Toggle Switch */}
@@ -802,16 +802,11 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
             </div>
           </div>
 
-          {/* Helper Note for Independent Scroll */}
-          <div className="shrink-0 py-1.5 px-2.5 my-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-            <span>Area pratinjau memiliki alur scroll tersendiri (tidak ikut tergulir bersama menu kiri).</span>
-          </div>
-
-          {/* INDEPENDENT SCROLLABLE PREVIEW CONTAINER */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-1 px-0.5 scroll-smooth">
+          {/* FULL VIEW PREVIEW CONTAINER (NO SCROLLBAR) */}
+          <div className="py-2">
             {previewDevice === 'MOBILE' ? (
-              /* === ULTRA-REALISTIC HANDPHONE / SMARTPHONE MOCKUP === */
-              <div className="flex justify-center py-1">
+              /* === ULTRA-REALISTIC HANDPHONE / SMARTPHONE MOCKUP (FULL VIEW) === */
+              <div className="flex justify-center">
                 {/* Outer Phone Shell / Bezel */}
                 <div className="w-[310px] xs:w-[335px] sm:w-[345px] bg-slate-950 border-[9px] border-slate-900 rounded-[44px] shadow-2xl relative ring-1 ring-slate-800/80 p-1">
                   {/* Dynamic Island / Camera Notch */}
@@ -820,17 +815,17 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                     <div className="w-8 h-1 bg-slate-900/60 rounded-full" />
                   </div>
 
-                  {/* Inner Screen Area */}
+                  {/* Inner Screen Area (Full Height, No Scroll) */}
                   <div
-                    className="rounded-[34px] overflow-hidden flex flex-col justify-between select-none h-[490px] transition-colors"
+                    className="rounded-[34px] overflow-hidden flex flex-col justify-between select-none transition-colors"
                     style={{
                       backgroundColor: isThemeLight ? '#f4fbf9' : '#090d16',
                       color: isThemeLight ? '#0f172a' : '#f8fafc'
                     }}
                   >
-                    {/* Phone Fixed Top Bar (Status Bar + App Navbar) */}
+                    {/* Phone Top Bar (Status Bar + App Navbar) */}
                     <div
-                      className="shrink-0 px-3 pt-2.5 pb-2 border-b transition-colors"
+                      className="px-3 pt-2.5 pb-2 border-b transition-colors"
                       style={{
                         backgroundColor:
                           form.navbar_style === 'GLASS'
@@ -874,8 +869,8 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                       </div>
                     </div>
 
-                    {/* Phone Scrollable Body Content (Independent Inner Scroll) */}
-                    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-2.5 p-3 scroll-smooth">
+                    {/* Phone Full Body Content (No Scrollbar) */}
+                    <div className="space-y-2.5 p-3">
                       {/* Greeting Banner with Custom Color Gradient */}
                       <div
                         className={`${previewCardPadding} rounded-2xl text-white shadow-xs flex items-center justify-between transition-all`}
@@ -955,9 +950,9 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                         </div>
                       </div>
 
-                      {/* Sample Schedule Card inside Scrollable Phone Screen */}
+                      {/* Sample Schedule Card */}
                       <div
-                        className={`${previewCardPadding} rounded-2xl border shadow-2xs space-y-1.5 transition-all`}
+                        className={`${previewCardPadding} rounded-2xl border shadow-2xs space-y-1 transition-all`}
                         style={getPreviewCardSurfaceStyle()}
                       >
                         <div className="flex items-center justify-between">
@@ -968,31 +963,12 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                           <span className="text-[9px] text-slate-400">Minggu, 09:00</span>
                         </div>
                         <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                          Kebaktian Umum &amp; Perjamuan Kudus bersama seluruh jemaat wilayah.
-                        </p>
-                      </div>
-
-                      {/* Sample Warta & Renungan Card inside Scrollable Phone Screen */}
-                      <div
-                        className={`${previewCardPadding} rounded-2xl border shadow-2xs space-y-1.5 transition-all`}
-                        style={getPreviewCardSurfaceStyle()}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-extrabold flex items-center gap-1">
-                            <BookOpen className="w-3 h-3" style={{ color: activeColorHex }} />
-                            Renungan &amp; Warta Harian
-                          </span>
-                          <span className="text-[9px] font-bold" style={{ color: activeColorHex }}>
-                            Terbaru
-                          </span>
-                        </div>
-                        <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                          &ldquo;Kasih Kristus yang mempersatukan dan menguatkan setiap keluarga.&rdquo;
+                          Kebaktian Umum &amp; Perjamuan Kudus bersama seluruh jemaat.
                         </p>
                       </div>
 
                       {/* Interactive Action Buttons Sample */}
-                      <div className="flex items-center justify-center gap-2 pt-1 pb-2">
+                      <div className="flex items-center justify-center gap-2 pt-0.5">
                         <button
                           className="px-4 py-1.5 rounded-full text-white text-[11px] font-bold shadow-xs transition-transform active:scale-95 cursor-pointer"
                           style={{ backgroundColor: activeColorHex }}
@@ -1012,8 +988,8 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                       </div>
                     </div>
 
-                    {/* Phone Bottom: BottomNav & Home Swipe Bar (Pinned Bottom) */}
-                    <div className="shrink-0">
+                    {/* Phone Bottom: BottomNav & Home Swipe Bar */}
+                    <div>
                       {/* Realistic 5-Icon BottomNav */}
                       <div
                         className="p-2 backdrop-blur-xl border-t flex items-center justify-around text-[9px] font-bold transition-colors"
@@ -1077,7 +1053,7 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                 </div>
               </div>
             ) : (
-              /* === DESKTOP BROWSER MOCKUP (Independent Inner Scroll) === */
+              /* === DESKTOP BROWSER MOCKUP (FULL VIEW, NO SCROLLBAR) === */
               <div className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950 shadow-md">
                 {/* Browser Header Bar */}
                 <div className="p-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
@@ -1089,9 +1065,9 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                   </span>
                 </div>
 
-                {/* Miniature Desktop UI */}
+                {/* Miniature Desktop UI (Full Height, No Scroll) */}
                 <div
-                  className="flex h-96 transition-colors"
+                  className="flex transition-colors"
                   style={{
                     backgroundColor: isThemeLight ? '#f4fbf9' : '#090d16',
                     color: isThemeLight ? '#0f172a' : '#f8fafc'
@@ -1133,8 +1109,8 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Mini Dashboard Content (Independent Scroll) */}
-                  <div className="flex-1 p-3.5 space-y-3 overflow-y-auto overscroll-contain scroll-smooth">
+                  {/* Mini Dashboard Content (Full View, No Scrollbar) */}
+                  <div className="flex-1 p-3.5 space-y-2.5">
                     <div
                       className={`${previewCardPadding} rounded-xl text-white flex justify-between items-center text-[10px] shadow-xs`}
                       style={{
@@ -1179,16 +1155,6 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
                       </p>
                     </div>
 
-                    <div
-                      className={`${previewCardPadding} rounded-xl border space-y-1 transition-all`}
-                      style={getPreviewCardSurfaceStyle()}
-                    >
-                      <span className="text-[10px] font-bold block">Laporan Kas &amp; Persembahan</span>
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400">
-                        Rekapitulasi persembahan mingguan dan operasional pelayanan gereja transparan.
-                      </p>
-                    </div>
-
                     <div className="flex items-center gap-2 pt-1">
                       <button
                         className="px-3 py-1 rounded-lg text-white text-[10px] font-bold"
@@ -1213,8 +1179,8 @@ export const TemaTampilanView: React.FC<TemaTampilanViewProps> = ({
             )}
           </div>
 
-          {/* Real-time Status Spec Line at Bottom (Pinned Bottom) */}
-          <div className="shrink-0 pt-2.5 mt-1 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium gap-2">
+          {/* Real-time Status Spec Line at Bottom */}
+          <div className="pt-2.5 mt-1 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium gap-2">
             <div>
               <span className="text-slate-400">Preset: </span>
               <span className="font-extrabold text-slate-800 dark:text-slate-200">
