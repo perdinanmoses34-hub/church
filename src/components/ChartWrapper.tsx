@@ -1,5 +1,38 @@
 import React, { useEffect, useRef } from 'react';
-import { Chart as ChartJS } from 'chart.js';
+import {
+  Chart as ChartJS,
+  LineController,
+  DoughnutController,
+  BarController,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  registerables
+} from 'chart.js';
+
+ChartJS.register(
+  ...registerables,
+  LineController,
+  DoughnutController,
+  BarController,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 interface ChartProps {
   data: any;

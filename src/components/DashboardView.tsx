@@ -103,6 +103,9 @@ import { isColorLight } from '../utils/themeHelper';
 
 import {
   Chart as ChartJS,
+  LineController,
+  DoughnutController,
+  BarController,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -117,6 +120,9 @@ import {
 import { Line, Doughnut } from './ChartWrapper';
 
 ChartJS.register(
+  LineController,
+  DoughnutController,
+  BarController,
   CategoryScale,
   LinearScale,
   PointElement,
