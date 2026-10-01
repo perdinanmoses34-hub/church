@@ -234,10 +234,10 @@ function getItem<T>(key: string, fallback: T): T {
 }
 
 // Realtime synchronization channel & pub/sub listeners for instant sync
-type StorageListener = () => void;
+export type StorageListener = () => void;
 const internalListeners = new Set<StorageListener>();
 
-function notifyStorageListeners() {
+export function notifyStorageListeners() {
   internalListeners.forEach((fn) => {
     try {
       fn();
@@ -558,6 +558,25 @@ export const StorageManager = {
     return () => {
       internalListeners.delete(listener);
     };
+  },
+
+  notifyStorageListeners: (): void => {
+    notifyStorageListeners();
+  },
+
+  getOrCreateDeviceId: (): string => {
+    if (typeof window === 'undefined') return 'device_default';
+    try {
+      const KEY = 'cms_device_id';
+      let deviceId = localStorage.getItem(KEY);
+      if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+        localStorage.setItem(KEY, deviceId);
+      }
+      return deviceId;
+    } catch {
+      return 'device_fallback';
+    }
   },
 
   // --- SaaS Multi-Tenant & Buyer Church Management ---
