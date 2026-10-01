@@ -16,7 +16,6 @@ import {
   FileSpreadsheet,
   Settings,
   UserCheck,
-  Palette,
   Grid,
   ChevronRight,
   MessageCircle,
@@ -44,7 +43,6 @@ export type NavTab =
   | 'laporan'
   | 'jemaat_portal'
   | 'settings'
-  | 'tampilan'
   | 'agenda'
   | 'media'
   | 'chat'
@@ -180,12 +178,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           id: 'laporan',
           label: 'Laporan Keuangan',
           icon: FileSpreadsheet,
-          roles: ['SUPER_ADMIN', 'ADMIN']
-        },
-        {
-          id: 'tampilan',
-          label: 'Tema & Tampilan',
-          icon: Palette,
           roles: ['SUPER_ADMIN', 'ADMIN']
         },
         {
