@@ -99,7 +99,7 @@ import { Website2ApkNotificationGuideModal } from './Website2ApkNotificationGuid
 import { AndroidStudioConverterModal } from './AndroidStudioConverterModal';
 import { downloadGoogleServicesJsonFile } from '../utils/googleServicesHelper';
 import { confirmDialog } from '../utils/confirmDialog';
-import { isColorLight } from '../utils/themeHelper';
+import { isColorLight, getButtonIconTheme } from '../utils/themeHelper';
 
 import {
   Chart as ChartJS,
@@ -1137,6 +1137,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     settings.theme_preset !== 'FOREST_GREEN' &&
     settings.theme_preset !== 'WARM_GOLD';
 
+  const iconTheme = getButtonIconTheme(settings);
+
   const getCardStyleClass = () => {
     const cardBg = settings.jemaat_cards_bg || 'DEFAULT_GLASS';
     const cardStyle = settings.card_style || 'GLASS';
@@ -1612,7 +1614,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               } text-left transition-all duration-200 group cursor-pointer flex flex-col justify-between space-y-2 sm:space-y-3`}
             >
               <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-blue-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                <div
+                  className={`p-2 sm:p-2.5 transition-transform group-hover:scale-110 flex items-center justify-center shrink-0 ${iconTheme.getIconContainerClass()}`}
+                  style={iconTheme.getIconStyle('#3b82f6')}
+                >
                   <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-blue-950/70 text-blue-200 border border-blue-500/40'}`}>
@@ -1637,7 +1642,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               } text-left transition-all duration-200 group cursor-pointer flex flex-col justify-between space-y-2 sm:space-y-3`}
             >
               <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-emerald-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                <div
+                  className={`p-2 sm:p-2.5 transition-transform group-hover:scale-110 flex items-center justify-center shrink-0 ${iconTheme.getIconContainerClass()}`}
+                  style={iconTheme.getIconStyle('#10b981')}
+                >
                   <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-emerald-950/70 text-emerald-200 border border-emerald-500/40'}`}>
@@ -1662,7 +1670,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               } text-left transition-all duration-200 group cursor-pointer flex flex-col justify-between space-y-2 sm:space-y-3`}
             >
               <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-purple-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                <div
+                  className={`p-2 sm:p-2.5 transition-transform group-hover:scale-110 flex items-center justify-center shrink-0 ${iconTheme.getIconContainerClass()}`}
+                  style={iconTheme.getIconStyle('#8b5cf6')}
+                >
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-purple-50 text-purple-800 border border-purple-200' : 'bg-purple-950/70 text-purple-200 border border-purple-500/40'}`}>
@@ -1687,7 +1698,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               } text-left transition-all duration-200 group cursor-pointer flex flex-col justify-between space-y-2 sm:space-y-3`}
             >
               <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-amber-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                <div
+                  className={`p-2 sm:p-2.5 transition-transform group-hover:scale-110 flex items-center justify-center shrink-0 ${iconTheme.getIconContainerClass()}`}
+                  style={iconTheme.getIconStyle('#f59e0b')}
+                >
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-amber-950/70 text-amber-200 border border-amber-500/40'}`}>
@@ -1712,7 +1726,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               } text-left transition-all duration-200 group cursor-pointer flex flex-col justify-between space-y-2 sm:space-y-3`}
             >
               <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-indigo-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                <div
+                  className={`p-2 sm:p-2.5 transition-transform group-hover:scale-110 flex items-center justify-center shrink-0 ${iconTheme.getIconContainerClass()}`}
+                  style={iconTheme.getIconStyle('#6366f1')}
+                >
                   <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : 'bg-indigo-950/70 text-indigo-200 border border-indigo-500/40'}`}>
@@ -1737,7 +1754,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               } text-left transition-all duration-200 group cursor-pointer flex flex-col justify-between space-y-2 sm:space-y-3`}
             >
               <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-amber-500 text-slate-950 shadow-lg group-hover:scale-110 transition-transform">
+                <div
+                  className={`p-2 sm:p-2.5 transition-transform group-hover:scale-110 flex items-center justify-center shrink-0 ${iconTheme.getIconContainerClass()}`}
+                  style={iconTheme.getIconStyle('#f59e0b')}
+                >
                   <BookMarked className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-amber-950/70 text-amber-200 border border-amber-500/40'}`}>
@@ -1762,7 +1782,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               } text-left transition-all duration-200 group cursor-pointer flex flex-col justify-between space-y-2 sm:space-y-3`}
             >
               <div className="flex items-center justify-between">
-                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-cyan-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                <div
+                  className={`p-2 sm:p-2.5 transition-transform group-hover:scale-110 flex items-center justify-center shrink-0 ${iconTheme.getIconContainerClass()}`}
+                  style={iconTheme.getIconStyle('#06b6d4')}
+                >
                   <Grid className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full ${isLightSystem ? 'bg-cyan-50 text-cyan-800 border border-cyan-200' : 'bg-cyan-950/70 text-cyan-200 border border-cyan-500/40'}`}>

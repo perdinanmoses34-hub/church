@@ -237,7 +237,7 @@ function getItem<T>(key: string, fallback: T): T {
 type StorageListener = () => void;
 const internalListeners = new Set<StorageListener>();
 
-export function notifyStorageListeners() {
+function notifyStorageListeners() {
   internalListeners.forEach((fn) => {
     try {
       fn();
@@ -268,9 +268,6 @@ if (typeof window !== 'undefined') {
       notifyStorageListeners();
       window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { key: e.key } }));
     }
-  });
-  window.addEventListener('cms_data_changed', () => {
-    notifyStorageListeners();
   });
 }
 
@@ -609,8 +606,6 @@ export const StorageManager = {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { key: KEYS.ACTIVE_TENANT, tenantId: cleanId } }));
     }
-    pushToCloud(KEYS.ACTIVE_TENANT, cleanId);
-    pushToCloud('active_tenant_id', cleanId);
   },
   getActiveTenant: (): ChurchTenant | null => {
     const activeId = StorageManager.getActiveTenantId();
@@ -806,14 +801,10 @@ export const StorageManager = {
   },
   getSettings: (): AppSettings => {
     const saved = getItem<AppSettings>(KEYS.SETTINGS, initialSettings);
-    const settings: AppSettings = { ...initialSettings, ...(saved || {}) };
-    
-    // Ensure valid theme and color defaults if not explicitly configured
-    if (!settings.warna_tema) {
-      settings.warna_tema = '#0d9488';
-    }
-    if (!settings.theme_preset) {
-      settings.theme_preset = 'EMERALD_LIGHT';
+    const settings = { ...initialSettings, ...saved };
+    // If no settings saved yet, initialize with initialSettings
+    if (!saved) {
+      setItem(KEYS.SETTINGS, settings);
     }
     // Auto sanitize any stale legacy church name
     if (settings.nama_gereja && settings.nama_gereja.includes('Kemenangan Faith')) {
@@ -830,10 +821,6 @@ export const StorageManager = {
     }
     if (settings.video_url && settings.video_url.includes('5qap5aO4i9A')) {
       settings.video_url = 'https://www.youtube.com/watch?v=wX2S6AebnI8';
-    }
-    // Auto sanitize any 'bos' in jemaat banner title
-    if (settings.jemaat_banner_title && /\bbos\b/i.test(settings.jemaat_banner_title)) {
-      settings.jemaat_banner_title = settings.jemaat_banner_title.replace(/\bbos\b/gi, '').trim().replace(/,\s*$/, '');
     }
 
     const activeTenantId = StorageManager.getActiveTenantId();
@@ -853,26 +840,8 @@ export const StorageManager = {
     return settings;
   },
   saveSettings: (settings: AppSettings): void => {
-    const activeTenantId = StorageManager.getActiveTenantId();
-    try {
-      localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
-      const scopedKey = getTenantScopedKey(KEYS.SETTINGS);
-      if (scopedKey !== KEYS.SETTINGS) {
-        localStorage.setItem(scopedKey, JSON.stringify(settings));
-      }
-    } catch (e) {
-      // ignore
-    }
     setItem(KEYS.SETTINGS, settings);
-    const scopedKey = getTenantScopedKey(KEYS.SETTINGS);
-    if (scopedKey !== KEYS.SETTINGS) {
-      setItem(scopedKey, settings);
-    }
-    notifyStorageListeners();
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'settings_updated', settings } }));
-      window.dispatchEvent(new Event('storage'));
-    }
+    const activeTenantId = StorageManager.getActiveTenantId();
     const tenants = getItem<ChurchTenant[]>(KEYS.TENANTS, initialTenants);
     let needsSync = false;
     const updatedTenants = tenants.map((t) => {
@@ -1556,19 +1525,6 @@ export const StorageManager = {
   },
   saveEventReservations: (list: EventReservation[]): void => setItem(KEYS.EVENT_RESERVATIONS, list),
 
-  getOrCreateDeviceId: (): string => {
-    try {
-      let devId = localStorage.getItem('cms_device_unique_id');
-      if (!devId) {
-        devId = `DEV-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 8)}`;
-        localStorage.setItem('cms_device_unique_id', devId);
-      }
-      return devId;
-    } catch (e) {
-      return `DEV-TMP-${Date.now().toString(36)}`;
-    }
-  },
-
   getChatMessages: (): ChatMessage[] => {
     return getItem<ChatMessage[]>(KEYS.CHAT_MESSAGES, initialChatMessages);
   },
@@ -1577,14 +1533,8 @@ export const StorageManager = {
   },
   addChatMessage: (msg: Omit<ChatMessage, 'id' | 'created_at'>): ChatMessage => {
     const list = StorageManager.getChatMessages();
-    const convId =
-      msg.is_private && msg.sender_id && msg.recipient_id
-        ? [msg.sender_id, msg.recipient_id].sort().join('___')
-        : msg.conversation_id;
-
     const newMsg: ChatMessage = {
       ...msg,
-      conversation_id: convId,
       id: `CHAT-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       created_at: new Date().toISOString()
     };
@@ -1744,6 +1694,10 @@ export const StorageManager = {
     const settings = StorageManager.getSettings();
     settings.security_alert = alert;
     setItem(KEYS.SETTINGS, settings);
+
+    // Explicit cloud push to ensure both security_alert and cms_pro_security_alert docs are updated
+    pushToCloud('cms_pro_security_alert', alert);
+    pushToCloud('security_alert', alert);
 
     if (alert && alert.active) {
       // Add entry to notifications for history audit

@@ -9,8 +9,7 @@ import {
   reconnectRealtimeCloudSync,
   isQuotaExhausted,
   forceManualSyncPush,
-  clearQuotaExhausted,
-  resetAllSyncAndQuota
+  clearQuotaExhausted
 } from '../../utils/firebaseSync';
 import {
   triggerStatusBarNotification,
@@ -67,8 +66,10 @@ import {
   Box,
   ChevronRight,
   Building,
-  Church
+  Church,
+  Grid
 } from 'lucide-react';
+import { getNavbarTheme, getFooterTheme, getButtonIconTheme } from '../../utils/themeHelper';
 import { DashboardVisibilityManager } from '../dashboard/DashboardVisibilityManager';
 import {
   sendOneSignalPushNotification,
@@ -869,8 +870,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
   return (
     <div className="space-y-6 pb-32 sm:pb-24">
       {/* Header Title Section */}
-      <div className="flex flex-col gap-1.5 pb-4 border-b border-teal-100">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-teal-950 tracking-tight flex items-center gap-2">
+      <div className="flex flex-col gap-1.5 pb-4 border-b border-slate-800">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
           <ShieldCheck className="w-6 h-6 text-teal-600" />
           <span>Pengaturan &amp; Kustomisasi Sistem</span>
         </h2>
@@ -983,8 +984,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
       {/* Role Notice for Admin */}
       {currentUser.role === 'ADMIN' && (
-        <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200 text-teal-900 text-xs flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0 text-teal-600" />
+        <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-200 text-xs flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-indigo-400" />
           <div>
             <span className="font-bold block">Akses Level Admin Gereja:</span>
             <span>Anda dapat mengubah profil gereja, judul dashboard, tema warna, logo, dan tautan video media sosial, serta mengelola akun User (Admin & JEMAAT) dan password untuk gereja Anda. Fitur Google Sheets REST API & Audit Logs dikunci khusus untuk SuperAdmin.</span>
@@ -992,14 +993,47 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
         </div>
       )}
 
-      {/* Tab 1: Metadata & Profil Gereja */}
+      {/* Tab 1: Metadata profil gereja & Custom Visual */}
       {activeTab === 'METADATA' && (
         <div className="space-y-6">
+          {/* Quick Jump Banner for Navbar */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-indigo-900/30 to-purple-900/20 border-2 border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                <Palette className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2">
+                  <span>Pengaturan Warna &amp; Tema Navbar (Bar Navigasi Paling Atas)</span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                    Lokasi di Sini
+                  </span>
+                </h4>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  Ubah tema warna preset, kode hex bebas, blur, dan garis bawah navbar di sini atau melalui tombol <strong>"Warna Navbar"</strong> di bar paling atas.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById('navbar-customizer-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}
+              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer active:scale-95"
+            >
+              <span>Lompat ke Pengaturan Navbar</span>
+              <ArrowDown className="w-4 h-4 text-slate-950" />
+            </button>
+          </div>
+
           {savedSuccess && (
             <div className="p-4 bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-300 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-between gap-3 shadow-2xl animate-bounce">
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>✅ Perubahan berhasil disimpan! Data profil gereja dan pengaturan sistem telah diperbarui secara realtime.</span>
+                <span>✅ Perubahan berhasil disimpan! Pengaturan Lebar Kartu & Kustomisasi Tampilan Portal/Dashboard Jemaat telah diperbarui secara realtime.</span>
               </div>
               <span className="text-[10px] font-mono bg-emerald-600/40 px-2.5 py-1 rounded-lg text-emerald-200 shrink-0">Status: Tersimpan</span>
             </div>
@@ -1291,13 +1325,1346 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
             </div>
 
-            {/* Section 2: Pengaturan Modul & Banner Portal Jemaat */}
+            {/* Section 2: Tema Warna, Background & Custom Visual Admin */}
+            <div className="rounded-3xl bg-white border-2 border-teal-100 shadow-xl shadow-teal-900/5 p-6 text-slate-800 space-y-4">
+              <h3 className="text-base font-extrabold text-slate-900 pb-3 border-b border-teal-100 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-teal-600" />
+                  <span>2. Kustomisasi Tema Warna &amp; Style Dashboard Admin</span>
+                </span>
+                <span className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-full">
+                  Visual Styling
+                </span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Preset Warna Background */}
+                <div className="space-y-2">
+                  <label className="block text-slate-700 font-bold text-xs">Preset Background Admin</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'EMERALD_LIGHT', label: '🌿 Emerald Light (Universal)', bg: 'from-emerald-50 via-teal-50 to-white text-emerald-950', border: 'border-emerald-500' },
+                      { id: 'DARK_SLATE', label: '🌌 Dark Slate', bg: 'from-slate-900 to-indigo-950', border: 'border-indigo-500/50' },
+                      { id: 'MIDNIGHT_BLUE', label: '💙 Midnight Blue', bg: 'from-slate-950 to-blue-950', border: 'border-blue-500/50' },
+                      { id: 'DEEP_PURPLE', label: '💜 Amethyst Dark', bg: 'from-neutral-950 to-purple-950', border: 'border-purple-500/50' },
+                      { id: 'FOREST_GREEN', label: '🌲 Emerald Dark', bg: 'from-stone-950 to-emerald-950', border: 'border-emerald-500/50' },
+                      { id: 'WARM_GOLD', label: '⚜️ Warm Gold Luxe', bg: 'from-neutral-950 to-amber-950', border: 'border-amber-500/50' },
+                      { id: 'LUXE_LIGHT', label: '☀️ Minimalist Light', bg: 'from-slate-100 to-white text-slate-900', border: 'border-slate-300' }
+                    ].map((t) => (
+                      <button
+                        type="button"
+                        key={t.id}
+                        onClick={() => setMetaForm({ ...metaForm, theme_preset: t.id as any })}
+                        className={`p-2.5 rounded-xl bg-gradient-to-br ${t.bg} border text-left text-[11px] font-bold transition-all flex items-center justify-between ${
+                          (metaForm.theme_preset || 'EMERALD_LIGHT') === t.id
+                            ? `${t.border} ring-2 ring-teal-500 shadow-md scale-[1.02]`
+                            : 'border-slate-200 opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <span className="truncate">{t.label}</span>
+                        {(metaForm.theme_preset || 'EMERALD_LIGHT') === t.id && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Unlimited Hex Color Picker */}
+                <div className="sm:col-span-2 lg:col-span-3 p-4 sm:p-5 rounded-2xl bg-teal-50/50 border border-teal-200 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <label className="block text-teal-900 font-extrabold text-xs sm:text-sm">
+                        🎨 Kustom Kode Warna Hex (Contoh: #059669) - Bebas Tanpa Batas
+                      </label>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Kustomisasi warna tema bebas dengan memasukkan kode hex apa saja (seperti #059669, #0F766E, #10B981). Berlaku untuk tampilan Admin &amp; Akun Jemaat.
+                      </p>
+                    </div>
+                    <div
+                      className="w-12 h-12 rounded-2xl border-2 border-white shadow-md shrink-0 flex items-center justify-center font-mono text-[10px] text-white font-black"
+                      style={{ backgroundColor: metaForm.warna_tema || '#059669' }}
+                    >
+                      {metaForm.warna_tema || '#059669'}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                    {/* Hex Code Text Input */}
+                    <div className="sm:col-span-2 flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono font-bold text-xs">HEX:</span>
+                        <input
+                          type="text"
+                          value={metaForm.warna_tema || '#059669'}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setMetaForm({ ...metaForm, warna_tema: val });
+                          }}
+                          placeholder="#059669"
+                          className="w-full pl-14 pr-4 py-2.5 rounded-xl bg-white border border-teal-200 text-slate-900 font-mono font-extrabold text-sm focus:ring-2 focus:ring-teal-500 outline-none uppercase"
+                        />
+                      </div>
+                      {/* HTML Color Picker Button */}
+                      <label className="p-2.5 rounded-xl bg-white hover:bg-teal-50 border border-teal-200 cursor-pointer flex items-center gap-2 text-xs font-bold text-teal-800 shrink-0 shadow-2xs">
+                        <input
+                          type="color"
+                          value={metaForm.warna_tema && /^#[0-9A-F]{6}$/i.test(metaForm.warna_tema) ? metaForm.warna_tema : '#059669'}
+                          onChange={(e) => setMetaForm({ ...metaForm, warna_tema: e.target.value })}
+                          className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent"
+                        />
+                        <span>Pilih Visual</span>
+                      </label>
+                    </div>
+
+                    {/* Live Preview Button Tag */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-slate-500 font-semibold">Pratinjau:</span>
+                      <button
+                        type="button"
+                        className="px-3.5 py-1.5 rounded-xl text-white font-extrabold text-xs shadow-md transition-all"
+                        style={{ backgroundColor: metaForm.warna_tema || '#059669' }}
+                      >
+                        Warna Utama
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quick Preset Color Hex Chips */}
+                  <div>
+                    <span className="text-[11px] font-bold text-slate-400 block mb-2">Rekomendasi Warna Hex Populer:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { name: 'Terracotta', hex: '#CD5C5C' },
+                        { name: 'Royal Indigo', hex: '#4F46E5' },
+                        { name: 'Emerald', hex: '#059669' },
+                        { name: 'Warm Amber', hex: '#D97706' },
+                        { name: 'Crimson Rose', hex: '#E11D48' },
+                        { name: 'Ocean Sky', hex: '#0284C7' },
+                        { name: 'Amethyst', hex: '#7C3AED' },
+                        { name: 'Fuchsia', hex: '#D946EF' },
+                        { name: 'Deep Teal', hex: '#0F766E' },
+                        { name: 'Warm Gold', hex: '#B45309' }
+                      ].map((chip) => (
+                        <button
+                          key={chip.hex}
+                          type="button"
+                          onClick={() => setMetaForm({ ...metaForm, warna_tema: chip.hex })}
+                          className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                            (metaForm.warna_tema || '#CD5C5C').toUpperCase() === chip.hex.toUpperCase()
+                              ? 'border-white text-white ring-2 ring-amber-400 shadow-md scale-105'
+                              : 'border-slate-800 text-slate-300 hover:border-slate-600 bg-slate-900'
+                          }`}
+                        >
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: chip.hex }} />
+                          <span>{chip.name} ({chip.hex})</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Accent Color */}
+                <div className="space-y-2">
+                  <label className="block text-slate-700 font-bold text-xs">Warna Aksen Utama System</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'INDIGO', label: '🟣 Royal Indigo', color: 'bg-indigo-600' },
+                      { id: 'EMERALD', label: '🟢 Emerald Green', color: 'bg-emerald-600' },
+                      { id: 'AMBER', label: '🟡 Radiant Amber', color: 'bg-amber-600' },
+                      { id: 'ROSE', label: '🔴 Crimson Rose', color: 'bg-rose-600' },
+                      { id: 'CYAN', label: '🔵 Ocean Cyan', color: 'bg-cyan-600' },
+                      { id: 'ROYAL_GOLD', label: '⚜️ Royal Gold', color: 'bg-yellow-600' }
+                    ].map((ac) => (
+                      <button
+                        type="button"
+                        key={ac.id}
+                        onClick={() => setMetaForm({ ...metaForm, accent_color: ac.id as any })}
+                        className={`p-2.5 rounded-xl border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
+                          (metaForm.accent_color || 'INDIGO') === ac.id
+                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
+                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <span className={`w-3 h-3 rounded-full ${ac.color}`} />
+                          <span>{ac.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Style Kartu */}
+                <div className="space-y-2">
+                  <label className="block text-slate-700 font-bold text-xs">Style Kartu &amp; Border</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'GLASS', label: '✨ Glassmorphism', desc: 'Blur Transparan' },
+                      { id: 'SOLID', label: '⬛ Solid Light', desc: 'Putih Pekat Bersih' },
+                      { id: 'NEON', label: '💡 Neon Accent', desc: 'Glow Menyala' },
+                      { id: 'FLAT', label: '📄 Flat Bordered', desc: 'Simpel Flat' }
+                    ].map((c) => (
+                      <button
+                        type="button"
+                        key={c.id}
+                        onClick={() => setMetaForm({ ...metaForm, card_style: c.id as any })}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                          (metaForm.card_style || 'GLASS') === c.id
+                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
+                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
+                        }`}
+                      >
+                        <div className="font-bold text-[11px]">{c.label}</div>
+                        <div className="text-[9px] text-slate-400 mt-0.5">{c.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Style Garis Pinggir Kartu (Border Line Accent) */}
+                <div className="space-y-2">
+                  <label className="block text-slate-700 font-bold text-xs">Gaya Garis Pinggir Kartu (Border Color)</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'ACCENT_FULL', label: '🔲 Border Warna Tema', desc: 'Penuh Warna Custom' },
+                      { id: 'ACCENT_LEFT', label: '▌ Garis Kiri Tebal', desc: 'Aksen Garis Kiri' },
+                      { id: 'ACCENT_TOP', label: '▀ Garis Atas Tebal', desc: 'Aksen Garis Atas' },
+                      { id: 'ACCENT_GLOW', label: '✨ Glowing Border', desc: 'Efek Glow Transparan' }
+                    ].map((b) => (
+                      <button
+                        type="button"
+                        key={b.id}
+                        onClick={() => setMetaForm({ ...metaForm, card_border_accent: b.id as any })}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                          (metaForm.card_border_accent || 'ACCENT_FULL') === b.id
+                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
+                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
+                        }`}
+                      >
+                        <div className="font-bold text-[11px]">{b.label}</div>
+                        <div className="text-[9px] text-slate-400 mt-0.5">{b.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SUB-SECTION 2.1: KUSTOMISASI BUTTON ICON & TOMBOL MENU CEPAT (SELURUH APLIKASI) */}
+                <div id="button-icon-customizer-section" className="sm:col-span-2 lg:col-span-3 p-4 sm:p-6 rounded-2xl bg-teal-50/70 border-2 border-teal-300 space-y-5 scroll-mt-24 text-slate-800 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-200">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/25">
+                        <Box className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
+                          <span>Kustomisasi Background &amp; Bentuk Button Icon (Tombol Icon)</span>
+                          <span className="px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold border border-teal-300">
+                            Fitur Baru
+                          </span>
+                        </h4>
+                        <p className="text-[11px] text-slate-600 mt-0.5">
+                          Atur latar belakang (background), warna simbol, bentuk (lingkaran, kotak, rounded), dan efek glow pada tombol icon di menu cepat, modul, dan kartu.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Interactive Preview Box for Button Icons */}
+                  {(() => {
+                    const iconTheme = getButtonIconTheme(metaForm);
+                    return (
+                      <div className="space-y-2 p-4 rounded-2xl bg-white border border-teal-200 shadow-xs">
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                          <span className="flex items-center gap-1.5 text-teal-800">
+                            <Eye className="w-4 h-4 text-teal-600" />
+                            <span>Pratinjau Langsung Button Icon (Menu Cepat &amp; Modul):</span>
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            Preset: {metaForm.button_icon_preset || 'MATCH_THEME'} &bull; Bentuk: {metaForm.button_icon_shape || 'ROUNDED_XL'}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
+                          {[
+                            { label: 'Data Jemaat', icon: Users, color: '#3b82f6' },
+                            { label: 'Keuangan & Kas', icon: CreditCard, color: '#10b981' },
+                            { label: 'Surat Sakramen', icon: FileJson, color: '#8b5cf6' },
+                            { label: 'Agenda Event', icon: CalendarDays, color: '#f59e0b' },
+                            { label: 'Ruang Chat', icon: Send, color: '#6366f1' },
+                            { label: 'Alkitab & Lagu', icon: BookOpen, color: '#ec4899' }
+                          ].map((item, idx) => {
+                            const IconComponent = item.icon;
+                            return (
+                              <div
+                                key={idx}
+                                className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex flex-col items-center text-center gap-2 group transition-all"
+                              >
+                                <div
+                                  className={`w-11 h-11 ${iconTheme.getIconContainerClass()}`}
+                                  style={iconTheme.getIconStyle(item.color)}
+                                >
+                                  <IconComponent className="w-5 h-5 transition-transform group-hover:scale-110" />
+                                </div>
+                                <span className="text-[11px] font-extrabold text-slate-800 truncate w-full">
+                                  {item.label}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* 1. Preset Background Button Icon */}
+                  <div className="space-y-2">
+                    <label className="block text-slate-700 font-bold text-xs">
+                      1. Pilih Preset Gaya Background Button Icon:
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                      {[
+                        { id: 'MATCH_THEME', name: 'Sesuai Warna Tema', desc: 'Serasi Warna Gereja', color: 'bg-teal-600 text-white' },
+                        { id: 'CUSTOM_HEX', name: 'Kustom Hex Bebas', desc: 'Warna Mandiri', color: 'bg-indigo-600 text-white' },
+                        { id: 'GRADIENT', name: 'Gradasi Mewah', desc: 'Teal to Emerald', color: 'bg-gradient-to-br from-teal-600 to-emerald-500 text-white' },
+                        { id: 'GLASS', name: 'Glass Soft Blur', desc: 'Transparan Lembut', color: 'bg-teal-100 text-teal-800 border border-teal-300' },
+                        { id: 'SOLID', name: 'Solid Pekat', desc: 'Pekat Bersih', color: 'bg-slate-900 text-white' },
+                        { id: 'DEFAULT_COLORFUL', name: 'Warna-Warni Asli', desc: 'Tiap Menu Berbeda', color: 'bg-gradient-to-r from-blue-500 via-emerald-500 to-amber-500 text-white' }
+                      ].map((preset) => {
+                        const isSelected = (metaForm.button_icon_preset || 'MATCH_THEME') === preset.id;
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() => setMetaForm({ ...metaForm, button_icon_preset: preset.id as any })}
+                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                              isSelected
+                                ? 'border-teal-500 ring-2 ring-teal-300 bg-white text-teal-950 font-bold shadow-md'
+                                : 'border-teal-200 bg-white/80 text-slate-700 hover:border-teal-400'
+                            }`}
+                          >
+                            <div className={`w-6 h-6 rounded-lg ${preset.color} flex items-center justify-center text-[10px] font-bold mb-1.5 shadow-2xs`}>
+                              ✓
+                            </div>
+                            <p className="text-[11px] font-bold truncate">{preset.name}</p>
+                            <p className="text-[9px] text-slate-400 truncate mt-0.5">{preset.desc}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 2. Custom Hex Background & Color Pickers */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Warna Background Hex Khusus */}
+                    <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <Palette className="w-3.5 h-3.5 text-teal-600" />
+                          <span>2. Warna Background Button Icon (Hex)</span>
+                        </label>
+                        <span
+                          className="w-5 h-5 rounded-lg border border-slate-300 inline-block shadow-2xs"
+                          style={{ backgroundColor: metaForm.button_icon_bg || metaForm.warna_tema || '#059669' }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={metaForm.button_icon_bg || ''}
+                          onChange={(e) =>
+                            setMetaForm({
+                              ...metaForm,
+                              button_icon_preset: 'CUSTOM_HEX',
+                              button_icon_bg: e.target.value
+                            })
+                          }
+                          placeholder="#059669"
+                          className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-xs uppercase outline-none font-bold"
+                        />
+                        <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold flex items-center gap-1">
+                          <input
+                            type="color"
+                            value={
+                              metaForm.button_icon_bg && /^#[0-9A-F]{6}$/i.test(metaForm.button_icon_bg)
+                                ? metaForm.button_icon_bg
+                                : metaForm.warna_tema || '#059669'
+                            }
+                            onChange={(e) =>
+                              setMetaForm({
+                                ...metaForm,
+                                button_icon_preset: 'CUSTOM_HEX',
+                                button_icon_bg: e.target.value
+                              })
+                            }
+                            className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent"
+                          />
+                          <span>Pilih Visual</span>
+                        </label>
+                      </div>
+
+                      {/* Quick Swatches for Button Icon */}
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {[
+                          { name: 'Teal', hex: '#059669' },
+                          { name: 'Deep Teal', hex: '#0f766e' },
+                          { name: 'Indigo', hex: '#4f46e5' },
+                          { name: 'Purple', hex: '#7c3aed' },
+                          { name: 'Amber', hex: '#d97706' },
+                          { name: 'Rose', hex: '#e11d48' },
+                          { name: 'Sky', hex: '#0284c7' },
+                          { name: 'Dark Slate', hex: '#1e293b' }
+                        ].map((sw) => (
+                          <button
+                            key={sw.hex}
+                            type="button"
+                            onClick={() =>
+                              setMetaForm({
+                                ...metaForm,
+                                button_icon_preset: 'CUSTOM_HEX',
+                                button_icon_bg: sw.hex
+                              })
+                            }
+                            className="px-2 py-0.5 rounded-lg border border-slate-200 text-[9px] font-bold flex items-center gap-1 bg-slate-50 hover:bg-white"
+                          >
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: sw.hex }} />
+                            <span>{sw.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Warna Simbol / Icon */}
+                    <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <Sun className="w-3.5 h-3.5 text-amber-500" />
+                          <span>3. Warna Simbol / Icon di Dalam Tombol</span>
+                        </label>
+                        <span
+                          className="w-5 h-5 rounded-lg border border-slate-300 inline-block shadow-2xs"
+                          style={{ backgroundColor: metaForm.button_icon_color || '#ffffff' }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={metaForm.button_icon_color || ''}
+                          onChange={(e) => setMetaForm({ ...metaForm, button_icon_color: e.target.value })}
+                          placeholder="Default: Putih (#ffffff)"
+                          className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-xs uppercase outline-none font-bold"
+                        />
+                        <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold flex items-center gap-1">
+                          <input
+                            type="color"
+                            value={
+                              metaForm.button_icon_color && /^#[0-9A-F]{6}$/i.test(metaForm.button_icon_color)
+                                ? metaForm.button_icon_color
+                                : '#ffffff'
+                            }
+                            onChange={(e) => setMetaForm({ ...metaForm, button_icon_color: e.target.value })}
+                            className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent"
+                          />
+                          <span>Pilih Visual</span>
+                        </label>
+                      </div>
+
+                      {/* Quick Symbol Color Presets */}
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {[
+                          { name: 'Putih Bersih', hex: '#ffffff' },
+                          { name: 'Hitam Slate', hex: '#0f172a' },
+                          { name: 'Emas Hangat', hex: '#f59e0b' },
+                          { name: 'Cyan Terang', hex: '#06b6d4' },
+                          { name: 'Hijau Mint', hex: '#34d399' }
+                        ].map((sw) => (
+                          <button
+                            key={sw.hex}
+                            type="button"
+                            onClick={() => setMetaForm({ ...metaForm, button_icon_color: sw.hex })}
+                            className="px-2 py-0.5 rounded-lg border border-slate-200 text-[9px] font-bold flex items-center gap-1 bg-slate-50 hover:bg-white"
+                          >
+                            <span className="w-2 h-2 rounded-full border border-slate-300" style={{ backgroundColor: sw.hex }} />
+                            <span>{sw.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Bentuk, Shadow & Border Icon */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Bentuk Background Icon */}
+                    <div className="space-y-1.5">
+                      <label className="block text-slate-700 font-bold text-xs">
+                        4. Bentuk Tombol Icon:
+                      </label>
+                      {[
+                        { id: 'ROUNDED_XL', label: '📦 Rounded Modern', desc: 'Kotak Membulat Halus' },
+                        { id: 'CIRCLE', label: '⚪ Lingkaran Penuh', desc: 'Bulat Melingkar' },
+                        { id: 'SQUARE', label: '⏹️ Persegi Sudut Halus', desc: 'Sudut Rapi Minimalis' },
+                        { id: 'PILL', label: '💊 Kapsul Pill', desc: 'Kapsul Oval Melebar' }
+                      ].map((shape) => (
+                        <button
+                          key={shape.id}
+                          type="button"
+                          onClick={() => setMetaForm({ ...metaForm, button_icon_shape: shape.id as any })}
+                          className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                            (metaForm.button_icon_shape || 'ROUNDED_XL') === shape.id
+                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                              : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          }`}
+                        >
+                          <p className="text-[11px] font-bold">{shape.label}</p>
+                          <p className="text-[9px] text-slate-400">{shape.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Efek Bayangan / Glow */}
+                    <div className="space-y-1.5">
+                      <label className="block text-slate-700 font-bold text-xs">
+                        5. Efek Bayangan / Shadow:
+                      </label>
+                      {[
+                        { id: 'NONE', label: 'Datar (Flat / No Shadow)', desc: 'Tanpa Bayangan' },
+                        { id: 'SOFT', label: '✨ Lembut Elegan (Soft)', desc: 'Standar Modern' },
+                        { id: 'GLOW', label: '💡 Glow Menyala (Neon)', desc: 'Cahaya Neon Warna' },
+                        { id: 'DEEP', label: '⬛ Deep Shadow', desc: 'Bayangan Kontras Kuat' }
+                      ].map((sh) => (
+                        <button
+                          key={sh.id}
+                          type="button"
+                          onClick={() => setMetaForm({ ...metaForm, button_icon_shadow: sh.id as any })}
+                          className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                            (metaForm.button_icon_shadow || 'SOFT') === sh.id
+                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                              : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          }`}
+                        >
+                          <p className="text-[11px] font-bold">{sh.label}</p>
+                          <p className="text-[9px] text-slate-400">{sh.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Border Garis Pinggir */}
+                    <div className="space-y-1.5">
+                      <label className="block text-slate-700 font-bold text-xs">
+                        6. Border Garis Pinggir:
+                      </label>
+                      <label className="flex items-center gap-2 p-2 rounded-xl border border-teal-200 bg-white cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(metaForm.button_icon_border)}
+                          onChange={(e) => setMetaForm({ ...metaForm, button_icon_border: e.target.checked })}
+                          className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4"
+                        />
+                        <span className="text-[11px] font-bold text-slate-800">Aktifkan Garis Border</span>
+                      </label>
+
+                      {metaForm.button_icon_border && (
+                        <div className="p-2.5 rounded-xl border border-teal-200 bg-white space-y-1.5">
+                          <span className="text-[10px] font-bold text-slate-600 block">Warna Border Icon:</span>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={metaForm.button_icon_border_color || ''}
+                              onChange={(e) => setMetaForm({ ...metaForm, button_icon_border_color: e.target.value })}
+                              placeholder="#059669"
+                              className="flex-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-teal-200 text-xs font-mono"
+                            />
+                            <label className="p-1 rounded-lg border border-teal-200 cursor-pointer">
+                              <input
+                                type="color"
+                                value={
+                                  metaForm.button_icon_border_color && /^#[0-9A-F]{6}$/i.test(metaForm.button_icon_border_color)
+                                    ? metaForm.button_icon_border_color
+                                    : '#059669'
+                                }
+                                onChange={(e) => setMetaForm({ ...metaForm, button_icon_border_color: e.target.value })}
+                                className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* SUB-SECTION 2.2: KUSTOMISASI NAVBAR / HEADER ATAS (LENGKAP) */}
+                <div id="navbar-customizer-section" className="sm:col-span-2 lg:col-span-3 p-4 sm:p-6 rounded-2xl bg-teal-50/70 border-2 border-teal-300 space-y-5 scroll-mt-24 text-slate-800 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-200">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/25">
+                        <Palette className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
+                          <span>Kustomisasi Warna, Gradasi, Tema &amp; Tombol Icon Navbar Atas</span>
+                          <span className="px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold border border-teal-300">
+                            Fitur Lengkap
+                          </span>
+                        </h4>
+                        <p className="text-[11px] text-slate-600 mt-0.5">
+                          Atur warna bar navigasi paling atas secara bebas (pilihan preset, kode warna hex mandiri, efek gradasi halus, garis bawah kustom, dan background tombol icon navbar).
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Mini Preview Bar */}
+                  {(() => {
+                    const previewNb = getNavbarTheme(metaForm);
+                    return (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                          <span className="flex items-center gap-1.5 text-teal-800">
+                            <Eye className="w-4 h-4 text-teal-600" />
+                            <span>Pratinjau Langsung Navbar &amp; Tombol Icon:</span>
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            Preset: {metaForm.navbar_theme_preset || 'CLEAN_LIGHT'} &bull; Style: {metaForm.navbar_style || 'GLASS'}
+                          </span>
+                        </div>
+                        <div
+                          className={`w-full rounded-2xl p-3 sm:p-4 transition-all duration-300 border flex items-center justify-between ${previewNb.containerClass} ${previewNb.borderBottomClass} shadow-xl`}
+                          style={{
+                            ...previewNb.containerStyle,
+                            ...previewNb.borderBottomStyle
+                          }}
+                        >
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <button
+                              type="button"
+                              className={`p-2 transition-all shrink-0 ${previewNb.iconBtnClass}`}
+                              style={previewNb.iconBtnStyle}
+                              title="Menu Cepat"
+                            >
+                              <Grid className="w-4 h-4" />
+                            </button>
+
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div
+                                className="w-7 h-7 rounded-lg flex items-center justify-center p-1 shadow-xs shrink-0"
+                                style={previewNb.menuBtnStyle}
+                              >
+                                <Building className="w-4 h-4" />
+                              </div>
+                              <div className="truncate">
+                                <p
+                                  className={`text-xs font-extrabold truncate ${previewNb.titleClass}`}
+                                  style={previewNb.titleStyle}
+                                >
+                                  {metaForm.nama_gereja || 'Jesus Kingdom Christ'}
+                                </p>
+                                <p
+                                  className={`text-[9px] font-bold leading-none ${previewNb.subtextClass}`}
+                                  style={previewNb.subtextStyle}
+                                >
+                                  Portal Jemaat &bull; Enterprise CMS Pro
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Middle Preview Search Box */}
+                          <div
+                            className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-[11px] w-40 ${previewNb.searchBoxClass}`}
+                            style={previewNb.searchBoxStyle}
+                          >
+                            <Search className="w-3 h-3 opacity-70" />
+                            <span className="truncate">Cari...</span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border ${previewNb.pillClass}`}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              <span>Real-Time Cloud</span>
+                            </div>
+
+                            {/* Preview Bell Icon Button */}
+                            <button
+                              type="button"
+                              className={`p-2 transition-all shrink-0 relative ${previewNb.iconBtnClass}`}
+                              style={previewNb.iconBtnStyle}
+                            >
+                              <Bell className="w-4 h-4" />
+                              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                            </button>
+
+                            <div
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black shadow-xs"
+                              style={previewNb.menuBtnStyle}
+                            >
+                              AD
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* 1. Preset Tema Navbar */}
+                  <div className="space-y-2">
+                    <label className="block text-slate-700 font-bold text-xs">
+                      1. Preset Warna Tema Navbar
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                      {[
+                        { id: 'CLEAN_LIGHT', name: 'Luxe Clean Light', bg: 'bg-white text-slate-900' },
+                        { id: 'MATCH_THEME', name: 'Serasi Tema Gereja', bg: 'bg-gradient-to-r from-teal-700 to-emerald-900 text-white' },
+                        { id: 'EMERALD_GREEN', name: 'Forest Emerald', bg: 'bg-[#031a0e] text-white' },
+                        { id: 'DEFAULT_DARK', name: 'Dark Slate', bg: 'bg-slate-950 text-white' },
+                        { id: 'MIDNIGHT_BLUE', name: 'Midnight Blue', bg: 'bg-[#060c1d] text-white' },
+                        { id: 'DEEP_PURPLE', name: 'Deep Amethyst', bg: 'bg-[#120520] text-white' },
+                        { id: 'CRIMSON_RED', name: 'Crimson Burgundy', bg: 'bg-[#20050b] text-white' },
+                        { id: 'WARM_GOLD', name: 'Warm Gold Luxe', bg: 'bg-[#1c1202] text-white' },
+                        { id: 'PURE_BLACK', name: 'Obsidian OLED', bg: 'bg-black text-white' },
+                        { id: 'CUSTOM_HEX', name: 'Kustom Hex Bebas', bg: 'bg-gradient-to-r from-teal-700 to-indigo-900 text-white' }
+                      ].map((preset) => {
+                        const isSelected = (metaForm.navbar_theme_preset || 'CLEAN_LIGHT') === preset.id;
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() => setMetaForm({ ...metaForm, navbar_theme_preset: preset.id as any })}
+                            className={`p-2.5 rounded-xl border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
+                              isSelected
+                                ? 'border-teal-500 ring-2 ring-teal-300 bg-white text-teal-950 shadow-md'
+                                : 'border-teal-200 bg-white/80 text-slate-700 hover:border-teal-400'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className={`w-3 h-3 rounded-full border border-slate-300 shrink-0 ${preset.bg}`} />
+                              <span className="truncate">{preset.name}</span>
+                            </div>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 2. Custom Hex Input & Gradasi Options */}
+                  <div className="p-4 rounded-xl bg-white border border-teal-200 space-y-3 shadow-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <label className="text-xs font-bold text-teal-900 flex items-center gap-2">
+                          <Palette className="w-4 h-4 text-teal-600" />
+                          <span>2. Kustom Warna Hex &amp; Gradasi Navbar Bebas</span>
+                        </label>
+                        <p className="text-[11px] text-slate-500">
+                          Pilih warna latar utama atau kombinasikan dengan warna gradasi kedua.
+                        </p>
+                      </div>
+                      <div
+                        className="w-9 h-9 rounded-xl border-2 border-teal-300 shadow shrink-0 flex items-center justify-center font-mono text-[9px] text-white font-bold"
+                        style={{ backgroundColor: metaForm.navbar_custom_bg || '#ffffff' }}
+                      >
+                        {metaForm.navbar_custom_bg || '#fff'}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Warna Utama / Awal */}
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-slate-600">Warna Latar Utama (Hex):</span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={metaForm.navbar_custom_bg || '#ffffff'}
+                            onChange={(e) =>
+                              setMetaForm({
+                                ...metaForm,
+                                navbar_theme_preset: 'CUSTOM_HEX',
+                                navbar_custom_bg: e.target.value
+                              })
+                            }
+                            placeholder="#ffffff"
+                            className="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono font-bold text-xs uppercase"
+                          />
+                          <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer flex items-center gap-1.5 text-xs font-bold text-teal-800 shrink-0">
+                            <input
+                              type="color"
+                              value={
+                                metaForm.navbar_custom_bg && /^#[0-9A-F]{6}$/i.test(metaForm.navbar_custom_bg)
+                                  ? metaForm.navbar_custom_bg
+                                  : '#ffffff'
+                              }
+                              onChange={(e) =>
+                                setMetaForm({
+                                  ...metaForm,
+                                  navbar_theme_preset: 'CUSTOM_HEX',
+                                  navbar_custom_bg: e.target.value
+                                })
+                              }
+                              className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent"
+                            />
+                            <span>Pilih</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Warna Gradasi Kedua */}
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-slate-600">Warna Gradasi Ke-2 (Opsional):</span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={metaForm.navbar_gradient_to || ''}
+                            onChange={(e) =>
+                              setMetaForm({
+                                ...metaForm,
+                                navbar_gradient_to: e.target.value
+                              })
+                            }
+                            placeholder="#f1f5f9"
+                            className="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono font-bold text-xs uppercase"
+                          />
+                          <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer flex items-center gap-1.5 text-xs font-bold text-teal-800 shrink-0">
+                            <input
+                              type="color"
+                              value={
+                                metaForm.navbar_gradient_to && /^#[0-9A-F]{6}$/i.test(metaForm.navbar_gradient_to)
+                                  ? metaForm.navbar_gradient_to
+                                  : '#f1f5f9'
+                              }
+                              onChange={(e) =>
+                                setMetaForm({
+                                  ...metaForm,
+                                  navbar_gradient_to: e.target.value
+                                })
+                              }
+                              className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent"
+                            />
+                            <span>Pilih</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Swatches */}
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 block mb-1">
+                        Pilihan Cepat Warna Navbar:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { name: 'Clean White', hex: '#ffffff' },
+                          { name: 'Teal Zamrud', hex: '#059669' },
+                          { name: 'Deep Teal', hex: '#042f2e' },
+                          { name: 'Slate 950', hex: '#020617' },
+                          { name: 'Navy Midnight', hex: '#0f172a' },
+                          { name: 'Deep Indigo', hex: '#1e1b4b' },
+                          { name: 'Royal Purple', hex: '#3b0764' },
+                          { name: 'Forest Green', hex: '#052e16' },
+                          { name: 'Crimson Wine', hex: '#4c0519' },
+                          { name: 'Warm Amber', hex: '#451a03' },
+                          { name: 'Obsidian OLED', hex: '#000000' }
+                        ].map((chip) => (
+                          <button
+                            key={chip.hex}
+                            type="button"
+                            onClick={() =>
+                              setMetaForm({
+                                ...metaForm,
+                                navbar_theme_preset: 'CUSTOM_HEX',
+                                navbar_custom_bg: chip.hex
+                              })
+                            }
+                            className="px-2 py-0.5 rounded-lg border border-slate-200 text-[10px] font-bold flex items-center gap-1 bg-slate-50 hover:bg-white cursor-pointer"
+                          >
+                            <span className="w-2 h-2 rounded-full border border-slate-300" style={{ backgroundColor: chip.hex }} />
+                            <span>{chip.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Style Navbar, Garis Bawah, Kontras Teks & Arah Gradasi */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Gaya Transparansi */}
+                    <div className="space-y-1.5">
+                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                        <Layers className="w-3.5 h-3.5 text-teal-600" />
+                        <span>3. Gaya &amp; Efek Transparansi</span>
+                      </label>
+                      {[
+                        { id: 'GLASS', label: '✨ Glass Blur', desc: 'Transparan Modern' },
+                        { id: 'SOLID', label: '⬛ Solid Pekat', desc: 'Pekat Bersih' },
+                        { id: 'GRADIENT', label: '🌈 Gradient Halus', desc: 'Gradasi Warna' }
+                      ].map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setMetaForm({ ...metaForm, navbar_style: s.id as any })}
+                          className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                            (metaForm.navbar_style || 'GLASS') === s.id
+                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                          }`}
+                        >
+                          <p className="text-[11px] font-bold">{s.label}</p>
+                          <p className="text-[9px] text-slate-400">{s.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Garis Bawah Aksen */}
+                    <div className="space-y-1.5">
+                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                        <span>4. Garis Pembatas Bawah</span>
+                      </label>
+                      {[
+                        { id: 'SUBTLE', label: '➖ Garis Halus' },
+                        { id: 'THEME_COLOR', label: '🔲 Warna Tema Gereja' },
+                        { id: 'GLOW', label: '✨ Glowing Neon Glow' },
+                        { id: 'CUSTOM', label: '🎨 Warna Garis Kustom' },
+                        { id: 'NONE', label: '✖️ Tanpa Garis' }
+                      ].map((b) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setMetaForm({ ...metaForm, navbar_border_accent: b.id as any })}
+                          className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                            (metaForm.navbar_border_accent || 'SUBTLE') === b.id
+                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                          }`}
+                        >
+                          <p className="text-[11px] font-bold truncate">{b.label}</p>
+                        </button>
+                      ))}
+
+                      {metaForm.navbar_border_accent === 'CUSTOM' && (
+                        <div className="pt-1 flex items-center gap-1.5">
+                          <input
+                            type="color"
+                            value={metaForm.navbar_border_color || metaForm.warna_tema || '#059669'}
+                            onChange={(e) => setMetaForm({ ...metaForm, navbar_border_color: e.target.value })}
+                            className="w-6 h-6 rounded cursor-pointer border-0"
+                          />
+                          <select
+                            value={metaForm.navbar_border_width || '2'}
+                            onChange={(e) => setMetaForm({ ...metaForm, navbar_border_width: e.target.value as any })}
+                            className="flex-1 p-1 rounded-lg border border-teal-200 bg-white text-[10px] font-bold"
+                          >
+                            <option value="1">Tebal 1px</option>
+                            <option value="2">Tebal 2px</option>
+                            <option value="3">Tebal 3px</option>
+                            <option value="4">Tebal 4px</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Kontras & Warna Teks Navbar */}
+                    <div className="space-y-1.5">
+                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                        <Sun className="w-3.5 h-3.5 text-amber-500" />
+                        <span>5. Warna Teks Navbar</span>
+                      </label>
+                      {[
+                        { id: 'AUTO', label: '⚡ Otomatis Pintar' },
+                        { id: 'WHITE', label: '⚪ Selalu Putih' },
+                        { id: 'DARK', label: '⚫ Selalu Gelap' },
+                        { id: 'CUSTOM', label: '🎨 Kustom Warna Teks' }
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setMetaForm({ ...metaForm, navbar_custom_text: t.id as any })}
+                          className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                            (metaForm.navbar_custom_text || 'AUTO') === t.id
+                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                          }`}
+                        >
+                          <p className="text-[11px] font-bold">{t.label}</p>
+                        </button>
+                      ))}
+
+                      {metaForm.navbar_custom_text === 'CUSTOM' && (
+                        <div className="pt-1 flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={metaForm.navbar_custom_text_color || ''}
+                            onChange={(e) => setMetaForm({ ...metaForm, navbar_custom_text_color: e.target.value })}
+                            placeholder="#0f172a"
+                            className="flex-1 px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-xs font-mono font-bold uppercase"
+                          />
+                          <input
+                            type="color"
+                            value={metaForm.navbar_custom_text_color || '#0f172a'}
+                            onChange={(e) => setMetaForm({ ...metaForm, navbar_custom_text_color: e.target.value })}
+                            className="w-6 h-6 rounded cursor-pointer border-0"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 6. Tombol Icon Navbar (Navbar Icon Buttons) */}
+                    <div className="space-y-1.5">
+                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                        <Box className="w-3.5 h-3.5 text-teal-600" />
+                        <span>6. Tombol Icon Navbar</span>
+                      </label>
+                      {[
+                        { id: 'SUBTLE', label: 'Transparan Lembut (Subtle)' },
+                        { id: 'MATCH_THEME', label: 'Sesuai Warna Tema' },
+                        { id: 'SOLID', label: 'Solid Pekat' },
+                        { id: 'CUSTOM_HEX', label: 'Kustom Hex Icon Navbar' },
+                        { id: 'NONE', label: 'Polos / Tanpa Kotak' }
+                      ].map((ib) => (
+                        <button
+                          key={ib.id}
+                          type="button"
+                          onClick={() => setMetaForm({ ...metaForm, navbar_icon_bg_preset: ib.id as any })}
+                          className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                            (metaForm.navbar_icon_bg_preset || 'SUBTLE') === ib.id
+                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                          }`}
+                        >
+                          <p className="text-[11px] font-bold">{ib.label}</p>
+                        </button>
+                      ))}
+
+                      {metaForm.navbar_icon_bg_preset === 'CUSTOM_HEX' && (
+                        <div className="pt-1 space-y-1">
+                          <span className="text-[10px] text-slate-500">Warna Background Icon:</span>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={metaForm.navbar_icon_bg || ''}
+                              onChange={(e) => setMetaForm({ ...metaForm, navbar_icon_bg: e.target.value })}
+                              placeholder="#059669"
+                              className="flex-1 px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-xs font-mono font-bold uppercase"
+                            />
+                            <input
+                              type="color"
+                              value={metaForm.navbar_icon_bg || '#059669'}
+                              onChange={(e) => setMetaForm({ ...metaForm, navbar_icon_bg: e.target.value })}
+                              className="w-6 h-6 rounded cursor-pointer border-0"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2.5: Kustomisasi Background Footer & Icon Navigasi (Mobile / Bottom Bar) */}
+            <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-5 shadow-xl shadow-teal-950/5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-teal-100 gap-2">
+                <div>
+                  <h3 className="text-base font-bold text-teal-900 flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-teal-600" />
+                    <span>2.5. Kustomisasi Background Footer &amp; Tombol Icon (Bottom Nav)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 text-[10px] font-bold border border-teal-200">
+                      Admin &amp; SuperAdmin
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Sesuaikan warna latar belakang footer mobile, garis pembatas atas, bentuk background icon (Home, Renungan, Jadwal, Profil, Lainnya), serta warna aktif dan idle.
+                  </p>
+                </div>
+              </div>
+
+              {/* Live Preview Box */}
+              <div className="space-y-2 p-4 rounded-2xl bg-teal-50/60 border border-teal-200">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span className="flex items-center gap-1.5 text-teal-800">
+                    <Eye className="w-4 h-4 text-teal-600" />
+                    <span>Pratinjau Langsung Tampilan Footer &amp; Icon:</span>
+                  </span>
+                  <span className="text-[10px] text-slate-500">
+                    Preset: {metaForm.footer_theme_preset || 'DEFAULT_DARK'}
+                  </span>
+                </div>
+                {(() => {
+                  const ft = getFooterTheme(metaForm);
+                  return (
+                    <div
+                      className={`w-full rounded-2xl p-3 flex items-center justify-around shadow-xl border ${ft.containerClass.replace('fixed bottom-0 left-0 right-0 z-40 lg:hidden', '')}`}
+                      style={ft.containerStyle}
+                    >
+                      <div style={ft.getItemStyle(true)} className={ft.getItemClass(true)}>
+                        <LayoutDashboard className="w-5 h-5" />
+                        <span>Home</span>
+                      </div>
+                      <div style={ft.getItemStyle(false)} className={ft.getItemClass(false)}>
+                        <BookOpen className="w-5 h-5" />
+                        <span>Renungan</span>
+                      </div>
+                      <div style={ft.getItemStyle(false)} className={ft.getItemClass(false)}>
+                        <CalendarDays className="w-5 h-5" />
+                        <span>Jadwal</span>
+                      </div>
+                      <div style={ft.getItemStyle(false)} className={ft.getItemClass(false)}>
+                        <UserCheck className="w-5 h-5" />
+                        <span>Profil</span>
+                      </div>
+                      <div style={ft.getItemStyle(false)} className={ft.getItemClass(false)}>
+                        <MoreHorizontal className="w-5 h-5" />
+                        <span>Lainnya</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* 1. Preset Background Footer */}
+              <div className="space-y-2">
+                <label className="block text-slate-700 font-bold text-xs">
+                  1. Pilih Preset Warna Background Footer:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 'DEFAULT_DARK', name: 'Dark Slate', desc: 'Default Gelap Elegan' },
+                    { id: 'MATCH_THEME', name: 'Sesuai Tema Gereja', desc: 'Ikuti Warna Tema' },
+                    { id: 'MATCH_NAVBAR', name: 'Sama dengan Navbar', desc: 'Serasi dengan Header' },
+                    { id: 'MIDNIGHT_BLUE', name: 'Midnight Blue', desc: 'Biru Laut Dalam' },
+                    { id: 'DEEP_PURPLE', name: 'Deep Amethyst', desc: 'Ungu Megah' },
+                    { id: 'EMERALD_GREEN', name: 'Forest Emerald', desc: 'Hijau Zamrud' },
+                    { id: 'CRIMSON_RED', name: 'Crimson Burgundy', desc: 'Merah Marun' },
+                    { id: 'WARM_GOLD', name: 'Warm Gold', desc: 'Emas Hangat' },
+                    { id: 'PURE_BLACK', name: 'Pure Obsidian', desc: 'Hitam OLED' },
+                    { id: 'CLEAN_LIGHT', name: 'Clean Light', desc: 'Putih Terang' },
+                    { id: 'CUSTOM_HEX', name: 'Kustom Hex', desc: 'Warna Bebas' }
+                  ].map((p) => {
+                    const isSelected = (metaForm.footer_theme_preset || 'DEFAULT_DARK') === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setMetaForm({ ...metaForm, footer_theme_preset: p.id as any })}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                            : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                        }`}
+                      >
+                        <p className="text-[11px] font-bold truncate">{p.name}</p>
+                        <p className="text-[9px] text-slate-400 truncate mt-0.5">{p.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. Kustom Hex Footer Khusus */}
+              <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                    <Palette className="w-3.5 h-3.5 text-teal-600" />
+                    <span>2. Warna Hex Background Footer Khusus</span>
+                  </label>
+                  <span
+                    className="w-6 h-6 rounded-lg border border-slate-300 inline-block"
+                    style={{ backgroundColor: metaForm.footer_custom_bg || '#020617' }}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={metaForm.footer_custom_bg || '#020617'}
+                    onChange={(e) =>
+                      setMetaForm({
+                        ...metaForm,
+                        footer_theme_preset: 'CUSTOM_HEX',
+                        footer_custom_bg: e.target.value
+                      })
+                    }
+                    placeholder="#020617"
+                    className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-xs uppercase outline-none"
+                  />
+                  <label className="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer flex items-center gap-1.5 text-xs text-teal-800 font-bold">
+                    <input
+                      type="color"
+                      value={
+                        metaForm.footer_custom_bg && /^#[0-9A-F]{6}$/i.test(metaForm.footer_custom_bg)
+                          ? metaForm.footer_custom_bg
+                          : '#020617'
+                      }
+                      onChange={(e) =>
+                        setMetaForm({
+                          ...metaForm,
+                          footer_theme_preset: 'CUSTOM_HEX',
+                          footer_custom_bg: e.target.value
+                        })
+                      }
+                      className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent"
+                    />
+                    <span>Pilih Warna</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* 3. Gaya, Garis Atas & Bentuk Icon */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Gaya Transparansi Footer */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-700 font-bold text-xs">
+                    3. Gaya Transparansi Footer:
+                  </label>
+                  {[
+                    { id: 'GLASS', label: '✨ Glass Blur' },
+                    { id: 'SOLID', label: '⬛ Solid Pekat' },
+                    { id: 'GRADIENT', label: '🌈 Gradient' }
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setMetaForm({ ...metaForm, footer_style: s.id as any })}
+                      className={`w-full p-2 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        (metaForm.footer_style || 'GLASS') === s.id
+                          ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                          : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Garis Pembatas Atas Footer */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-700 font-bold text-xs">
+                    4. Garis Pembatas Atas:
+                  </label>
+                  {[
+                    { id: 'SUBTLE', label: '➖ Garis Halus' },
+                    { id: 'THEME_COLOR', label: '🔲 Warna Tema' },
+                    { id: 'GLOW', label: '✨ Glowing Neon' },
+                    { id: 'NONE', label: '✖️ Tanpa Garis' }
+                  ].map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => setMetaForm({ ...metaForm, footer_border_accent: b.id as any })}
+                      className={`w-full p-2 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        (metaForm.footer_border_accent || 'SUBTLE') === b.id
+                          ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                          : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                      }`}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Bentuk Background Icon */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-700 font-bold text-xs">
+                    5. Bentuk Background Icon:
+                  </label>
+                  {[
+                    { id: 'SUBTLE', label: '📦 Rounded Box' },
+                    { id: 'PILL', label: '💊 Kapsul Pill' },
+                    { id: 'CIRCLE', label: '⚪ Lingkaran Badge' },
+                    { id: 'GLOW', label: '✨ Neon Glow' },
+                    { id: 'NONE', label: '🔘 Minimalis Polos' }
+                  ].map((shape) => (
+                    <button
+                      key={shape.id}
+                      type="button"
+                      onClick={() => setMetaForm({ ...metaForm, footer_icon_bg_style: shape.id as any })}
+                      className={`w-full p-2 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        (metaForm.footer_icon_bg_style || 'SUBTLE') === shape.id
+                          ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
+                          : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                      }`}
+                    >
+                      {shape.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 6. Kustom Warna Background Icon Aktif & Diam */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
+                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <span>Warna Background Icon Aktif</span>
+                    <span
+                      className="w-4 h-4 rounded border border-slate-300 inline-block"
+                      style={{
+                        backgroundColor: metaForm.footer_icon_active_bg || `${metaForm.warna_tema || '#CD5C5C'}25`
+                      }}
+                    />
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={metaForm.footer_icon_active_bg || ''}
+                      onChange={(e) => setMetaForm({ ...metaForm, footer_icon_active_bg: e.target.value })}
+                      placeholder="Default: Warna Tema"
+                      className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-mono text-xs outline-none"
+                    />
+                    <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold">
+                      <input
+                        type="color"
+                        value={
+                          metaForm.footer_icon_active_bg && /^#[0-9A-F]{6}$/i.test(metaForm.footer_icon_active_bg)
+                            ? metaForm.footer_icon_active_bg
+                            : metaForm.warna_tema || '#CD5C5C'
+                        }
+                        onChange={(e) => setMetaForm({ ...metaForm, footer_icon_active_bg: e.target.value })}
+                        className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
+                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <span>Warna Background Icon Diam</span>
+                    <span
+                      className="w-4 h-4 rounded border border-slate-300 inline-block"
+                      style={{
+                        backgroundColor: metaForm.footer_icon_custom_bg || 'transparent'
+                      }}
+                    />
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={metaForm.footer_icon_custom_bg || ''}
+                      onChange={(e) => setMetaForm({ ...metaForm, footer_icon_custom_bg: e.target.value })}
+                      placeholder="Default: Transparan"
+                      className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-mono text-xs outline-none"
+                    />
+                    <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold">
+                      <input
+                        type="color"
+                        value={
+                          metaForm.footer_icon_custom_bg && /^#[0-9A-F]{6}$/i.test(metaForm.footer_icon_custom_bg)
+                            ? metaForm.footer_icon_custom_bg
+                            : '#1e293b'
+                        }
+                        onChange={(e) => setMetaForm({ ...metaForm, footer_icon_custom_bg: e.target.value })}
+                        className="w-4 h-4 rounded cursor-pointer border-0 bg-transparent"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Custom Tampilan Portal Jemaat (Mobile & Dashboard Jemaat) */}
             <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-4 shadow-xl shadow-teal-950/5">
               <div className="flex items-center justify-between pb-3 border-b border-teal-100">
                 <div>
                   <h3 className="text-base font-bold text-teal-900 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-teal-600" />
-                    <span>2. Pengaturan Modul &amp; Banner Portal Jemaat</span>
+                    <span>3. Kustomisasi Tampilan Portal Jemaat (Hape & Mobile View)</span>
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Atur ucapan selamat datang, gaya banner, teks pengumuman, serta aktifkan/nonaktifkan modul di Dashboard Jemaat.
@@ -1663,7 +3030,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs shadow-md shadow-teal-600/25 flex items-center gap-2 cursor-pointer active:scale-95"
               >
                 <Check className="w-4 h-4" />
-                <span>Simpan Pengaturan Sistem</span>
+                <span>Simpan Seluruh Kustomisasi Tampilan</span>
               </button>
             </div>
           </form>
@@ -2197,14 +3564,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
           )}
 
           {/* Google Sheets GAS REST API Section */}
-          <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-4 shadow-xl shadow-teal-950/5">
-            <div className="flex items-center justify-between pb-3 border-b border-teal-100">
+          <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div>
-                <h3 className="text-base font-bold flex items-center gap-2 text-slate-900">
-                  <Database className="w-5 h-5 text-teal-600" />
+                <h3 className="text-base font-bold flex items-center gap-2">
+                  <Database className="w-5 h-5 text-emerald-400" />
                   <span>Google Sheets REST API & Google Apps Script (GAS)</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   Tempelkan Web App URL hasil Deploy Apps Script Anda di sini. Kemudian klik tombol <strong>Simpan & Sinkronkan</strong> di bawah.
                 </p>
               </div>
@@ -2212,7 +3579,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <button
                 type="button"
                 onClick={handleCopyGASCode}
-                className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md shadow-teal-600/20 flex items-center gap-1.5 shrink-0 transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow flex items-center gap-1.5 shrink-0"
               >
                 {copiedCode ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
                 <span>{copiedCode ? 'Tersalin ke Clipboard!' : 'Salin Kode GAS (18 Sheets)'}</span>
@@ -2221,37 +3588,37 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">
-                  Google Apps Script Web App URL <span className="text-teal-600 font-bold">* (Tempel di sini)</span>
+                <label className="block text-slate-400 mb-1 font-semibold">
+                  Google Apps Script Web App URL <span className="text-emerald-400">* (Tempel di sini)</span>
                 </label>
                 <input
                   type="text"
                   placeholder="https://script.google.com/macros/s/.../exec"
                   value={metaForm.gas_api_url || ''}
                   onChange={(e) => setMetaForm({ ...metaForm, gas_api_url: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-indigo-500/50 text-white font-mono text-[11px] focus:outline-none focus:border-indigo-400"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">Google Spreadsheet ID (Opsional)</label>
+                <label className="block text-slate-400 mb-1 font-semibold">Google Spreadsheet ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
                   value={metaForm.google_sheet_id || ''}
                   onChange={(e) => setMetaForm({ ...metaForm, google_sheet_id: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
                 />
               </div>
             </div>
 
             {/* Save & Sync Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-teal-100">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
               <button
                 type="button"
                 onClick={handleSyncAllDataToGAS}
                 disabled={testingGAS}
-                className="px-4 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-emerald-900/40 hover:bg-emerald-800/80 text-emerald-300 border border-emerald-700/50 text-xs font-bold flex items-center gap-1.5 transition-all"
               >
                 <RefreshCw className={`w-4 h-4 ${testingGAS ? 'animate-spin' : ''}`} />
                 <span>Sinkronkan Semua Data 18 Sheets Sekarang</span>
@@ -2260,98 +3627,68 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <button
                 type="submit"
                 disabled={testingGAS}
-                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/25 flex items-center gap-2 cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2"
               >
                 <Check className="w-4 h-4" />
                 <span>{testingGAS ? 'Menyimpan & Menguji...' : 'Simpan Konfigurasi & Tes REST API'}</span>
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-xs text-slate-700 space-y-2">
-              <h4 className="font-bold text-teal-950 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-teal-600" />
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
+              <h4 className="font-bold text-white flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-indigo-400" />
                 <span>Panduan Cara Kerja Integration & Sinkronisasi:</span>
               </h4>
-              <ol className="list-decimal list-inside space-y-1.5 text-slate-600 text-[11px]">
+              <ol className="list-decimal list-inside space-y-1.5 text-slate-400 text-[11px]">
                 <li><strong>Tempel URL:</strong> Salin Web App URL dari Google Apps Script lalu tempel di kolom "Google Apps Script Web App URL".</li>
-                <li><strong>Klik Simpan:</strong> Klik tombol <strong className="text-teal-700">"Simpan Konfigurasi & Tes REST API"</strong> di atas. Sistem akan menyimpan URL ke database dan melakukan verifikasi ping.</li>
-                <li><strong>Sinkronkan Data:</strong> Klik tombol <strong className="text-teal-700">"Sinkronkan Semua Data 18 Sheets Sekarang"</strong> untuk mengunggah seluruh database lokal ke Google Spreadsheet.</li>
+                <li><strong>Klik Simpan:</strong> Klik tombol <strong className="text-indigo-300">"Simpan Konfigurasi & Tes REST API"</strong> di atas. Sistem akan menyimpan URL ke database dan melakukan verifikasi ping.</li>
+                <li><strong>Sinkronkan Data:</strong> Klik tombol <strong className="text-emerald-300">"Sinkronkan Semua Data 18 Sheets Sekarang"</strong> untuk mengunggah seluruh database lokal ke Google Spreadsheet.</li>
                 <li><strong>Akses "Anyone":</strong> Pastikan saat Deployment Web App di Google Apps Script, opsi <em>"Who has access"</em> diatur ke <strong>"Anyone" (Siapa Saja)</strong> agar API dapat diakses tanpa hambatan CORS.</li>
               </ol>
             </div>
           </div>
 
           {/* Firebase Cloud Firestore Setup & Multi-Device Real-Time Sync */}
-          <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-4 shadow-xl shadow-teal-950/5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-100">
+          <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
               <div>
-                <h3 className="text-base font-bold flex items-center gap-2 text-slate-900">
-                  <Key className="w-5 h-5 text-teal-600" />
+                <h3 className="text-base font-bold flex items-center gap-2">
+                  <Key className="w-5 h-5 text-amber-400" />
                   <span>Firebase Cloud Firestore (Koneksi Database Multi-Device Real-Time)</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   Secara default, aplikasi <strong>sudah terhubung secara otomatis</strong> ke Cloud Firestore real-time. Semua data admin dan hape jemaat tersinkron otomatis.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
                 {isQuotaExhausted() ? (
-                  <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
                     <span>Mode Manual / Penyimpanan Lokal Aktif</span>
                   </span>
                 ) : (
-                  <span className="px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-300 text-[11px] font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping" />
+                  <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                     <span>Cloud Sync Aktif: {getActiveFirebaseConfig().projectId}</span>
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Realtime Multi-Device Connection Status */}
-            <div className="p-4 rounded-2xl bg-emerald-50/90 border border-emerald-300 text-emerald-950 text-xs space-y-2 shadow-xs">
-              <div className="font-bold flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-2 text-sm text-emerald-900">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-600"></span>
-                  </span>
-                  <span>Sistem Realtime & Notifikasi Multi-Device: TERHUBUNG AKTIF</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await resetAllSyncAndQuota();
-                    setFirebaseStatusMsg({
-                      type: 'success',
-                      text: 'Status kuota telah direset dan koneksi realtime ke seluruh perangkat HP telah diperbarui!'
-                    });
-                  }}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-[11px] flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-                >
-                  <RefreshCw className="w-3 h-3" />
-                  <span>Pulihkan Realtime & Reset Kuota</span>
-                </button>
-              </div>
-              <p className="text-[11px] leading-relaxed text-emerald-800">
-                Aplikasi ini dilengkapi <strong>Server-Sent Events (SSE) Realtime Bridge</strong>. Setiap kali Admin mengirim notifikasi atau memperbarui agenda/warta/renungan, perubahan tersebut <strong>langsung masuk ke HP jemaat secara instan</strong> dengan suara lonceng dan banner peringatan tanpa hambatan kuota.
-              </p>
-            </div>
-
             {/* Quota Exhausted / Manual Mode Alert Banner */}
             {isQuotaExhausted() && (
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs space-y-2.5 shadow-xs">
-                <div className="font-bold flex items-center gap-2 text-amber-800 text-sm">
-                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-amber-600" />
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-2.5 shadow-inner">
+                <div className="font-bold flex items-center gap-2 text-amber-300 text-sm">
+                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-amber-400" />
                   <span>Pengalihan Otomatis: Mode Manual & Penyimpanan Lokal Aktif</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-amber-800/90">
+                <p className="text-[11px] leading-relaxed text-amber-100/90">
                   Kuota penulisan harian gratis (Firestore Daily Write Quota) pada project Firebase bawaan telah tercapai.
-                  Sistem telah secara otomatis mengalihkan penyimpanan ke <strong>Mode Penyimpanan Lokal (LocalStorage)</strong> dan SSE Realtime Bridge.
-                  Seluruh data Anda <strong>100% aman tersimpan di browser perangkat ini</strong> dan notifikasi tetap berjalan antar-perangkat.
+                  Sistem telah secara otomatis mengalihkan penyimpanan ke <strong>Mode Penyimpanan Lokal (LocalStorage)</strong>.
+                  Seluruh data Anda <strong>100% aman tersimpan di browser perangkat ini</strong> tanpa ada data yang hilang.
                 </p>
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-200">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-500/20">
                   <button
                     type="button"
                     onClick={async () => {
@@ -2360,13 +3697,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       setFirebaseStatusMsg({ type: res.success ? 'success' : 'error', text: res.message });
                       setTestingFirebase(false);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Coba Sinkronkan Manual Ke Cloud</span>
                   </button>
 
-                  <span className="text-[11px] text-amber-800">
+                  <span className="text-[11px] text-amber-300/80">
                     💡 <strong>Saran:</strong> Anda dapat memasukkan API Key Firebase Console milik Anda sendiri pada form di bawah untuk menggunakan kuota cloud fresh.
                   </span>
                 </div>
@@ -2378,25 +3715,25 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <div
                 className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between ${
                   firebaseStatusMsg.type === 'success'
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                    ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
                     : firebaseStatusMsg.type === 'error'
-                    ? 'bg-rose-50 border-rose-300 text-rose-800'
-                    : 'bg-teal-50 border-teal-300 text-teal-800'
+                    ? 'bg-rose-500/20 border-rose-500/30 text-rose-300'
+                    : 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300'
                 }`}
               >
                 <span>{firebaseStatusMsg.text}</span>
               </div>
             )}
 
-            <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-xs text-slate-700 space-y-2">
-              <p className="text-slate-700 leading-relaxed text-[11px]">
-                💡 <strong>Koneksi Bawaan vs Custom:</strong> Sistem telah menyediakan project Firebase otomatis (ID: <code className="text-teal-800 font-bold font-mono">{getActiveFirebaseConfig().projectId}</code>). Jika Anda ingin menggunakan project Firebase Console milik Anda sendiri, isi form di bawah ini dan klik <strong className="text-teal-700">Simpan Konfigurasi</strong>.
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
+              <p className="text-slate-300 leading-relaxed text-[11px]">
+                💡 <strong>Koneksi Bawaan vs Custom:</strong> Sistem telah menyediakan project Firebase otomatis (ID: <code className="text-indigo-300 font-mono">{getActiveFirebaseConfig().projectId}</code>). Jika Anda ingin menggunakan project Firebase Console milik Anda sendiri, isi form di bawah ini dan klik <strong className="text-indigo-300">Simpan Konfigurasi</strong>.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">Firebase API Key</label>
+                <label className="block text-slate-400 mb-1 font-semibold">Firebase API Key</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().apiKey}
@@ -2407,12 +3744,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, apiKey: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">Firebase Project ID</label>
+                <label className="block text-slate-400 mb-1 font-semibold">Firebase Project ID</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().projectId}
@@ -2423,12 +3760,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, projectId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">Firebase Auth Domain (Opsional)</label>
+                <label className="block text-slate-400 mb-1 font-semibold">Firebase Auth Domain (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().authDomain}
@@ -2439,12 +3776,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, authDomain: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">Firebase Storage Bucket (Opsional)</label>
+                <label className="block text-slate-400 mb-1 font-semibold">Firebase Storage Bucket (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().storageBucket}
@@ -2455,12 +3792,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, storageBucket: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">Messaging Sender ID (Opsional)</label>
+                <label className="block text-slate-400 mb-1 font-semibold">Messaging Sender ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().messagingSenderId}
@@ -2471,12 +3808,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, messagingSenderId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 mb-1 font-semibold">App ID (Opsional)</label>
+                <label className="block text-slate-400 mb-1 font-semibold">App ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().appId}
@@ -2487,35 +3824,19 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, appId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 mb-1 font-semibold">Firestore Database ID (Opsional, Default: (default))</label>
-                <input
-                  type="text"
-                  placeholder="(default)"
-                  value={metaForm.firebaseConfig?.firestoreDatabaseId || ''}
-                  onChange={(e) =>
-                    setMetaForm({
-                      ...metaForm,
-                      firebaseConfig: { ...metaForm.firebaseConfig, firestoreDatabaseId: e.target.value }
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-[11px] focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
                 />
               </div>
             </div>
 
             {/* FCM Push Notification Setup & Tester Card */}
-            <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-3">
+            <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-extrabold text-teal-950 flex items-center gap-1.5">
+                  <h4 className="text-xs font-extrabold text-indigo-200 flex items-center gap-1.5">
                     <span>🔔 Firebase Cloud Messaging (FCM) & Notifikasi Status Bar HP</span>
                   </h4>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
+                  <p className="text-[11px] text-slate-400 mt-0.5">
                     Notifikasi push dikirim melalui Service Worker bawaan sehingga tetap muncul di status bar atas HP dengan suara lonceng & getar meskipun aplikasi sedang ditutup.
                   </p>
                 </div>
@@ -2532,7 +3853,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       '/'
                     );
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/25 flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 flex items-center gap-1.5 cursor-pointer"
                 >
                   ⚡ Tes Send Notifikasi Status Bar HP (Suara & Getar)
                 </button>
@@ -2547,7 +3868,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       alert('Notifikasi aktif di browser/HP Anda.');
                     }
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   📱 Registrasi FCM Token Perangkat Ini
                 </button>
@@ -2555,7 +3876,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowFcmModal(true)}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-purple-600/40 hover:bg-purple-600/60 text-purple-200 border border-purple-500/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <Code className="w-3.5 h-3.5" />
                   <span>🛠️ Generator Code Payload FCM (Status Bar & Bunyi)</span>
@@ -2564,13 +3885,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Action buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-teal-100">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleTestFirebaseConnection}
                   disabled={testingFirebase}
-                  className="px-4 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-amber-900/40 hover:bg-amber-800/80 text-amber-300 border border-amber-700/50 text-xs font-bold flex items-center gap-1.5 transition-all"
                 >
                   <RefreshCw className={`w-4 h-4 ${testingFirebase ? 'animate-spin' : ''}`} />
                   <span>Tes Koneksi Firestore Real-time</span>
@@ -2580,7 +3901,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleResetToDefaultFirebase}
-                    className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
                   >
                     Gunakan Firebase Bawaan Otomatis
                   </button>
@@ -2589,7 +3910,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/25 flex items-center gap-2 cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2"
               >
                 <Check className="w-4 h-4" />
                 <span>Simpan Seluruh Konfigurasi API</span>
@@ -2597,15 +3918,15 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Danger Zone */}
-            <div className="pt-4 border-t border-teal-100 flex items-center justify-between">
+            <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
               <div>
-                <h4 className="text-xs font-bold text-rose-500">Area Reset & Emergency</h4>
+                <h4 className="text-xs font-bold text-rose-400">Area Reset & Emergency</h4>
                 <p className="text-[11px] text-slate-500">Reset ulang data lokal ke data awal seed 18 sheets.</p>
               </div>
               <button
                 type="button"
                 onClick={handleResetDataToDefaults}
-                className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-300 flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-rose-900/40 hover:bg-rose-900/80 text-rose-300 text-xs font-bold border border-rose-800 flex items-center gap-1.5"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Reset Database Seed</span>
@@ -2834,44 +4155,44 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Build Error Resolution Callout */}
-            <div className="p-4 sm:p-6 rounded-3xl bg-white border-2 border-teal-200/90 text-xs text-slate-800 space-y-5 shadow-xl shadow-teal-950/5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-100">
-                <div className="flex items-center gap-2.5 text-teal-900 font-extrabold text-sm sm:text-base">
-                  <AlertTriangle className="w-6 h-6 shrink-0 text-amber-500 animate-pulse" />
-                  <span>Solusi Error: &quot;Package name does not correspond to file path&quot;</span>
+            <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border-2 border-rose-500/50 text-xs text-slate-300 space-y-5 shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2.5 text-rose-400 font-extrabold text-sm sm:text-base">
+                  <AlertTriangle className="w-6 h-6 shrink-0 text-rose-400 animate-pulse" />
+                  <span>Solusi Error Gambar Terbaru: &quot;Package name does not correspond to file path&quot;</span>
                 </div>
                 <button
                   type="button"
                   disabled={isDownloadingAllEmbed}
                   onClick={handleDownloadAllEmbed}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-extrabold text-xs shadow-md shadow-teal-600/20 transition flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs shadow-lg transition flex items-center gap-2 cursor-pointer self-start sm:self-auto"
                 >
                   {isDownloadingAllEmbed ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                   <span>Unduh ZIP Proyek Utuh (Langsung Jadi)</span>
                 </button>
               </div>
 
-              {/* Detail Penyebab Error */}
-              <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-teal-950 text-xs space-y-3">
-                <p className="font-extrabold flex items-center gap-2 text-teal-900 text-sm">
-                  <span>💡 Penjelasan Struktur Folder Android Studio:</span>
+              {/* Detail Penyebab Error dari Screenshot User */}
+              <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs space-y-3">
+                <p className="font-extrabold flex items-center gap-2 text-white text-sm">
+                  <span>🚨 Mengapa Muncul Error pada Gambar Anda?</span>
                 </p>
-                <p className="leading-relaxed text-slate-700">
-                  Di panel kiri folder <code className="bg-white px-2 py-0.5 rounded text-teal-800 border border-teal-200 font-mono">app/src/main/java/</code>: pastikan file <strong className="text-teal-900">MyFirebaseMessagingService.java</strong> ditaruh <strong>di dalam</strong> folder paket <code className="bg-white px-2 py-0.5 rounded text-teal-800 border border-teal-200 font-mono">com.managementschool.app</code>, bukan di luarnya.
+                <p className="leading-relaxed text-slate-200">
+                  Pada screenshot Anda, di panel kiri folder <code className="bg-slate-950 px-2 py-0.5 rounded text-amber-300 font-mono">app/src/main/java/</code>: file <strong className="text-rose-300">MyFirebaseMessagingService.java</strong> ditaruh <strong>di luar</strong> folder paket! File tersebut berada sejajar dengan folder <code className="bg-slate-950 px-2 py-0.5 rounded text-emerald-400 font-mono">com.managementschool.app</code>, bukan di dalamnya.
                 </p>
-                <div className="bg-white p-4 rounded-xl border border-teal-200 space-y-2">
-                  <p className="text-teal-900 font-sans font-bold text-xs">Cara Cepat Memperbaikinya (Pilih Salah Satu):</p>
-                  <div className="space-y-2 text-slate-700 text-[12px]">
-                    <div className="p-2.5 rounded-lg bg-teal-50 border border-teal-300 text-teal-950">
+                <div className="bg-slate-950/90 p-4 rounded-xl border border-slate-800 space-y-2">
+                  <p className="text-emerald-400 font-sans font-bold text-xs">Cara Cepat Memperbaikinya (Pilih Salah Satu):</p>
+                  <div className="space-y-2 text-slate-300 text-[12px]">
+                    <div className="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-200">
                       <strong>✅ CARA 1 (Paling Mudah &amp; Anti-Gagal):</strong>
                       <p className="mt-1">
                         Klik tombol hijau <strong>&quot;Unduh ZIP Proyek Utuh&quot;</strong> di atas. Ekstrak filenya, lalu di Android Studio buka via menu <strong>File &gt; Open</strong>. Semua file &amp; foldernya sudah tersusun 100% sempurna di tempatnya masing-masing, Anda tinggal klik <strong>Build APK</strong>!
                       </p>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700">
+                    <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
                       <strong>🖱️ CARA 2 (Perbaiki di Android Studio Anda sekarang):</strong>
                       <p className="mt-1">
-                        Di panel pohon file sebelah kiri Android Studio, klik dan tahan (drag) file <span className="text-teal-800 font-bold">MyFirebaseMessagingService</span> lalu geser/jatuhkan (drop) masuk ke dalam folder <span className="text-teal-700 font-bold">com.managementschool.app</span>. Bila muncul kotak konfirmasi dialog, klik <strong>&quot;Refactor&quot;</strong>. Error merah langsung hilang!
+                        Di panel pohon file sebelah kiri Android Studio, klik dan tahan (drag) file <span className="text-amber-400 font-bold">MyFirebaseMessagingService</span> lalu geser/jatuhkan (drop) masuk ke dalam folder <span className="text-cyan-400 font-bold">com.managementschool.app</span>. Bila muncul kotak konfirmasi dialog, klik <strong>&quot;Refactor&quot;</strong>. Error merah langsung hilang!
                       </p>
                     </div>
                   </div>
@@ -2879,30 +4200,30 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
 
               {/* PETA LOKASI FILE & STRUKTUR FOLDER ANDROID STUDIO */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-teal-200 space-y-4 shadow-sm">
-                <div className="flex items-center gap-2 text-teal-950 font-extrabold text-sm">
-                  <Code className="w-4 h-4 text-teal-600" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                <div className="flex items-center gap-2 text-white font-extrabold text-sm">
+                  <Code className="w-4 h-4 text-cyan-400" />
                   <span>PETA STRUKTUR FOLDER LENGKAP: Kemana Setiap File Harus Ditempel</span>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {/* Pohon Direktori Visual */}
-                  <div className="p-4 rounded-xl bg-teal-950 text-teal-100 border border-teal-800 font-mono text-[11px] leading-relaxed select-all overflow-x-auto">
-                    <p className="text-amber-400 font-bold pb-2 border-b border-teal-800">📁 ManagementSchool (Root Proyek)</p>
+                  <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 font-mono text-[11px] leading-relaxed text-slate-300 select-all overflow-x-auto">
+                    <p className="text-amber-400 font-bold pb-2 border-b border-slate-800">📁 ManagementSchool (Root Proyek)</p>
                     <div className="pl-2 pt-2 space-y-1">
-                      <p className="text-teal-200/80">├── 📄 <span className="text-amber-300 font-bold">gradle.properties</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel android.useAndroidX=true disini</span></p>
-                      <p className="text-teal-200/80">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (Project)</p>
-                      <p className="text-teal-200/80">├── 📄 <span className="text-cyan-300 font-bold">settings.gradle.kts</span></p>
+                      <p className="text-slate-400">├── 📄 <span className="text-rose-400 font-bold">gradle.properties</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel android.useAndroidX=true disini</span></p>
+                      <p className="text-slate-400">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (Project)</p>
+                      <p className="text-slate-400">├── 📄 <span className="text-cyan-300 font-bold">settings.gradle.kts</span></p>
                       <p className="text-amber-400 font-bold pt-2">└── 📁 app (Modul Aplikasi)</p>
                       <div className="pl-4 space-y-1">
-                        <p className="text-teal-200/80">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (:app)</p>
-                        <p className="text-teal-200/80">├── 📄 <span className="text-amber-300 font-bold">google-services.json</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel di dalam folder app</span></p>
+                        <p className="text-slate-400">├── 📄 <span className="text-cyan-300 font-bold">build.gradle.kts</span> (:app)</p>
+                        <p className="text-slate-400">├── 📄 <span className="text-amber-300 font-bold">google-services.json</span> <span className="text-emerald-400 font-sans text-[10px]">&lt;-- Tempel di dalam folder app</span></p>
                         <p className="text-amber-400 font-bold pt-1">└── 📁 src / main</p>
                         <div className="pl-4 space-y-1">
-                          <p className="text-teal-200/80">├── 📄 <span className="text-emerald-300 font-bold">AndroidManifest.xml</span> <span className="text-cyan-400 font-sans text-[10px]">&lt;-- Tema DayNight.NoActionBar</span></p>
+                          <p className="text-slate-400">├── 📄 <span className="text-emerald-300 font-bold">AndroidManifest.xml</span> <span className="text-cyan-400 font-sans text-[10px]">&lt;-- Tema DayNight.NoActionBar</span></p>
                           <p className="text-amber-400 font-bold pt-1">└── 📁 java</p>
                           <div className="pl-4 space-y-1">
-                            <p className="text-emerald-400 font-bold">└── 📁 com.managementschool.app <span className="text-amber-300 font-sans text-[10px]">&lt;-- KEDUA FILE HARUS DI SINI!</span></p>
+                            <p className="text-emerald-400 font-bold">└── 📁 com.managementschool.app <span className="text-rose-400 font-sans text-[10px]">&lt;-- KEDUA FILE HARUS DI SINI!</span></p>
                             <div className="pl-4 space-y-0.5">
                               <p className="text-white font-bold">├── 📄 MainActivity.kt (atau .java)</p>
                               <p className="text-white font-bold">└── 📄 MyFirebaseMessagingService.java</p>
@@ -2915,50 +4236,50 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                   {/* Tabel Panduan Cepat Salin & Tempel */}
                   <div className="space-y-2 text-xs">
-                    <p className="text-slate-700 font-bold">Daftar File dan Lokasi Persisnya:</p>
+                    <p className="text-slate-400 font-bold">Daftar File dan Lokasi Persisnya:</p>
                     <div className="space-y-2">
-                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-teal-600"></span>
+                          <p className="font-bold text-white flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                             gradle.properties
                           </p>
-                          <p className="text-[11px] text-slate-500">Lokasi: Root paling luar project (sejajar dengan build.gradle.kts root).</p>
+                          <p className="text-[11px] text-slate-400">Lokasi: Root paling luar project (sejajar dengan build.gradle.kts root).</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-teal-100 text-teal-800 rounded text-[10px] shrink-0 font-bold border border-teal-300">Wajib AndroidX</span>
+                        <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded text-[10px] shrink-0 font-bold">Wajib AndroidX</span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
+                          <p className="font-bold text-white flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                             google-services.json
                           </p>
-                          <p className="text-[11px] text-slate-500">Lokasi: Di dalam folder <code>app/</code> (sejajar dengan <code>app/build.gradle.kts</code>).</p>
+                          <p className="text-[11px] text-slate-400">Lokasi: Di dalam folder <code>app/</code> (sejajar dengan <code>app/build.gradle.kts</code>).</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-300 rounded text-[10px] shrink-0 font-bold">Firebase FCM</span>
+                        <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded text-[10px] shrink-0 font-bold">Firebase FCM</span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-cyan-600"></span>
+                          <p className="font-bold text-white flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
                             AndroidManifest.xml
                           </p>
-                          <p className="text-[11px] text-slate-500">Lokasi: Di dalam folder <code>app/src/main/AndroidManifest.xml</code>.</p>
+                          <p className="text-[11px] text-slate-400">Lokasi: Di dalam folder <code>app/src/main/AndroidManifest.xml</code>.</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-cyan-50 text-cyan-800 border border-cyan-300 rounded text-[10px] shrink-0 font-bold">Manifest XML</span>
+                        <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 rounded text-[10px] shrink-0 font-bold">Manifest XML</span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-200 flex items-start justify-between gap-2">
+                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-bold text-teal-950 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                          <p className="font-bold text-white flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                             MainActivity &amp; MyFirebaseMessagingService
                           </p>
-                          <p className="text-[11px] text-slate-500">Lokasi: Di dalam package <code>app/src/main/java/{androidConfig.packageName.replace(/\./g, '/')}/</code>.</p>
+                          <p className="text-[11px] text-slate-400">Lokasi: Di dalam package <code>app/src/main/java/{androidConfig.packageName.replace(/\./g, '/')}/</code>.</p>
                         </div>
-                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded text-[10px] shrink-0 font-bold">Kode Java/KT</span>
+                        <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[10px] shrink-0 font-bold">Kode Java/KT</span>
                       </div>
                     </div>
                   </div>
@@ -2966,36 +4287,36 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
 
               {/* 3 Langkah Eksekusi Akhir */}
-              <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 text-teal-950 text-xs space-y-2">
-                <p className="font-bold text-teal-900 flex items-center gap-2">
+              <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/40 text-emerald-200 text-xs space-y-2">
+                <p className="font-bold text-emerald-300 flex items-center gap-2">
                   <span>🚀 3 Langkah Terakhir untuk Menghasilkan APK:</span>
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-slate-700">
-                  <div className="p-2.5 rounded-xl bg-white border border-teal-200">
-                    <p className="font-bold text-teal-900 text-[11px]">1. Sync Gradle</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Klik ikon gajah di kanan atas atau menu <strong>File &gt; Sync Project with Gradle Files</strong>.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-slate-300">
+                  <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <p className="font-bold text-white text-[11px]">1. Sync Gradle</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Klik ikon gajah di kanan atas atau menu <strong>File &gt; Sync Project with Gradle Files</strong>.</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-teal-200">
-                    <p className="font-bold text-teal-900 text-[11px]">2. Build APK</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Klik menu atas: <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>.</p>
+                  <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <p className="font-bold text-white text-[11px]">2. Build APK</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Klik menu atas: <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>.</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-teal-200">
-                    <p className="font-bold text-teal-900 text-[11px]">3. Ambil File APK</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Klik tulisan biru <strong>&quot;locate&quot;</strong> di pop-up kanan bawah. File APK siap dikirim ke HP!</p>
+                  <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <p className="font-bold text-white text-[11px]">3. Ambil File APK</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Klik tulisan biru <strong>&quot;locate&quot;</strong> di pop-up kanan bawah. File APK siap dikirim ke HP!</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Embedded Source Code Exporter */}
-            <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-4 sm:p-6 space-y-4 shadow-xl shadow-teal-950/5 text-slate-800">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-100">
+            <div className="rounded-3xl bg-slate-900 border border-slate-800 p-4 sm:p-6 space-y-4 shadow-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
                 <div>
-                  <h4 className="text-sm font-extrabold text-teal-950 flex items-center gap-2">
-                    <Code className="w-4 h-4 text-teal-600" />
+                  <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
+                    <Code className="w-4 h-4 text-emerald-400" />
                     <span>Salin Kode Sumber Proyek (Java, Kotlin &amp; Gradle)</span>
                   </h4>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     Pilih file di bawah, klik tombol Salin, lalu tempelkan ke project Android Studio Anda.
                   </p>
                 </div>
@@ -3008,7 +4329,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       setCopiedEmbedFile(currentEmbed.filename);
                       setTimeout(() => setCopiedEmbedFile(null), 2500);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-600/20 transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow transition flex items-center gap-1.5 cursor-pointer"
                   >
                     {copiedEmbedFile === currentEmbed.filename ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     <span>{copiedEmbedFile === currentEmbed.filename ? 'Tersalin!' : `Salin ${currentEmbed.filename}`}</span>
@@ -3017,7 +4338,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => downloadFile(currentEmbed.filename, currentEmbed.code)}
-                    className="px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <Download className="w-4 h-4" />
                     <span>Download</span>
@@ -3047,8 +4368,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     onClick={() => setSelectedEmbedCodeFile(f.id)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium transition whitespace-nowrap shrink-0 cursor-pointer ${
                       selectedEmbedCodeFile === f.id
-                        ? 'bg-teal-600 text-white shadow-md shadow-teal-600/25 ring-1 ring-teal-500 font-bold'
-                        : 'bg-teal-50/80 text-teal-900 border border-teal-200 hover:bg-teal-100'
+                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-1 ring-emerald-400'
+                        : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700/80'
                     }`}
                   >
                     {f.label}
@@ -3057,28 +4378,28 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
 
               {/* Code Pre Box */}
-              <div className="rounded-2xl border border-teal-200 bg-teal-950 text-teal-100 overflow-hidden shadow-inner">
-                <div className="px-4 py-2.5 bg-teal-900/90 border-b border-teal-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-teal-100 font-mono">
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden shadow-inner">
+                <div className="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-300 font-mono">
                   <div>
                     <span className="font-bold text-white flex items-center gap-2">
-                      <Code className="w-3.5 h-3.5 text-teal-300" />
+                      <Code className="w-3.5 h-3.5 text-emerald-400" />
                       {currentEmbed.filename}
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-teal-500/20 text-teal-300 border border-teal-500/30 font-sans">
+                      <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-sans">
                         {currentEmbed.tag}
                       </span>
                     </span>
-                    <p className="text-[11px] text-teal-200 font-sans mt-0.5">
-                      📁 Letak File di Android Studio: <span className="font-mono font-bold bg-teal-900 px-1.5 py-0.5 rounded border border-teal-700 text-teal-100">{currentEmbed.path}</span>
+                    <p className="text-[11px] text-cyan-400 font-sans mt-0.5">
+                      📁 Letak File di Android Studio: <span className="font-mono font-bold bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">{currentEmbed.path}</span>
                     </p>
                   </div>
-                  <span className="text-[11px] text-teal-300 shrink-0">Android SDK 34 • Java 17 / Kotlin 1.9+</span>
+                  <span className="text-[11px] text-slate-400 shrink-0">Android SDK 34 • Java 17 / Kotlin 1.9+</span>
                 </div>
                 {currentEmbed.desc && (
-                  <div className="px-4 py-2 bg-teal-900/50 border-b border-teal-800 text-teal-200 text-[11px]">
+                  <div className="px-4 py-2 bg-slate-950/80 border-b border-slate-900 text-slate-400 text-[11px]">
                     💡 {currentEmbed.desc}
                   </div>
                 )}
-                <pre className="p-4 text-xs font-mono text-teal-100 overflow-x-auto max-h-[440px] leading-relaxed select-all">
+                <pre className="p-4 text-xs font-mono text-emerald-300/90 overflow-x-auto max-h-[440px] leading-relaxed select-all">
                   {currentEmbed.code}
                 </pre>
               </div>

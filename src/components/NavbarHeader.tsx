@@ -31,6 +31,7 @@ import {
   Grid,
   ArrowLeft,
   Home,
+  Download,
   Palette,
   Search
 } from 'lucide-react';
@@ -79,34 +80,6 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [isNavbarCustomizerOpen, setIsNavbarCustomizerOpen] = useState(false);
-  const [showChurchSwitcher, setShowChurchSwitcher] = useState(false);
-  const [allTenants, setAllTenants] = useState(() => StorageManager.getTenants());
-  const activeTenantId = StorageManager.getActiveTenantId();
-  const churchSwitcherRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleSync = () => {
-      setAllTenants(StorageManager.getTenants());
-    };
-    window.addEventListener('cms_data_changed', handleSync);
-    window.addEventListener('storage', handleSync);
-    return () => {
-      window.removeEventListener('cms_data_changed', handleSync);
-      window.removeEventListener('storage', handleSync);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (churchSwitcherRef.current && !churchSwitcherRef.current.contains(e.target as Node)) {
-        setShowChurchSwitcher(false);
-      }
-    };
-    if (showChurchSwitcher) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showChurchSwitcher]);
 
   // Admin access check - color settings are strictly restricted to Admin & SuperAdmin
   const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
@@ -233,11 +206,11 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'SUPER_ADMIN':
-        return 'bg-purple-100 text-purple-900 border-purple-300 font-extrabold';
+        return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
       case 'ADMIN':
-        return 'bg-blue-100 text-blue-900 border-blue-300 font-extrabold';
+        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
       default:
-        return 'bg-emerald-100 text-emerald-900 border-emerald-300 font-extrabold';
+        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
     }
   };
 
@@ -318,11 +291,9 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
     .substring(0, 4)
     .toUpperCase() || 'JKC';
 
-  const isNavLight = theme.navbar.isLight;
-
   return (
     <header
-      className={`sticky top-0 z-30 h-16 w-full px-3 sm:px-6 flex items-center justify-between shadow-xs select-none transition-all duration-300 ${theme.navbar.containerClass} ${theme.navbar.borderBottomClass}`}
+      className={`sticky top-0 z-30 h-16 w-full px-3 sm:px-6 flex items-center justify-between transition-all duration-200 select-none ${theme.navbar.containerClass} ${theme.navbar.borderBottomClass}`}
       style={{
         ...theme.navbar.containerStyle,
         ...theme.navbar.borderBottomStyle
@@ -333,94 +304,65 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         {/* Mobile menu trigger */}
         <button
           onClick={onOpenMobileMenu}
-          className={`lg:hidden p-2 rounded-xl transition-all cursor-pointer shrink-0 ${
-            isNavLight ? 'text-slate-800 hover:text-teal-800 hover:bg-slate-100' : 'text-white hover:text-teal-200 hover:bg-white/10'
-          }`}
+          className={`lg:hidden p-2 rounded-xl transition-all cursor-pointer shrink-0 ${theme.navbar.iconBtnClass}`}
+          style={theme.navbar.iconBtnStyle}
           title="Buka Navigasi"
         >
-          <Grid className="w-5 h-5" style={{ color: settings?.warna_tema || '#0d9488' }} />
+          <Grid className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-600 flex items-center justify-center p-1.5 shadow-xs shrink-0 text-white"
-            style={{ backgroundColor: settings?.warna_tema || '#0d9488' }}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-1.5 shadow-xs shrink-0"
+            style={theme.navbar.menuBtnStyle}
           >
-            <Building2 className="w-5 h-5 text-white" />
+            <Building2 className="w-5 h-5" />
           </div>
-          <div className="flex flex-col min-w-0 relative" ref={churchSwitcherRef}>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <button
-                type="button"
-                onClick={() => allTenants.length > 1 && setShowChurchSwitcher(!showChurchSwitcher)}
-                className={`flex items-center gap-1.5 text-left group transition-all ${
-                  allTenants.length > 1 ? 'cursor-pointer hover:opacity-85' : 'cursor-default'
-                }`}
-                title={allTenants.length > 1 ? 'Klik untuk mengganti gereja' : undefined}
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              <h1
+                className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${theme.navbar.titleClass}`}
+                style={theme.navbar.titleStyle}
               >
-                <h1 className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${isNavLight ? 'text-slate-950 font-black' : 'text-white'}`}>
-                  {settings?.nama_gereja || 'Jesus Kingdom Christ'}
-                </h1>
-                {allTenants.length > 1 && (
-                  <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${showChurchSwitcher ? 'rotate-180' : ''} ${isNavLight ? 'text-slate-600' : 'text-slate-300'}`} />
-                )}
-              </button>
+                {settings?.nama_gereja || 'Jesus Kingdom Christ'}
+              </h1>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 border ${theme.navbar.pillClass}`}>
+                Portal Jemaat
+              </span>
             </div>
-            <p className={`text-[10px] sm:text-[11px] font-medium leading-none mt-0.5 truncate max-w-[160px] xs:max-w-none ${
-              isNavLight ? 'text-slate-600 font-semibold' : 'text-slate-300'
-            }`}>
+            <p
+              className={`text-[10px] sm:text-[11px] font-medium leading-none mt-0.5 truncate max-w-[160px] xs:max-w-none ${theme.navbar.subtextClass}`}
+              style={theme.navbar.subtextStyle}
+            >
               Sistem Informasi Manajemen Gereja
             </p>
-
-            {/* Church Switcher Dropdown */}
-            {showChurchSwitcher && allTenants.length > 1 && (
-              <div
-                className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl p-2 z-50 text-white backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150"
-              >
-                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800 text-xs font-bold text-slate-400">
-                  <span className="flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-teal-400" />
-                    Pilih Gereja / Jemaat
-                  </span>
-                  <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full">{allTenants.length} Cabang</span>
-                </div>
-                <div className="max-h-60 overflow-y-auto space-y-1 mt-1 p-1">
-                  {allTenants.map((t) => {
-                    const isCurrent = t.tenant_id === activeTenantId;
-                    return (
-                      <button
-                        key={t.tenant_id}
-                        type="button"
-                        onClick={() => {
-                          StorageManager.setActiveTenantId(t.tenant_id);
-                          setShowChurchSwitcher(false);
-                        }}
-                        className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-left transition-all ${
-                          isCurrent
-                            ? 'bg-teal-600 text-white font-bold shadow-xs'
-                            : 'hover:bg-slate-800 text-slate-200'
-                        }`}
-                      >
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold truncate">{t.nama_gereja}</p>
-                          <p className={`text-[10px] truncate ${isCurrent ? 'text-teal-100' : 'text-slate-400'}`}>
-                            {t.alamat || t.kode_unik || t.tenant_id}
-                          </p>
-                        </div>
-                        {isCurrent && <Check className="w-4 h-4 shrink-0 text-white" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Right section: Admin Tools, Realtime Clock, Notifications, Profile Dropdown */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
+      {/* Middle section: Search Box */}
+      <div
+        className={`hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs w-44 lg:w-56 cursor-pointer transition-all ${theme.navbar.searchBoxClass}`}
+        style={theme.navbar.searchBoxStyle}
+      >
+        <Search className="w-3.5 h-3.5 opacity-70 shrink-0" />
+        <span className="truncate">Cari Cepat...</span>
+        <kbd className="ml-auto text-[10px] bg-black/10 dark:bg-white/20 border border-current/20 rounded px-1.5 py-0.5 opacity-70 font-mono">/</kbd>
+      </div>
 
+      {/* Right section: Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* 1. Firebase Live Pill */}
+        <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shadow-2xs ${theme.navbar.pillClass}`}>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>Firebase Live</span>
+        </div>
+
+        {/* 2. Admin Pill */}
+        <div className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shadow-2xs ${theme.navbar.pillClass}`}>
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span>{isAdmin ? 'Admin Gereja' : 'Jemaat Gereja'}</span>
+        </div>
         {currentUser.role === 'SUPER_ADMIN' && onOpenSuperAdminSaaSPanel && (
           <button
             onClick={onOpenSuperAdminSaaSPanel}
@@ -433,22 +375,34 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           </button>
         )}
 
-        {/* Waktu & Jam Realtime - Khusus Admin di Layar Desktop (Disembunyikan di HP / Jemaat agar tidak numpuk) */}
-        {isAdmin && (
-          <div
-            className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold shadow-2xs transition-all shrink-0 ${
-              isNavLight
-                ? 'bg-slate-100/90 border-slate-300/80 text-slate-800'
-                : 'bg-white/10 border-white/20 text-white'
-            }`}
-            title={dateStr ? `${dateStr} · Waktu Realtime` : 'Jam Realtime'}
+        {canInstallPWA && !isGuest && currentUser.role !== 'GUEST' && (
+          <button
+            onClick={onInstallPWA}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 text-xs font-semibold shadow-sm transition-all border border-emerald-500/30 cursor-pointer"
+            title="Download File APK Android (.apk)"
           >
-            <Clock className={`w-3.5 h-3.5 shrink-0 ${isNavLight ? 'text-teal-700' : 'text-teal-300'}`} />
-            <div className="flex items-center gap-1.5 leading-none font-mono">
-              <span className="font-bold tracking-tight">{timeStr || '00:00:00 WIB'}</span>
-              <span className="hidden xl:inline text-[11px] font-sans font-medium opacity-75">· {dateStr}</span>
-            </div>
-          </div>
+            <Download className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Download APK</span>
+          </button>
+        )}
+
+        {/* Tombol Akses Cepat Konversi Android Studio & Download google-services.json (Khusus Admin) */}
+        {isAdmin && (
+          <button
+            onClick={() => {
+              if (onOpenAndroidStudioModal) {
+                onOpenAndroidStudioModal();
+              } else {
+                window.dispatchEvent(new CustomEvent('open_android_studio_modal'));
+              }
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 border border-emerald-400/40 cursor-pointer active:scale-95 transition-all"
+            title="Konversi Android Studio & Download google-services.json"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-amber-300" />
+            <span className="hidden md:inline">📱 Android Studio &amp; FCM</span>
+            <span className="md:hidden">Android</span>
+          </button>
         )}
 
         {/* Quick Navbar Customizer Palette Button - ONLY FOR ADMIN */}
@@ -461,14 +415,10 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                 setIsNavbarCustomizerOpen(true);
               }
             }}
-            className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black shadow-sm cursor-pointer active:scale-95 transition-all shrink-0 border ${
-              isNavLight
-                ? 'bg-amber-100 hover:bg-amber-200/90 text-amber-950 border-amber-300'
-                : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-white border-amber-500/40'
-            }`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-white border border-amber-500/40 text-xs font-black shadow-lg shadow-amber-500/10 cursor-pointer active:scale-95 transition-all shrink-0"
             title="Klik untuk Kustomisasi Warna & Tema Navbar (Khusus Admin)"
           >
-            <Palette className={`w-4 h-4 ${isNavLight ? 'text-amber-800' : 'text-amber-400'} group-hover:rotate-12 transition-transform`} />
+            <Palette className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
             <span className="hidden xs:inline">Warna Navbar</span>
           </button>
         )}
@@ -481,12 +431,11 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
               setShowUserDropdown(false);
             }}
             className={`relative p-2.5 rounded-xl ${theme.navbar.iconBtnClass} transition-all cursor-pointer`}
+            style={theme.navbar.iconBtnStyle}
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className={`absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 animate-pulse ${
-                isNavLight ? 'ring-white' : 'ring-[#0f172a]'
-              }`} />
+              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-[#0f172a] animate-pulse" />
             )}
           </button>
 
@@ -606,30 +555,20 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                   setShowUserDropdown(!showUserDropdown);
                   setShowNotifDropdown(false);
                 }}
-                className={`flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full transition-all cursor-pointer border ${
-                  isNavLight
-                    ? 'hover:bg-slate-100/90 border-slate-200/90 text-slate-800'
-                    : 'hover:bg-white/10 border-transparent hover:border-white/20 text-white'
-                }`}
+                className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full hover:bg-slate-100 transition-all cursor-pointer border border-transparent hover:border-slate-200"
               >
                 <div className="w-8 h-8 rounded-full bg-[#00a859] flex items-center justify-center font-bold text-white text-xs shadow-xs">
                   {currentUser.nama.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="hidden lg:block text-left min-w-0">
-                  <p className={`text-xs font-bold leading-tight truncate max-w-[130px] ${
-                    isNavLight ? 'text-slate-950 font-black' : 'text-white'
-                  }`}>
+                  <p className="text-xs font-bold leading-tight text-slate-800 truncate max-w-[130px]">
                     {currentUser.nama}
                   </p>
-                  <p className={`text-[10px] font-medium leading-none mt-0.5 truncate ${
-                    isNavLight ? 'text-slate-600 font-semibold' : 'text-slate-300'
-                  }`}>
+                  <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5 truncate">
                     {currentUser.role === 'ADMIN' ? 'Admin Gereja' : currentUser.role}
                   </p>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 hidden lg:block ${
-                  isNavLight ? 'text-slate-700' : 'text-slate-300'
-                }`} />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />
               </button>
 
               {showUserDropdown && (
@@ -657,6 +596,23 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                     >
                       <Palette className="w-4 h-4 text-teal-600" />
                       <span>Kustom Warna &amp; Tema Navbar</span>
+                    </button>
+                  )}
+
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        setShowUserDropdown(false);
+                        if (onOpenAndroidStudioModal) {
+                          onOpenAndroidStudioModal();
+                        } else {
+                          window.dispatchEvent(new CustomEvent('open_android_studio_modal'));
+                        }
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-teal-800 hover:bg-teal-50 text-xs font-bold transition-all text-left cursor-pointer"
+                    >
+                      <Smartphone className="w-4 h-4 text-teal-600" />
+                      <span>📱 Android Studio &amp; FCM Pro</span>
                     </button>
                   )}
 

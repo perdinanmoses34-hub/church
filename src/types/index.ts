@@ -299,12 +299,31 @@ export interface AppSettings {
   card_size?: 'COMPACT' | 'NORMAL' | 'SPACIOUS';
   card_border_accent?: 'NONE' | 'ACCENT_FULL' | 'ACCENT_LEFT' | 'ACCENT_TOP' | 'ACCENT_GLOW';
   font_family?: 'SANS' | 'SERIF' | 'MONO';
-  // Navbar Visual Customization
+  // Navbar Visual Customization (Lengkap & Terpadu)
   navbar_theme_preset?: 'DEFAULT_DARK' | 'MATCH_THEME' | 'MIDNIGHT_BLUE' | 'DEEP_PURPLE' | 'EMERALD_GREEN' | 'CRIMSON_RED' | 'WARM_GOLD' | 'PURE_BLACK' | 'CLEAN_LIGHT' | 'CUSTOM_HEX';
   navbar_custom_bg?: string;
-  navbar_custom_text?: 'AUTO' | 'WHITE' | 'DARK' | 'GOLD';
+  navbar_gradient_to?: string;
+  navbar_gradient_dir?: 'to-r' | 'to-br' | 'to-b' | '135deg';
+  navbar_custom_text?: 'AUTO' | 'WHITE' | 'DARK' | 'GOLD' | 'CUSTOM';
+  navbar_custom_text_color?: string;
   navbar_style?: 'GLASS' | 'SOLID' | 'GRADIENT';
-  navbar_border_accent?: 'NONE' | 'THEME_COLOR' | 'SUBTLE' | 'GLOW';
+  navbar_border_accent?: 'NONE' | 'THEME_COLOR' | 'SUBTLE' | 'GLOW' | 'CUSTOM';
+  navbar_border_color?: string;
+  navbar_border_width?: '1' | '2' | '3' | '4';
+  navbar_icon_bg_preset?: 'NONE' | 'SUBTLE' | 'SOLID' | 'MATCH_THEME' | 'CUSTOM_HEX';
+  navbar_icon_bg?: string;
+  navbar_icon_color?: string;
+  navbar_icon_shape?: 'ROUNDED' | 'CIRCLE' | 'PILL' | 'SQUARE';
+  navbar_icon_border?: boolean;
+  // Button Icon & Quick Action Visual Customization (Seluruh Aplikasi)
+  button_icon_preset?: 'MATCH_THEME' | 'SOLID' | 'GRADIENT' | 'GLASS' | 'CUSTOM_HEX' | 'DEFAULT_COLORFUL';
+  button_icon_bg?: string;
+  button_icon_color?: string;
+  button_icon_shape?: 'ROUNDED_XL' | 'CIRCLE' | 'SQUARE' | 'PILL';
+  button_icon_shadow?: 'NONE' | 'SOFT' | 'GLOW' | 'DEEP';
+  button_icon_border?: boolean;
+  button_icon_border_color?: string;
+  button_icon_active_bg?: string;
   // Footer & Bottom Nav Visual Customization
   footer_theme_preset?: 'DEFAULT_DARK' | 'MATCH_THEME' | 'MATCH_NAVBAR' | 'MIDNIGHT_BLUE' | 'DEEP_PURPLE' | 'EMERALD_GREEN' | 'CRIMSON_RED' | 'WARM_GOLD' | 'PURE_BLACK' | 'CLEAN_LIGHT' | 'CUSTOM_HEX';
   footer_custom_bg?: string;
