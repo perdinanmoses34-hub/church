@@ -69,7 +69,7 @@ import {
   Church,
   Grid
 } from 'lucide-react';
-import { getNavbarTheme, getFooterTheme, getButtonIconTheme } from '../../utils/themeHelper';
+import { getNavbarTheme, getFooterTheme, getButtonIconTheme, isColorLight } from '../../utils/themeHelper';
 import { DashboardVisibilityManager } from '../dashboard/DashboardVisibilityManager';
 import {
   sendOneSignalPushNotification,
@@ -867,15 +867,52 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
     return matchQuery && matchRole && matchStatus;
   });
 
+  // Dynamic Background & Contrast Detection
+  const activePreset = metaForm?.theme_preset || settings?.theme_preset || 'EMERALD_LIGHT';
+  const isDark =
+    activePreset === 'DARK_SLATE' ||
+    activePreset === 'MIDNIGHT_BLUE' ||
+    activePreset === 'DEEP_PURPLE' ||
+    activePreset === 'FOREST_GREEN' ||
+    activePreset === 'WARM_GOLD';
+  const isLight = !isDark;
+
+  const currentThemeHex = (metaForm?.warna_tema || settings?.warna_tema || '#059669').trim();
+  const isThemeHexLight = isColorLight(currentThemeHex);
+  const themeContrastTextColor = isThemeHexLight ? '#0f172a' : '#ffffff';
+
+  // Helper for contrast text on any background hex
+  const getContrastText = (hexColor?: string, darkText = '#0f172a', lightText = '#ffffff') => {
+    return isColorLight(hexColor) ? darkText : lightText;
+  };
+
+  // Adaptive classes for sections & cards
+  const cardContainerClass = `rounded-3xl border-2 p-6 space-y-4 shadow-xl transition-all duration-300 ${
+    isLight
+      ? 'bg-white border-teal-100 text-slate-800 shadow-teal-900/5'
+      : 'bg-slate-900/95 border-slate-800 text-white shadow-2xl'
+  }`;
+  const sectionTitleClass = `text-base font-extrabold pb-3 border-b flex items-center justify-between ${
+    isLight ? 'text-slate-900 border-teal-100' : 'text-white border-slate-800'
+  }`;
+  const inputClass = `w-full px-3.5 py-2.5 rounded-xl border text-xs font-semibold outline-none transition-all ${
+    isLight
+      ? 'bg-slate-50 border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500'
+      : 'bg-slate-950 border-slate-700 text-white focus:border-teal-400'
+  }`;
+  const labelClass = `block mb-1 font-bold text-xs ${isLight ? 'text-slate-700' : 'text-slate-300'}`;
+
   return (
     <div className="space-y-6 pb-32 sm:pb-24">
       {/* Header Title Section */}
-      <div className="flex flex-col gap-1.5 pb-4 border-b border-slate-800">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+      <div className={`flex flex-col gap-1.5 pb-4 border-b ${isLight ? 'border-teal-100' : 'border-slate-800'}`}>
+        <h2 className={`text-xl sm:text-2xl font-extrabold tracking-tight flex items-center gap-2 ${
+          isLight ? 'text-slate-900' : 'text-white'
+        }`}>
           <ShieldCheck className="w-6 h-6 text-teal-600" />
           <span>Pengaturan &amp; Kustomisasi Sistem</span>
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500">
+        <p className={`text-xs sm:text-sm ${isLight ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
           {currentUser.role === 'SUPER_ADMIN'
             ? 'Kontrol penuh profil gereja, kustomisasi visual, video social, Google Sheets GAS, Firebase API & RBAC Users.'
             : 'Kelola profil gereja, judul dashboard, tema warna, logo, video media sosial, serta akun user (Admin & Jemaat).'}
@@ -883,16 +920,22 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
       </div>
 
       {/* Tab Navigation Menu (Sticky, Scrollable & Bebas Tertutup Layar) */}
-      <div className="sticky top-20 z-20 bg-white/95 backdrop-blur-md py-2.5 -mx-2 px-2 sm:-mx-4 sm:px-4 border-b border-teal-100 shadow-sm">
+      <div className={`sticky top-20 z-20 backdrop-blur-md py-2.5 -mx-2 px-2 sm:-mx-4 sm:px-4 border-b transition-colors ${
+        isLight ? 'bg-white/95 border-teal-100 shadow-xs' : 'bg-slate-900/95 border-slate-800 shadow-md'
+      }`}>
         <div className="w-full overflow-x-auto scrollbar-thin pb-1">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-teal-50/80 border border-teal-200 min-w-max shadow-inner">
+          <div className={`inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl min-w-max transition-colors ${
+            isLight ? 'bg-teal-50/80 border border-teal-200 shadow-inner' : 'bg-slate-950/80 border border-slate-800'
+          }`}>
             <button
               type="button"
               onClick={() => setActiveTab('METADATA')}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
                 activeTab === 'METADATA'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
-                  : 'text-slate-700 hover:text-teal-800 hover:bg-white/80'
+                  : isLight
+                  ? 'text-slate-700 hover:text-teal-900 hover:bg-white/90'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
               }`}
             >
               <Palette className="w-4 h-4 text-amber-500" />
@@ -905,7 +948,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
                 activeTab === 'PUSH_NOTIF'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
-                  : 'text-slate-700 hover:text-teal-800 hover:bg-white/80'
+                  : isLight
+                  ? 'text-slate-700 hover:text-teal-900 hover:bg-white/90'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
               }`}
             >
               <Bell className="w-4 h-4 text-amber-500" />
@@ -918,12 +963,16 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
                 activeTab === 'ANDROID_STUDIO'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25 ring-1 ring-teal-400'
-                  : 'text-slate-700 hover:text-teal-800 hover:bg-white/80'
+                  : isLight
+                  ? 'text-slate-700 hover:text-teal-900 hover:bg-white/90'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
               }`}
             >
               <Smartphone className="w-4 h-4 text-teal-600" />
               <span>3. 📱 Android Studio &amp; FCM Pro</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-extrabold border border-teal-300">
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold border ${
+                isLight ? 'bg-teal-100 text-teal-900 border-teal-300' : 'bg-teal-900/60 text-teal-200 border-teal-500/50'
+              }`}>
                 Fix Build
               </span>
             </button>
@@ -934,7 +983,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
                 activeTab === 'USERS'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
-                  : 'text-slate-700 hover:text-teal-800 hover:bg-white/80'
+                  : isLight
+                  ? 'text-slate-700 hover:text-teal-900 hover:bg-white/90'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
               }`}
             >
               <Users className="w-4 h-4 text-teal-700" />
@@ -953,7 +1004,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
                 activeTab === 'GAS_FIREBASE'
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
-                  : 'text-slate-700 hover:text-teal-800 hover:bg-white/80'
+                  : isLight
+                  ? 'text-slate-700 hover:text-teal-900 hover:bg-white/90'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
               } ${currentUser.role !== 'SUPER_ADMIN' ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               {currentUser.role !== 'SUPER_ADMIN' ? (
@@ -971,7 +1024,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
                   activeTab === 'AUDIT'
                     ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/25'
-                    : 'text-slate-700 hover:text-teal-800 hover:bg-white/80'
+                    : isLight
+                    ? 'text-slate-700 hover:text-teal-900 hover:bg-white/90'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
                 }`}
               >
                 <Activity className="w-4 h-4 text-amber-500" />
@@ -984,11 +1039,17 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
       {/* Role Notice for Admin */}
       {currentUser.role === 'ADMIN' && (
-        <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-200 text-xs flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0 text-indigo-400" />
+        <div className={`p-4 rounded-2xl border-2 flex items-center gap-3 transition-colors ${
+          isLight
+            ? 'bg-indigo-50/90 border-indigo-200 text-indigo-950 shadow-xs'
+            : 'bg-indigo-950/60 border-indigo-500/40 text-indigo-100 shadow-inner'
+        }`}>
+          <AlertCircle className={`w-5 h-5 shrink-0 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`} />
           <div>
-            <span className="font-bold block">Akses Level Admin Gereja:</span>
-            <span>Anda dapat mengubah profil gereja, judul dashboard, tema warna, logo, dan tautan video media sosial, serta mengelola akun User (Admin & JEMAAT) dan password untuk gereja Anda. Fitur Google Sheets REST API & Audit Logs dikunci khusus untuk SuperAdmin.</span>
+            <span className={`font-bold block text-xs sm:text-sm ${isLight ? 'text-indigo-950' : 'text-indigo-200'}`}>Akses Level Admin Gereja:</span>
+            <span className={`text-[11px] sm:text-xs leading-relaxed ${isLight ? 'text-indigo-900 font-medium' : 'text-indigo-200/90'}`}>
+              Anda dapat mengubah profil gereja, judul dashboard, tema warna, logo, dan tautan video media sosial, serta mengelola akun User (Admin &amp; JEMAAT) dan password untuk gereja Anda. Fitur Google Sheets REST API &amp; Audit Logs dikunci khusus untuk SuperAdmin.
+            </span>
           </div>
         </div>
       )}
@@ -997,20 +1058,36 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
       {activeTab === 'METADATA' && (
         <div className="space-y-6">
           {/* Quick Jump Banner for Navbar */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-indigo-900/30 to-purple-900/20 border-2 border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-xl">
+          <div className={`p-4 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md transition-all ${
+            isLight
+              ? 'bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100/70 border-amber-300 text-slate-900'
+              : 'bg-gradient-to-r from-amber-950/80 via-slate-900 to-indigo-950/80 border-amber-500/40 text-white shadow-xl'
+          }`}>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+              <div className={`p-2.5 rounded-xl border shrink-0 ${
+                isLight
+                  ? 'bg-amber-100 text-amber-800 border-amber-300 shadow-xs'
+                  : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+              }`}>
                 <Palette className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2">
+                <h4 className={`text-xs sm:text-sm font-black flex items-center gap-2 ${
+                  isLight ? 'text-amber-950' : 'text-amber-300'
+                }`}>
                   <span>Pengaturan Warna &amp; Tema Navbar (Bar Navigasi Paling Atas)</span>
-                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                    isLight
+                      ? 'bg-amber-200/90 text-amber-950 border-amber-400'
+                      : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                  }`}>
                     Lokasi di Sini
                   </span>
                 </h4>
-                <p className="text-[11px] text-slate-300 mt-0.5">
-                  Ubah tema warna preset, kode hex bebas, blur, dan garis bawah navbar di sini atau melalui tombol <strong>"Warna Navbar"</strong> di bar paling atas.
+                <p className={`text-[11px] mt-0.5 ${
+                  isLight ? 'text-slate-700 font-medium' : 'text-slate-300'
+                }`}>
+                  Ubah tema warna preset, kode hex bebas, blur, dan garis bawah navbar di sini atau melalui tombol <strong className={isLight ? 'text-amber-950 font-bold' : 'text-amber-300'}>"Warna Navbar"</strong> di bar paling atas.
                 </p>
               </div>
             </div>
@@ -1022,7 +1099,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
               }}
-              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer active:scale-95"
+              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md flex items-center justify-center gap-1.5 shrink-0 transition-all cursor-pointer active:scale-95"
             >
               <span>Lompat ke Pengaturan Navbar</span>
               <ArrowDown className="w-4 h-4 text-slate-950" />
@@ -1030,47 +1107,61 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
           </div>
 
           {savedSuccess && (
-            <div className="p-4 bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-300 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-between gap-3 shadow-2xl animate-bounce">
+            <div className={`p-4 border-2 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-between gap-3 shadow-md animate-bounce ${
+              isLight
+                ? 'bg-emerald-50 border-emerald-400 text-emerald-950'
+                : 'bg-emerald-950/70 border-emerald-500/50 text-emerald-200 shadow-2xl'
+            }`}>
               <div className="flex items-center gap-2">
-                <Check className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>✅ Perubahan berhasil disimpan! Pengaturan Lebar Kartu & Kustomisasi Tampilan Portal/Dashboard Jemaat telah diperbarui secara realtime.</span>
+                <Check className={`w-5 h-5 shrink-0 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`} />
+                <span>✅ Perubahan berhasil disimpan! Pengaturan Lebar Kartu &amp; Kustomisasi Tampilan Portal/Dashboard Jemaat telah diperbarui secara realtime.</span>
               </div>
-              <span className="text-[10px] font-mono bg-emerald-600/40 px-2.5 py-1 rounded-lg text-emerald-200 shrink-0">Status: Tersimpan</span>
+              <span className={`text-[10px] font-mono px-2.5 py-1 rounded-lg shrink-0 ${
+                isLight
+                  ? 'bg-emerald-200 text-emerald-950 font-bold border border-emerald-300'
+                  : 'bg-emerald-600/40 text-emerald-200'
+              }`}>Status: Tersimpan</span>
             </div>
           )}
 
           <form onSubmit={handleSaveMeta} className="space-y-6 text-xs">
             {/* Section 1: Identitas & Informasi Gereja */}
-            <div className="rounded-3xl bg-white border-2 border-teal-100 shadow-xl shadow-teal-900/5 p-6 text-slate-800 space-y-4">
-              <h3 className="text-base font-extrabold text-slate-900 pb-3 border-b border-teal-100 flex items-center justify-between">
+            <div className={cardContainerClass}>
+              <h3 className={sectionTitleClass}>
                 <span className="flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-teal-600" />
                   <span>1. Identitas &amp; Profil Gereja</span>
                 </span>
-                <span className="text-[10px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full">
+                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  isLight ? 'text-teal-700 bg-teal-50 border-teal-200' : 'text-teal-300 bg-teal-950/60 border-teal-700'
+                }`}>
                   Header &amp; Contact Info
                 </span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Nama Gereja *</label>
+                  <label className={labelClass}>Nama Gereja *</label>
                   <input
                     type="text"
                     required
                     value={metaForm.nama_gereja}
                     onChange={(e) => setMetaForm({ ...metaForm, nama_gereja: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-bold focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="sm:col-span-2 space-y-3 bg-teal-50/50 p-4 rounded-2xl border border-teal-200/80">
-                  <label className="font-bold text-teal-900 flex items-center gap-1.5 text-xs">
+                <div className={`sm:col-span-2 space-y-3 p-4 rounded-2xl border transition-colors ${
+                  isLight ? 'bg-teal-50/50 border-teal-200/80 text-teal-950' : 'bg-slate-950/80 border-slate-800 text-slate-200'
+                }`}>
+                  <label className={`font-bold flex items-center gap-1.5 text-xs ${isLight ? 'text-teal-900' : 'text-teal-300'}`}>
                     <ImageIcon className="w-4 h-4 text-teal-600" />
                     <span>Logo &amp; Gambar Identitas Gereja (Tersinkronisasi Realtime)</span>
                   </label>
 
-                  <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-teal-200 shadow-2xs">
+                  <div className={`flex flex-col sm:flex-row items-center gap-4 p-3.5 rounded-xl border shadow-2xs transition-colors ${
+                    isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                  }`}>
                     <div className="shrink-0 relative">
                       <img
                         src={metaForm.logo || DEFAULT_CHURCH_LOGO}
@@ -1092,7 +1183,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           value={metaForm.logo || ''}
                           placeholder="Paste URL Gambar Logo atau Upload File..."
                           onChange={(e) => setMetaForm({ ...metaForm, logo: e.target.value })}
-                          className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-mono text-[11px] focus:bg-white focus:border-teal-500 outline-none"
+                          className={`flex-1 px-3 py-2 rounded-xl font-mono text-[11px] outline-none border ${
+                            isLight
+                              ? 'bg-slate-50 border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500'
+                              : 'bg-slate-950 border-slate-700 text-white focus:border-teal-400'
+                          }`}
                         />
                         <label className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-all shadow-xs">
                           <Upload className="w-4 h-4" />
@@ -1118,11 +1213,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] text-slate-500 font-semibold">Pilih Preset Logo:</span>
+                        <span className={`text-[10px] font-semibold ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Pilih Preset Logo:</span>
                         <button
                           type="button"
                           onClick={() => setMetaForm({ ...metaForm, logo: DEFAULT_CHURCH_LOGO })}
-                          className="px-2.5 py-1 rounded-lg bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold hover:bg-teal-100"
+                          className={`px-2.5 py-1 rounded-lg border text-[10px] font-bold ${
+                            isLight ? 'bg-teal-50 text-teal-800 border-teal-200 hover:bg-teal-100' : 'bg-slate-800 text-teal-300 border-slate-700 hover:bg-slate-700'
+                          }`}
                         >
                           Gold Cross Badge
                         </button>
@@ -1134,7 +1231,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                               logo: 'https://images.unsplash.com/photo-1548625361-185966347898?w=300&auto=format&fit=crop&q=80'
                             })
                           }
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold hover:bg-slate-200"
+                          className={`px-2.5 py-1 rounded-lg border text-[10px] font-semibold ${
+                            isLight ? 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                          }`}
                         >
                           Cathedral Photo
                         </button>
@@ -1144,128 +1243,134 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Judul Header Dashboard</label>
+                  <label className={labelClass}>Judul Header Dashboard</label>
                   <input
                     type="text"
                     value={metaForm.header_title || ''}
                     placeholder="Jesus Kingdom Christ"
                     onChange={(e) => setMetaForm({ ...metaForm, header_title: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-semibold focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Subtitle Header Dashboard</label>
+                  <label className={labelClass}>Subtitle Header Dashboard</label>
                   <input
                     type="text"
                     value={metaForm.header_subtitle || ''}
                     placeholder="Sistem Informasi Management & Portal Layanan Jemaat"
                     onChange={(e) => setMetaForm({ ...metaForm, header_subtitle: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Alamat Lengkap</label>
+                  <label className={labelClass}>Alamat Lengkap</label>
                   <input
                     type="text"
                     value={metaForm.alamat}
                     onChange={(e) => setMetaForm({ ...metaForm, alamat: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Nomor Telepon / Hotline</label>
+                  <label className={labelClass}>Nomor Telepon / Hotline</label>
                   <input
                     type="text"
                     value={metaForm.telepon}
                     onChange={(e) => setMetaForm({ ...metaForm, telepon: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Email Resmi Sekretariat</label>
+                  <label className={labelClass}>Email Resmi Sekretariat</label>
                   <input
                     type="email"
                     value={metaForm.email}
                     onChange={(e) => setMetaForm({ ...metaForm, email: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Website Resmi</label>
+                  <label className={labelClass}>Website Resmi</label>
                   <input
                     type="text"
                     value={metaForm.website || ''}
                     onChange={(e) => setMetaForm({ ...metaForm, website: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
               </div>
             </div>
 
             {/* Section 1.5: Pengaturan Rekening Bank & QRIS Persembahan Digital */}
-            <div className="rounded-3xl bg-white border-2 border-teal-100 shadow-xl shadow-teal-900/5 p-6 text-slate-800 space-y-4">
-              <h3 className="text-base font-extrabold text-slate-900 pb-3 border-b border-teal-100 flex items-center justify-between">
+            <div className={cardContainerClass}>
+              <h3 className={sectionTitleClass}>
                 <span className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-teal-600" />
                   <span>Pengaturan Rekening Bank &amp; QRIS Persembahan Digital</span>
                 </span>
-                <span className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-full">
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                  isLight ? 'text-teal-800 bg-teal-50 border-teal-200' : 'text-teal-300 bg-teal-950/60 border-teal-700'
+                }`}>
                   Transfer Dashboard Jemaat
                 </span>
               </h3>
 
-              <p className="text-xs text-slate-500">
+              <p className={`text-xs ${isLight ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
                 Informasi bank dan barcode QRIS ini akan ditampilkan kepada jemaat pada Portal Jemaat ketika melakukan transfer persembahan / perpuluhan digital.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Nama Bank *</label>
+                  <label className={labelClass}>Nama Bank *</label>
                   <input
                     type="text"
                     placeholder="Contoh: Bank BCA / Mandiri / BRI"
                     value={metaForm.rekening_bank_nama || ''}
                     onChange={(e) => setMetaForm({ ...metaForm, rekening_bank_nama: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-semibold focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Nomor Rekening Bank *</label>
+                  <label className={labelClass}>Nomor Rekening Bank *</label>
                   <input
                     type="text"
                     placeholder="Contoh: 527-089-1122"
                     value={metaForm.rekening_bank_nomor || ''}
                     onChange={(e) => setMetaForm({ ...metaForm, rekening_bank_nomor: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono font-bold focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Atas Nama Rekening *</label>
+                  <label className={labelClass}>Atas Nama Rekening *</label>
                   <input
                     type="text"
                     placeholder="Contoh: Jesus Kingdom Christ"
                     value={metaForm.rekening_bank_atas_nama || ''}
                     onChange={(e) => setMetaForm({ ...metaForm, rekening_bank_atas_nama: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-semibold focus:bg-white focus:border-teal-500 outline-none"
+                    className={inputClass}
                   />
                 </div>
               </div>
 
               {/* QRIS Image Upload / Link */}
-              <div className="space-y-3 bg-teal-50/50 p-4 rounded-2xl border border-teal-200/80">
-                <label className="font-bold text-teal-900 flex items-center gap-1.5 text-xs">
+              <div className={`space-y-3 p-4 rounded-2xl border transition-colors ${
+                isLight ? 'bg-teal-50/50 border-teal-200/80 text-teal-950' : 'bg-slate-950/80 border-slate-800 text-slate-200'
+              }`}>
+                <label className={`font-bold flex items-center gap-1.5 text-xs ${isLight ? 'text-teal-900' : 'text-teal-300'}`}>
                   <QrCode className="w-4 h-4 text-teal-600" />
                   <span>Gambar / Barcode Kode QRIS Gereja</span>
                 </label>
 
-                <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-teal-200 shadow-2xs">
+                <div className={`flex flex-col sm:flex-row items-center gap-4 p-3.5 rounded-xl border shadow-2xs transition-colors ${
+                  isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                }`}>
                   {metaForm.qris_image_url ? (
                     <div className="shrink-0 relative">
                       <img
@@ -1281,7 +1386,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       </span>
                     </div>
                   ) : (
-                    <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-teal-300 flex items-center justify-center text-teal-700 text-xs text-center p-2 bg-teal-50/30">
+                    <div className={`w-24 h-24 rounded-2xl border-2 border-dashed flex items-center justify-center text-xs text-center p-2 ${
+                      isLight ? 'border-teal-300 text-teal-700 bg-teal-50/30' : 'border-slate-700 text-slate-400 bg-slate-950'
+                    }`}>
                       Belum ada QRIS
                     </div>
                   )}
@@ -1293,7 +1400,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         value={metaForm.qris_image_url || ''}
                         placeholder="Paste URL Gambar Kode QRIS atau Upload File..."
                         onChange={(e) => setMetaForm({ ...metaForm, qris_image_url: e.target.value })}
-                        className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-mono text-[11px] focus:bg-white focus:border-teal-500 outline-none"
+                        className={`flex-1 px-3 py-2 rounded-xl font-mono text-[11px] outline-none border ${
+                          isLight
+                            ? 'bg-slate-50 border-teal-200 text-slate-800 focus:bg-white focus:border-teal-500'
+                            : 'bg-slate-950 border-slate-700 text-white focus:border-teal-400'
+                        }`}
                       />
                       <label className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-all shadow-xs">
                         <Upload className="w-4 h-4" />
@@ -1317,7 +1428,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         />
                       </label>
                     </div>
-                    <p className="text-[10px] text-slate-500">
+                    <p className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                       Format disarankan: PNG / JPEG / WebP / SVG. Gambar QRIS akan dipindai oleh aplikasi mobile banking / m-banking jemaat.
                     </p>
                   </div>
@@ -1326,13 +1437,15 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Section 2: Tema Warna, Background & Custom Visual Admin */}
-            <div className="rounded-3xl bg-white border-2 border-teal-100 shadow-xl shadow-teal-900/5 p-6 text-slate-800 space-y-4">
-              <h3 className="text-base font-extrabold text-slate-900 pb-3 border-b border-teal-100 flex items-center justify-between">
+            <div className={cardContainerClass}>
+              <h3 className={sectionTitleClass}>
                 <span className="flex items-center gap-2">
                   <Palette className="w-5 h-5 text-teal-600" />
                   <span>2. Kustomisasi Tema Warna &amp; Style Dashboard Admin</span>
                 </span>
-                <span className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-full">
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                  isLight ? 'text-teal-800 bg-teal-50 border-teal-200' : 'text-teal-300 bg-teal-950/60 border-teal-700'
+                }`}>
                   Visual Styling
                 </span>
               </h3>
@@ -1340,48 +1453,59 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Preset Warna Background */}
                 <div className="space-y-2">
-                  <label className="block text-slate-700 font-bold text-xs">Preset Background Admin</label>
+                  <label className={labelClass}>Preset Background Admin</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'EMERALD_LIGHT', label: '🌿 Emerald Light (Universal)', bg: 'from-emerald-50 via-teal-50 to-white text-emerald-950', border: 'border-emerald-500' },
-                      { id: 'DARK_SLATE', label: '🌌 Dark Slate', bg: 'from-slate-900 to-indigo-950', border: 'border-indigo-500/50' },
-                      { id: 'MIDNIGHT_BLUE', label: '💙 Midnight Blue', bg: 'from-slate-950 to-blue-950', border: 'border-blue-500/50' },
-                      { id: 'DEEP_PURPLE', label: '💜 Amethyst Dark', bg: 'from-neutral-950 to-purple-950', border: 'border-purple-500/50' },
-                      { id: 'FOREST_GREEN', label: '🌲 Emerald Dark', bg: 'from-stone-950 to-emerald-950', border: 'border-emerald-500/50' },
-                      { id: 'WARM_GOLD', label: '⚜️ Warm Gold Luxe', bg: 'from-neutral-950 to-amber-950', border: 'border-amber-500/50' },
-                      { id: 'LUXE_LIGHT', label: '☀️ Minimalist Light', bg: 'from-slate-100 to-white text-slate-900', border: 'border-slate-300' }
+                      { id: 'EMERALD_LIGHT', label: '🌿 Emerald Light (Universal)', bg: 'from-emerald-50 via-teal-50 to-white', isLight: true, border: 'border-emerald-500' },
+                      { id: 'DARK_SLATE', label: '🌌 Dark Slate', bg: 'from-slate-900 to-indigo-950', isLight: false, border: 'border-indigo-500/50' },
+                      { id: 'MIDNIGHT_BLUE', label: '💙 Midnight Blue', bg: 'from-slate-950 to-blue-950', isLight: false, border: 'border-blue-500/50' },
+                      { id: 'DEEP_PURPLE', label: '💜 Amethyst Dark', bg: 'from-neutral-950 to-purple-950', isLight: false, border: 'border-purple-500/50' },
+                      { id: 'FOREST_GREEN', label: '🌲 Emerald Dark', bg: 'from-stone-950 to-emerald-950', isLight: false, border: 'border-emerald-500/50' },
+                      { id: 'WARM_GOLD', label: '⚜️ Warm Gold Luxe', bg: 'from-neutral-950 to-amber-950', isLight: false, border: 'border-amber-500/50' },
+                      { id: 'LUXE_LIGHT', label: '☀️ Minimalist Light', bg: 'from-slate-100 to-white', isLight: true, border: 'border-slate-300' }
                     ].map((t) => (
                       <button
                         type="button"
                         key={t.id}
                         onClick={() => setMetaForm({ ...metaForm, theme_preset: t.id as any })}
-                        className={`p-2.5 rounded-xl bg-gradient-to-br ${t.bg} border text-left text-[11px] font-bold transition-all flex items-center justify-between ${
+                        className={`p-2.5 rounded-xl bg-gradient-to-br ${t.bg} border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
+                          t.isLight ? 'text-slate-900' : 'text-white'
+                        } ${
                           (metaForm.theme_preset || 'EMERALD_LIGHT') === t.id
                             ? `${t.border} ring-2 ring-teal-500 shadow-md scale-[1.02]`
-                            : 'border-slate-200 opacity-70 hover:opacity-100'
+                            : isLight
+                            ? 'border-slate-200 opacity-75 hover:opacity-100'
+                            : 'border-slate-700 opacity-75 hover:opacity-100'
                         }`}
                       >
                         <span className="truncate">{t.label}</span>
-                        {(metaForm.theme_preset || 'EMERALD_LIGHT') === t.id && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
+                        {(metaForm.theme_preset || 'EMERALD_LIGHT') === t.id && (
+                          <Check className={`w-3.5 h-3.5 shrink-0 ${t.isLight ? 'text-teal-600' : 'text-teal-400'}`} />
+                        )}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Custom Unlimited Hex Color Picker */}
-                <div className="sm:col-span-2 lg:col-span-3 p-4 sm:p-5 rounded-2xl bg-teal-50/50 border border-teal-200 space-y-4">
+                <div className={`sm:col-span-2 lg:col-span-3 p-4 sm:p-5 rounded-2xl border space-y-4 transition-colors ${
+                  isLight ? 'bg-teal-50/50 border-teal-200' : 'bg-slate-950/80 border-slate-800'
+                }`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <label className="block text-teal-900 font-extrabold text-xs sm:text-sm">
+                      <label className={`block font-extrabold text-xs sm:text-sm ${isLight ? 'text-teal-900' : 'text-teal-300'}`}>
                         🎨 Kustom Kode Warna Hex (Contoh: #059669) - Bebas Tanpa Batas
                       </label>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
+                      <p className={`text-[11px] mt-0.5 ${isLight ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
                         Kustomisasi warna tema bebas dengan memasukkan kode hex apa saja (seperti #059669, #0F766E, #10B981). Berlaku untuk tampilan Admin &amp; Akun Jemaat.
                       </p>
                     </div>
                     <div
-                      className="w-12 h-12 rounded-2xl border-2 border-white shadow-md shrink-0 flex items-center justify-center font-mono text-[10px] text-white font-black"
-                      style={{ backgroundColor: metaForm.warna_tema || '#059669' }}
+                      className="w-12 h-12 rounded-2xl border-2 border-white/80 shadow-md shrink-0 flex items-center justify-center font-mono text-[10px] font-black"
+                      style={{
+                        backgroundColor: metaForm.warna_tema || '#059669',
+                        color: isColorLight(metaForm.warna_tema || '#059669') ? '#0f172a' : '#ffffff'
+                      }}
                     >
                       {metaForm.warna_tema || '#059669'}
                     </div>
@@ -1391,7 +1515,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     {/* Hex Code Text Input */}
                     <div className="sm:col-span-2 flex items-center gap-2">
                       <div className="relative flex-1">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-mono font-bold text-xs">HEX:</span>
+                        <span className={`absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-xs ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>HEX:</span>
                         <input
                           type="text"
                           value={metaForm.warna_tema || '#059669'}
@@ -1400,11 +1524,19 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             setMetaForm({ ...metaForm, warna_tema: val });
                           }}
                           placeholder="#059669"
-                          className="w-full pl-14 pr-4 py-2.5 rounded-xl bg-white border border-teal-200 text-slate-900 font-mono font-extrabold text-sm focus:ring-2 focus:ring-teal-500 outline-none uppercase"
+                          className={`w-full pl-14 pr-4 py-2.5 rounded-xl border font-mono font-extrabold text-sm focus:ring-2 focus:ring-teal-500 outline-none uppercase ${
+                            isLight
+                              ? 'bg-white border-teal-200 text-slate-900'
+                              : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
                         />
                       </div>
                       {/* HTML Color Picker Button */}
-                      <label className="p-2.5 rounded-xl bg-white hover:bg-teal-50 border border-teal-200 cursor-pointer flex items-center gap-2 text-xs font-bold text-teal-800 shrink-0 shadow-2xs">
+                      <label className={`p-2.5 rounded-xl border cursor-pointer flex items-center gap-2 text-xs font-bold shrink-0 shadow-2xs ${
+                        isLight
+                          ? 'bg-white hover:bg-teal-50 border-teal-200 text-teal-800'
+                          : 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-teal-300'
+                      }`}>
                         <input
                           type="color"
                           value={metaForm.warna_tema && /^#[0-9A-F]{6}$/i.test(metaForm.warna_tema) ? metaForm.warna_tema : '#059669'}
@@ -1417,11 +1549,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                     {/* Live Preview Button Tag */}
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-slate-500 font-semibold">Pratinjau:</span>
+                      <span className={`text-[11px] font-semibold ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Pratinjau:</span>
                       <button
                         type="button"
-                        className="px-3.5 py-1.5 rounded-xl text-white font-extrabold text-xs shadow-md transition-all"
-                        style={{ backgroundColor: metaForm.warna_tema || '#059669' }}
+                        className="px-3.5 py-1.5 rounded-xl font-extrabold text-xs shadow-md transition-all"
+                        style={{
+                          backgroundColor: metaForm.warna_tema || '#059669',
+                          color: isColorLight(metaForm.warna_tema || '#059669') ? '#0f172a' : '#ffffff'
+                        }}
                       >
                         Warna Utama
                       </button>
@@ -1430,7 +1565,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                   {/* Quick Preset Color Hex Chips */}
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 block mb-2">Rekomendasi Warna Hex Populer:</span>
+                    <span className={`text-[11px] font-bold block mb-2 ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>Rekomendasi Warna Hex Populer:</span>
                     <div className="flex flex-wrap gap-2">
                       {[
                         { name: 'Terracotta', hex: '#CD5C5C' },
@@ -1443,28 +1578,35 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         { name: 'Fuchsia', hex: '#D946EF' },
                         { name: 'Deep Teal', hex: '#0F766E' },
                         { name: 'Warm Gold', hex: '#B45309' }
-                      ].map((chip) => (
-                        <button
-                          key={chip.hex}
-                          type="button"
-                          onClick={() => setMetaForm({ ...metaForm, warna_tema: chip.hex })}
-                          className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                            (metaForm.warna_tema || '#CD5C5C').toUpperCase() === chip.hex.toUpperCase()
-                              ? 'border-white text-white ring-2 ring-amber-400 shadow-md scale-105'
-                              : 'border-slate-800 text-slate-300 hover:border-slate-600 bg-slate-900'
-                          }`}
-                        >
-                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: chip.hex }} />
-                          <span>{chip.name} ({chip.hex})</span>
-                        </button>
-                      ))}
+                      ].map((chip) => {
+                        const isSelected = (metaForm.warna_tema || '#059669').toUpperCase() === chip.hex.toUpperCase();
+                        const isChipLight = isColorLight(chip.hex);
+                        return (
+                          <button
+                            key={chip.hex}
+                            type="button"
+                            onClick={() => setMetaForm({ ...metaForm, warna_tema: chip.hex })}
+                            style={isSelected ? { backgroundColor: chip.hex, color: isChipLight ? '#0f172a' : '#ffffff', borderColor: chip.hex } : undefined}
+                            className={`px-3 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'shadow-md scale-105 ring-2 ring-teal-500 font-extrabold'
+                                : isLight
+                                ? 'border-teal-200 bg-white text-slate-800 hover:bg-teal-50 hover:border-teal-300 shadow-2xs'
+                                : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500'
+                            }`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/10" style={{ backgroundColor: chip.hex }} />
+                            <span>{chip.name} ({chip.hex})</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
 
                 {/* Accent Color */}
                 <div className="space-y-2">
-                  <label className="block text-slate-700 font-bold text-xs">Warna Aksen Utama System</label>
+                  <label className={labelClass}>Warna Aksen Utama System</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { id: 'INDIGO', label: '🟣 Royal Indigo', color: 'bg-indigo-600' },
@@ -1481,7 +1623,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         className={`p-2.5 rounded-xl border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
                           (metaForm.accent_color || 'INDIGO') === ac.id
                             ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
-                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
+                            : isLight
+                            ? 'border-slate-200 bg-white text-slate-700 hover:border-teal-300'
+                            : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                         }`}
                       >
                         <div className="flex items-center gap-2 truncate">
@@ -1495,7 +1639,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                 {/* Style Kartu */}
                 <div className="space-y-2">
-                  <label className="block text-slate-700 font-bold text-xs">Style Kartu &amp; Border</label>
+                  <label className={labelClass}>Style Kartu &amp; Border</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { id: 'GLASS', label: '✨ Glassmorphism', desc: 'Blur Transparan' },
@@ -1510,11 +1654,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                           (metaForm.card_style || 'GLASS') === c.id
                             ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
-                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
+                            : isLight
+                            ? 'border-slate-200 bg-white text-slate-700 hover:border-teal-300'
+                            : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                         }`}
                       >
                         <div className="font-bold text-[11px]">{c.label}</div>
-                        <div className="text-[9px] text-slate-400 mt-0.5">{c.desc}</div>
+                        <div className={`text-[9px] mt-0.5 ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>{c.desc}</div>
                       </button>
                     ))}
                   </div>
@@ -1522,7 +1668,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                 {/* Style Garis Pinggir Kartu (Border Line Accent) */}
                 <div className="space-y-2">
-                  <label className="block text-slate-700 font-bold text-xs">Gaya Garis Pinggir Kartu (Border Color)</label>
+                  <label className={labelClass}>Gaya Garis Pinggir Kartu (Border Color)</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { id: 'ACCENT_FULL', label: '🔲 Border Warna Tema', desc: 'Penuh Warna Custom' },
@@ -1537,31 +1683,35 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                           (metaForm.card_border_accent || 'ACCENT_FULL') === b.id
                             ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-sm'
-                            : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300'
+                            : isLight
+                            ? 'border-slate-200 bg-white text-slate-700 hover:border-teal-300'
+                            : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                         }`}
                       >
                         <div className="font-bold text-[11px]">{b.label}</div>
-                        <div className="text-[9px] text-slate-400 mt-0.5">{b.desc}</div>
+                        <div className={`text-[9px] mt-0.5 ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>{b.desc}</div>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* SUB-SECTION 2.1: KUSTOMISASI BUTTON ICON & TOMBOL MENU CEPAT (SELURUH APLIKASI) */}
-                <div id="button-icon-customizer-section" className="sm:col-span-2 lg:col-span-3 p-4 sm:p-6 rounded-2xl bg-teal-50/70 border-2 border-teal-300 space-y-5 scroll-mt-24 text-slate-800 shadow-sm">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-200">
+                <div id="button-icon-customizer-section" className={`sm:col-span-2 lg:col-span-3 p-4 sm:p-6 rounded-2xl border-2 space-y-5 scroll-mt-24 shadow-sm transition-colors ${
+                  isLight ? 'bg-teal-50/70 border-teal-300 text-slate-800' : 'bg-slate-900 border-teal-500/50 text-white'
+                }`}>
+                  <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b ${isLight ? 'border-teal-200' : 'border-slate-800'}`}>
                     <div className="flex items-center gap-2.5">
                       <div className="p-2 rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/25">
                         <Box className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
+                        <h4 className={`text-sm sm:text-base font-black flex items-center gap-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
                           <span>Kustomisasi Background &amp; Bentuk Button Icon (Tombol Icon)</span>
-                          <span className="px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold border border-teal-300">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${isLight ? 'bg-teal-100 text-teal-800 border-teal-300' : 'bg-teal-900/60 text-teal-200 border-teal-700'}`}>
                             Fitur Baru
                           </span>
                         </h4>
-                        <p className="text-[11px] text-slate-600 mt-0.5">
+                        <p className={`text-[11px] mt-0.5 ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
                           Atur latar belakang (background), warna simbol, bentuk (lingkaran, kotak, rounded), dan efek glow pada tombol icon di menu cepat, modul, dan kartu.
                         </p>
                       </div>
@@ -1572,13 +1722,15 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   {(() => {
                     const iconTheme = getButtonIconTheme(metaForm);
                     return (
-                      <div className="space-y-2 p-4 rounded-2xl bg-white border border-teal-200 shadow-xs">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                          <span className="flex items-center gap-1.5 text-teal-800">
+                      <div className={`space-y-2 p-4 rounded-2xl border shadow-xs transition-colors ${
+                        isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-white'
+                      }`}>
+                        <div className={`flex items-center justify-between text-xs font-bold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                          <span className={`flex items-center gap-1.5 ${isLight ? 'text-teal-800' : 'text-teal-300'}`}>
                             <Eye className="w-4 h-4 text-teal-600" />
                             <span>Pratinjau Langsung Button Icon (Menu Cepat &amp; Modul):</span>
                           </span>
-                          <span className="text-[10px] text-slate-500 font-mono">
+                          <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                             Preset: {metaForm.button_icon_preset || 'MATCH_THEME'} &bull; Bentuk: {metaForm.button_icon_shape || 'ROUNDED_XL'}
                           </span>
                         </div>
@@ -1596,7 +1748,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             return (
                               <div
                                 key={idx}
-                                className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex flex-col items-center text-center gap-2 group transition-all"
+                                className={`p-3 rounded-2xl border flex flex-col items-center text-center gap-2 group transition-all ${
+                                  isLight ? 'bg-slate-50/80 border-slate-200/80' : 'bg-slate-900 border-slate-800'
+                                }`}
                               >
                                 <div
                                   className={`w-11 h-11 ${iconTheme.getIconContainerClass()}`}
@@ -1604,7 +1758,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                 >
                                   <IconComponent className="w-5 h-5 transition-transform group-hover:scale-110" />
                                 </div>
-                                <span className="text-[11px] font-extrabold text-slate-800 truncate w-full">
+                                <span className={`text-[11px] font-extrabold truncate w-full ${isLight ? 'text-slate-800' : 'text-slate-100'}`}>
                                   {item.label}
                                 </span>
                               </div>
@@ -1617,7 +1771,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                   {/* 1. Preset Background Button Icon */}
                   <div className="space-y-2">
-                    <label className="block text-slate-700 font-bold text-xs">
+                    <label className={labelClass}>
                       1. Pilih Preset Gaya Background Button Icon:
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -1637,15 +1791,17 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             onClick={() => setMetaForm({ ...metaForm, button_icon_preset: preset.id as any })}
                             className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                               isSelected
-                                ? 'border-teal-500 ring-2 ring-teal-300 bg-white text-teal-950 font-bold shadow-md'
-                                : 'border-teal-200 bg-white/80 text-slate-700 hover:border-teal-400'
+                                ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-100 text-teal-950 font-bold shadow-md'
+                                : isLight
+                                ? 'border-teal-200 bg-white/80 text-slate-700 hover:border-teal-400'
+                                : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                             }`}
                           >
                             <div className={`w-6 h-6 rounded-lg ${preset.color} flex items-center justify-center text-[10px] font-bold mb-1.5 shadow-2xs`}>
                               ✓
                             </div>
                             <p className="text-[11px] font-bold truncate">{preset.name}</p>
-                            <p className="text-[9px] text-slate-400 truncate mt-0.5">{preset.desc}</p>
+                            <p className={`text-[9px] truncate mt-0.5 ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>{preset.desc}</p>
                           </button>
                         );
                       })}
@@ -1655,9 +1811,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   {/* 2. Custom Hex Background & Color Pickers */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Warna Background Hex Khusus */}
-                    <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
+                    <div className={`p-3.5 rounded-2xl border space-y-2 shadow-xs transition-colors ${
+                      isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-white'
+                    }`}>
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <label className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
                           <Palette className="w-3.5 h-3.5 text-teal-600" />
                           <span>2. Warna Background Button Icon (Hex)</span>
                         </label>
@@ -1678,9 +1836,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             })
                           }
                           placeholder="#059669"
-                          className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-xs uppercase outline-none font-bold"
+                          className={`flex-1 px-3 py-1.5 rounded-xl border font-mono text-xs uppercase outline-none font-bold ${
+                            isLight ? 'bg-slate-50 border-teal-200 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
                         />
-                        <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold flex items-center gap-1">
+                        <label className={`px-2.5 py-1.5 rounded-xl border cursor-pointer text-xs font-bold flex items-center gap-1 ${
+                          isLight ? 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-teal-300'
+                        }`}>
                           <input
                             type="color"
                             value={
@@ -1723,7 +1885,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                 button_icon_bg: sw.hex
                               })
                             }
-                            className="px-2 py-0.5 rounded-lg border border-slate-200 text-[9px] font-bold flex items-center gap-1 bg-slate-50 hover:bg-white"
+                            className={`px-2 py-0.5 rounded-lg border text-[9px] font-bold flex items-center gap-1 cursor-pointer ${
+                              isLight ? 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-white' : 'border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800'
+                            }`}
                           >
                             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: sw.hex }} />
                             <span>{sw.name}</span>
@@ -1733,9 +1897,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     </div>
 
                     {/* Warna Simbol / Icon */}
-                    <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
+                    <div className={`p-3.5 rounded-2xl border space-y-2 shadow-xs transition-colors ${
+                      isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-white'
+                    }`}>
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <label className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
                           <Sun className="w-3.5 h-3.5 text-amber-500" />
                           <span>3. Warna Simbol / Icon di Dalam Tombol</span>
                         </label>
@@ -1750,9 +1916,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           value={metaForm.button_icon_color || ''}
                           onChange={(e) => setMetaForm({ ...metaForm, button_icon_color: e.target.value })}
                           placeholder="Default: Putih (#ffffff)"
-                          className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-xs uppercase outline-none font-bold"
+                          className={`flex-1 px-3 py-1.5 rounded-xl border font-mono text-xs uppercase outline-none font-bold ${
+                            isLight ? 'bg-slate-50 border-teal-200 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                          }`}
                         />
-                        <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold flex items-center gap-1">
+                        <label className={`px-2.5 py-1.5 rounded-xl border cursor-pointer text-xs font-bold flex items-center gap-1 ${
+                          isLight ? 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-teal-300'
+                        }`}>
                           <input
                             type="color"
                             value={
@@ -1780,7 +1950,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             key={sw.hex}
                             type="button"
                             onClick={() => setMetaForm({ ...metaForm, button_icon_color: sw.hex })}
-                            className="px-2 py-0.5 rounded-lg border border-slate-200 text-[9px] font-bold flex items-center gap-1 bg-slate-50 hover:bg-white"
+                            className={`px-2 py-0.5 rounded-lg border text-[9px] font-bold flex items-center gap-1 cursor-pointer ${
+                              isLight ? 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-white' : 'border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800'
+                            }`}
                           >
                             <span className="w-2 h-2 rounded-full border border-slate-300" style={{ backgroundColor: sw.hex }} />
                             <span>{sw.name}</span>
@@ -1794,7 +1966,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Bentuk Background Icon */}
                     <div className="space-y-1.5">
-                      <label className="block text-slate-700 font-bold text-xs">
+                      <label className={labelClass}>
                         4. Bentuk Tombol Icon:
                       </label>
                       {[
@@ -1810,18 +1982,20 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
                             (metaForm.button_icon_shape || 'ROUNDED_XL') === shape.id
                               ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                              : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <p className="text-[11px] font-bold">{shape.label}</p>
-                          <p className="text-[9px] text-slate-400">{shape.desc}</p>
+                          <p className={`text-[9px] ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>{shape.desc}</p>
                         </button>
                       ))}
                     </div>
 
                     {/* Efek Bayangan / Glow */}
                     <div className="space-y-1.5">
-                      <label className="block text-slate-700 font-bold text-xs">
+                      <label className={labelClass}>
                         5. Efek Bayangan / Shadow:
                       </label>
                       {[
@@ -1837,42 +2011,52 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
                             (metaForm.button_icon_shadow || 'SOFT') === sh.id
                               ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                              : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <p className="text-[11px] font-bold">{sh.label}</p>
-                          <p className="text-[9px] text-slate-400">{sh.desc}</p>
+                          <p className={`text-[9px] ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>{sh.desc}</p>
                         </button>
                       ))}
                     </div>
 
                     {/* Border Garis Pinggir */}
                     <div className="space-y-1.5">
-                      <label className="block text-slate-700 font-bold text-xs">
+                      <label className={labelClass}>
                         6. Border Garis Pinggir:
                       </label>
-                      <label className="flex items-center gap-2 p-2 rounded-xl border border-teal-200 bg-white cursor-pointer">
+                      <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer ${
+                        isLight ? 'border-teal-200 bg-white text-slate-800' : 'border-slate-700 bg-slate-950 text-white'
+                      }`}>
                         <input
                           type="checkbox"
                           checked={Boolean(metaForm.button_icon_border)}
                           onChange={(e) => setMetaForm({ ...metaForm, button_icon_border: e.target.checked })}
                           className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4"
                         />
-                        <span className="text-[11px] font-bold text-slate-800">Aktifkan Garis Border</span>
+                        <span className="text-[11px] font-bold">Aktifkan Garis Border</span>
                       </label>
 
                       {metaForm.button_icon_border && (
-                        <div className="p-2.5 rounded-xl border border-teal-200 bg-white space-y-1.5">
-                          <span className="text-[10px] font-bold text-slate-600 block">Warna Border Icon:</span>
+                        <div className={`p-2.5 rounded-xl border space-y-1.5 ${
+                          isLight ? 'border-teal-200 bg-white' : 'border-slate-700 bg-slate-950'
+                        }`}>
+                          <span className={`text-[10px] font-bold block ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Warna Border Icon:</span>
                           <div className="flex items-center gap-2">
                             <input
                               type="text"
                               value={metaForm.button_icon_border_color || ''}
                               onChange={(e) => setMetaForm({ ...metaForm, button_icon_border_color: e.target.value })}
                               placeholder="#059669"
-                              className="flex-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-teal-200 text-xs font-mono"
+                              className={`flex-1 px-2.5 py-1 rounded-lg border text-xs font-mono ${
+                                isLight ? 'bg-slate-50 border-teal-200 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                              }`}
                             />
-                            <label className="p-1 rounded-lg border border-teal-200 cursor-pointer">
+                            <label className={`p-1 rounded-lg border cursor-pointer ${
+                              isLight ? 'border-teal-200' : 'border-slate-700'
+                            }`}>
                               <input
                                 type="color"
                                 value={
@@ -1892,20 +2076,28 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 </div>
 
                 {/* SUB-SECTION 2.2: KUSTOMISASI NAVBAR / HEADER ATAS (LENGKAP) */}
-                <div id="navbar-customizer-section" className="sm:col-span-2 lg:col-span-3 p-4 sm:p-6 rounded-2xl bg-teal-50/70 border-2 border-teal-300 space-y-5 scroll-mt-24 text-slate-800 shadow-sm">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-200">
+                <div id="navbar-customizer-section" className={`sm:col-span-2 lg:col-span-3 p-4 sm:p-6 rounded-2xl border-2 space-y-5 scroll-mt-24 shadow-sm transition-colors ${
+                  isLight ? 'bg-teal-50/70 border-teal-300 text-slate-800' : 'bg-slate-950/80 border-teal-800/60 text-slate-100'
+                }`}>
+                  <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b ${
+                    isLight ? 'border-teal-200' : 'border-slate-800'
+                  }`}>
                     <div className="flex items-center gap-2.5">
                       <div className="p-2 rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/25">
                         <Palette className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
+                        <h4 className={`text-sm sm:text-base font-black flex items-center gap-2 ${
+                          isLight ? 'text-slate-900' : 'text-white'
+                        }`}>
                           <span>Kustomisasi Warna, Gradasi, Tema &amp; Tombol Icon Navbar Atas</span>
-                          <span className="px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold border border-teal-300">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            isLight ? 'bg-teal-100 text-teal-800 border-teal-300' : 'bg-teal-900/60 text-teal-300 border-teal-700'
+                          }`}>
                             Fitur Lengkap
                           </span>
                         </h4>
-                        <p className="text-[11px] text-slate-600 mt-0.5">
+                        <p className={`text-[11px] mt-0.5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
                           Atur warna bar navigasi paling atas secara bebas (pilihan preset, kode warna hex mandiri, efek gradasi halus, garis bawah kustom, dan background tombol icon navbar).
                         </p>
                       </div>
@@ -1917,12 +2109,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     const previewNb = getNavbarTheme(metaForm);
                     return (
                       <div className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                          <span className="flex items-center gap-1.5 text-teal-800">
+                        <div className={`flex items-center justify-between text-xs font-bold ${
+                          isLight ? 'text-slate-700' : 'text-slate-300'
+                        }`}>
+                          <span className={`flex items-center gap-1.5 ${isLight ? 'text-teal-800' : 'text-teal-400'}`}>
                             <Eye className="w-4 h-4 text-teal-600" />
                             <span>Pratinjau Langsung Navbar &amp; Tombol Icon:</span>
                           </span>
-                          <span className="text-[10px] text-slate-500 font-mono">
+                          <span className={`text-[10px] font-mono ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                             Preset: {metaForm.navbar_theme_preset || 'CLEAN_LIGHT'} &bull; Style: {metaForm.navbar_style || 'GLASS'}
                           </span>
                         </div>
@@ -2008,7 +2202,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                   {/* 1. Preset Tema Navbar */}
                   <div className="space-y-2">
-                    <label className="block text-slate-700 font-bold text-xs">
+                    <label className={labelClass}>
                       1. Preset Warna Tema Navbar
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
@@ -2032,15 +2226,17 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             onClick={() => setMetaForm({ ...metaForm, navbar_theme_preset: preset.id as any })}
                             className={`p-2.5 rounded-xl border text-left text-[11px] font-bold transition-all flex items-center justify-between cursor-pointer ${
                               isSelected
-                                ? 'border-teal-500 ring-2 ring-teal-300 bg-white text-teal-950 shadow-md'
-                                : 'border-teal-200 bg-white/80 text-slate-700 hover:border-teal-400'
+                                ? 'border-teal-500 ring-2 ring-teal-400 bg-teal-600 text-white shadow-md'
+                                : isLight
+                                ? 'border-teal-200 bg-white text-slate-800 hover:border-teal-400'
+                                : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                             }`}
                           >
                             <div className="flex items-center gap-1.5 truncate">
                               <span className={`w-3 h-3 rounded-full border border-slate-300 shrink-0 ${preset.bg}`} />
                               <span className="truncate">{preset.name}</span>
                             </div>
-                            {isSelected && <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
+                            {isSelected && <Check className="w-3.5 h-3.5 text-white shrink-0" />}
                           </button>
                         );
                       })}
@@ -2048,20 +2244,24 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   </div>
 
                   {/* 2. Custom Hex Input & Gradasi Options */}
-                  <div className="p-4 rounded-xl bg-white border border-teal-200 space-y-3 shadow-xs">
+                  <div className={`p-4 rounded-xl border space-y-3 shadow-xs ${
+                    isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-900 border-slate-700 text-slate-100'
+                  }`}>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
-                        <label className="text-xs font-bold text-teal-900 flex items-center gap-2">
+                        <label className={`text-xs font-bold flex items-center gap-2 ${
+                          isLight ? 'text-teal-900' : 'text-teal-400'
+                        }`}>
                           <Palette className="w-4 h-4 text-teal-600" />
                           <span>2. Kustom Warna Hex &amp; Gradasi Navbar Bebas</span>
                         </label>
-                        <p className="text-[11px] text-slate-500">
+                        <p className={`text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                           Pilih warna latar utama atau kombinasikan dengan warna gradasi kedua.
                         </p>
                       </div>
                       <div
                         className="w-9 h-9 rounded-xl border-2 border-teal-300 shadow shrink-0 flex items-center justify-center font-mono text-[9px] text-white font-bold"
-                        style={{ backgroundColor: metaForm.navbar_custom_bg || '#ffffff' }}
+                        style={{ backgroundColor: metaForm.navbar_custom_bg || '#ffffff', color: isColorLight(metaForm.navbar_custom_bg || '#ffffff') ? '#0f172a' : '#ffffff' }}
                       >
                         {metaForm.navbar_custom_bg || '#fff'}
                       </div>
@@ -2070,7 +2270,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Warna Utama / Awal */}
                       <div className="space-y-1">
-                        <span className="text-[11px] font-bold text-slate-600">Warna Latar Utama (Hex):</span>
+                        <span className={`text-[11px] font-bold ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Warna Latar Utama (Hex):</span>
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
@@ -2083,9 +2283,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                               })
                             }
                             placeholder="#ffffff"
-                            className="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono font-bold text-xs uppercase"
+                            className={`w-full px-3 py-1.5 rounded-xl border font-mono font-bold text-xs uppercase ${
+                              isLight ? 'bg-slate-50 border-teal-200 text-slate-900' : 'bg-slate-950 border-slate-700 text-white'
+                            }`}
                           />
-                          <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer flex items-center gap-1.5 text-xs font-bold text-teal-800 shrink-0">
+                          <label className={`px-2.5 py-1.5 rounded-xl border cursor-pointer flex items-center gap-1.5 text-xs font-bold shrink-0 ${
+                            isLight ? 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800' : 'bg-slate-800 hover:bg-slate-700 border-slate-600 text-teal-300'
+                          }`}>
                             <input
                               type="color"
                               value={
@@ -2109,7 +2313,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                       {/* Warna Gradasi Kedua */}
                       <div className="space-y-1">
-                        <span className="text-[11px] font-bold text-slate-600">Warna Gradasi Ke-2 (Opsional):</span>
+                        <span className={`text-[11px] font-bold ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Warna Gradasi Ke-2 (Opsional):</span>
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
@@ -2121,9 +2325,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                               })
                             }
                             placeholder="#f1f5f9"
-                            className="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono font-bold text-xs uppercase"
+                            className={`w-full px-3 py-1.5 rounded-xl border font-mono font-bold text-xs uppercase ${
+                              isLight ? 'bg-slate-50 border-teal-200 text-slate-900' : 'bg-slate-950 border-slate-700 text-white'
+                            }`}
                           />
-                          <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer flex items-center gap-1.5 text-xs font-bold text-teal-800 shrink-0">
+                          <label className={`px-2.5 py-1.5 rounded-xl border cursor-pointer flex items-center gap-1.5 text-xs font-bold shrink-0 ${
+                            isLight ? 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800' : 'bg-slate-800 hover:bg-slate-700 border-slate-600 text-teal-300'
+                          }`}>
                             <input
                               type="color"
                               value={
@@ -2147,7 +2355,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                     {/* Quick Swatches */}
                     <div>
-                      <span className="text-[10px] font-bold text-slate-500 block mb-1">
+                      <span className={`text-[10px] font-bold block mb-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         Pilihan Cepat Warna Navbar:
                       </span>
                       <div className="flex flex-wrap gap-1.5">
@@ -2174,7 +2382,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                 navbar_custom_bg: chip.hex
                               })
                             }
-                            className="px-2 py-0.5 rounded-lg border border-slate-200 text-[10px] font-bold flex items-center gap-1 bg-slate-50 hover:bg-white cursor-pointer"
+                            className={`px-2 py-0.5 rounded-lg border text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                              isLight
+                                ? 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-white'
+                                : 'border-slate-700 bg-slate-950 text-slate-200 hover:bg-slate-800'
+                            }`}
                           >
                             <span className="w-2 h-2 rounded-full border border-slate-300" style={{ backgroundColor: chip.hex }} />
                             <span>{chip.name}</span>
@@ -2188,7 +2400,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Gaya Transparansi */}
                     <div className="space-y-1.5">
-                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                      <label className={`block font-bold text-xs flex items-center gap-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                         <Layers className="w-3.5 h-3.5 text-teal-600" />
                         <span>3. Gaya &amp; Efek Transparansi</span>
                       </label>
@@ -2203,19 +2415,21 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           onClick={() => setMetaForm({ ...metaForm, navbar_style: s.id as any })}
                           className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
                             (metaForm.navbar_style || 'GLASS') === s.id
-                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                              ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <p className="text-[11px] font-bold">{s.label}</p>
-                          <p className="text-[9px] text-slate-400">{s.desc}</p>
+                          <p className={`text-[9px] ${(metaForm.navbar_style || 'GLASS') === s.id ? 'text-teal-100' : 'text-slate-400'}`}>{s.desc}</p>
                         </button>
                       ))}
                     </div>
 
                     {/* Garis Bawah Aksen */}
                     <div className="space-y-1.5">
-                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                      <label className={`block font-bold text-xs flex items-center gap-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                         <Sparkles className="w-3.5 h-3.5 text-teal-600" />
                         <span>4. Garis Pembatas Bawah</span>
                       </label>
@@ -2232,8 +2446,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           onClick={() => setMetaForm({ ...metaForm, navbar_border_accent: b.id as any })}
                           className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
                             (metaForm.navbar_border_accent || 'SUBTLE') === b.id
-                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                              ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <p className="text-[11px] font-bold truncate">{b.label}</p>
@@ -2251,7 +2467,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           <select
                             value={metaForm.navbar_border_width || '2'}
                             onChange={(e) => setMetaForm({ ...metaForm, navbar_border_width: e.target.value as any })}
-                            className="flex-1 p-1 rounded-lg border border-teal-200 bg-white text-[10px] font-bold"
+                            className={`flex-1 p-1 rounded-lg border text-[10px] font-bold ${
+                              isLight ? 'border-teal-200 bg-white text-slate-800' : 'border-slate-700 bg-slate-900 text-white'
+                            }`}
                           >
                             <option value="1">Tebal 1px</option>
                             <option value="2">Tebal 2px</option>
@@ -2264,7 +2482,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                     {/* Kontras & Warna Teks Navbar */}
                     <div className="space-y-1.5">
-                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                      <label className={`block font-bold text-xs flex items-center gap-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                         <Sun className="w-3.5 h-3.5 text-amber-500" />
                         <span>5. Warna Teks Navbar</span>
                       </label>
@@ -2280,8 +2498,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           onClick={() => setMetaForm({ ...metaForm, navbar_custom_text: t.id as any })}
                           className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
                             (metaForm.navbar_custom_text || 'AUTO') === t.id
-                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                              ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <p className="text-[11px] font-bold">{t.label}</p>
@@ -2295,7 +2515,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             value={metaForm.navbar_custom_text_color || ''}
                             onChange={(e) => setMetaForm({ ...metaForm, navbar_custom_text_color: e.target.value })}
                             placeholder="#0f172a"
-                            className="flex-1 px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-xs font-mono font-bold uppercase"
+                            className={`flex-1 px-2.5 py-1 rounded-lg border text-xs font-mono font-bold uppercase ${
+                              isLight ? 'bg-white border-teal-200 text-slate-900' : 'bg-slate-950 border-slate-700 text-white'
+                            }`}
                           />
                           <input
                             type="color"
@@ -2309,7 +2531,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                     {/* 6. Tombol Icon Navbar (Navbar Icon Buttons) */}
                     <div className="space-y-1.5">
-                      <label className="block text-slate-700 font-bold text-xs flex items-center gap-1.5">
+                      <label className={`block font-bold text-xs flex items-center gap-1.5 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                         <Box className="w-3.5 h-3.5 text-teal-600" />
                         <span>6. Tombol Icon Navbar</span>
                       </label>
@@ -2326,8 +2548,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           onClick={() => setMetaForm({ ...metaForm, navbar_icon_bg_preset: ib.id as any })}
                           className={`w-full p-2 rounded-xl border text-left transition-all cursor-pointer ${
                             (metaForm.navbar_icon_bg_preset || 'SUBTLE') === ib.id
-                              ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                              : 'border-teal-200 bg-white text-slate-600 hover:border-teal-400'
+                              ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-900 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <p className="text-[11px] font-bold">{ib.label}</p>
@@ -2336,14 +2560,16 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                       {metaForm.navbar_icon_bg_preset === 'CUSTOM_HEX' && (
                         <div className="pt-1 space-y-1">
-                          <span className="text-[10px] text-slate-500">Warna Background Icon:</span>
+                          <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Warna Background Icon:</span>
                           <div className="flex items-center gap-2">
                             <input
                               type="text"
                               value={metaForm.navbar_icon_bg || ''}
                               onChange={(e) => setMetaForm({ ...metaForm, navbar_icon_bg: e.target.value })}
                               placeholder="#059669"
-                              className="flex-1 px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-xs font-mono font-bold uppercase"
+                              className={`flex-1 px-2.5 py-1 rounded-lg border text-xs font-mono font-bold uppercase ${
+                                isLight ? 'bg-white border-teal-200 text-slate-900' : 'bg-slate-950 border-slate-700 text-white'
+                              }`}
                             />
                             <input
                               type="color"
@@ -2361,30 +2587,40 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Section 2.5: Kustomisasi Background Footer & Icon Navigasi (Mobile / Bottom Bar) */}
-            <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-5 shadow-xl shadow-teal-950/5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-teal-100 gap-2">
+            <div className={cardContainerClass}>
+              <div className={`flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b gap-2 ${
+                isLight ? 'border-teal-100' : 'border-slate-800'
+              }`}>
                 <div>
-                  <h3 className="text-base font-bold text-teal-900 flex items-center gap-2">
+                  <h3 className={`text-base font-bold flex items-center gap-2 ${
+                    isLight ? 'text-teal-900' : 'text-teal-400'
+                  }`}>
                     <Layers className="w-5 h-5 text-teal-600" />
                     <span>2.5. Kustomisasi Background Footer &amp; Tombol Icon (Bottom Nav)</span>
-                    <span className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 text-[10px] font-bold border border-teal-200">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                      isLight ? 'bg-teal-50 text-teal-800 border-teal-200' : 'bg-teal-900/50 text-teal-300 border-teal-700'
+                    }`}>
                       Admin &amp; SuperAdmin
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                     Sesuaikan warna latar belakang footer mobile, garis pembatas atas, bentuk background icon (Home, Renungan, Jadwal, Profil, Lainnya), serta warna aktif dan idle.
                   </p>
                 </div>
               </div>
 
               {/* Live Preview Box */}
-              <div className="space-y-2 p-4 rounded-2xl bg-teal-50/60 border border-teal-200">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
-                  <span className="flex items-center gap-1.5 text-teal-800">
+              <div className={`space-y-2 p-4 rounded-2xl border ${
+                isLight ? 'bg-teal-50/60 border-teal-200' : 'bg-slate-950/80 border-slate-800'
+              }`}>
+                <div className={`flex items-center justify-between text-xs font-bold mb-1 ${
+                  isLight ? 'text-slate-700' : 'text-slate-300'
+                }`}>
+                  <span className={`flex items-center gap-1.5 ${isLight ? 'text-teal-800' : 'text-teal-400'}`}>
                     <Eye className="w-4 h-4 text-teal-600" />
                     <span>Pratinjau Langsung Tampilan Footer &amp; Icon:</span>
                   </span>
-                  <span className="text-[10px] text-slate-500">
+                  <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                     Preset: {metaForm.footer_theme_preset || 'DEFAULT_DARK'}
                   </span>
                 </div>
@@ -2422,7 +2658,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
               {/* 1. Preset Background Footer */}
               <div className="space-y-2">
-                <label className="block text-slate-700 font-bold text-xs">
+                <label className={labelClass}>
                   1. Pilih Preset Warna Background Footer:
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -2447,12 +2683,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         onClick={() => setMetaForm({ ...metaForm, footer_theme_preset: p.id as any })}
                         className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                            : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                            ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                            : isLight
+                            ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                            : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                         }`}
                       >
                         <p className="text-[11px] font-bold truncate">{p.name}</p>
-                        <p className="text-[9px] text-slate-400 truncate mt-0.5">{p.desc}</p>
+                        <p className={`text-[9px] truncate mt-0.5 ${isSelected ? 'text-teal-100' : 'text-slate-400'}`}>{p.desc}</p>
                       </button>
                     );
                   })}
@@ -2460,9 +2698,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
 
               {/* 2. Kustom Hex Footer Khusus */}
-              <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-3 shadow-xs">
+              <div className={`p-3.5 rounded-2xl border space-y-3 shadow-xs ${
+                isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-950 border-slate-700 text-slate-100'
+              }`}>
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                  <label className={`text-xs font-bold flex items-center gap-1.5 ${isLight ? 'text-teal-900' : 'text-teal-400'}`}>
                     <Palette className="w-3.5 h-3.5 text-teal-600" />
                     <span>2. Warna Hex Background Footer Khusus</span>
                   </label>
@@ -2483,9 +2723,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       })
                     }
                     placeholder="#020617"
-                    className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-mono text-xs uppercase outline-none"
+                    className={`flex-1 px-3 py-1.5 rounded-xl border font-mono text-xs uppercase outline-none ${
+                      isLight ? 'bg-slate-50 border-teal-200 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                    }`}
                   />
-                  <label className="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer flex items-center gap-1.5 text-xs text-teal-800 font-bold">
+                  <label className={`px-3 py-1.5 rounded-xl border cursor-pointer flex items-center gap-1.5 text-xs font-bold ${
+                    isLight ? 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800' : 'bg-slate-800 hover:bg-slate-700 border-slate-600 text-teal-300'
+                  }`}>
                     <input
                       type="color"
                       value={
@@ -2511,7 +2755,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Gaya Transparansi Footer */}
                 <div className="space-y-1.5">
-                  <label className="block text-slate-700 font-bold text-xs">
+                  <label className={labelClass}>
                     3. Gaya Transparansi Footer:
                   </label>
                   {[
@@ -2525,8 +2769,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       onClick={() => setMetaForm({ ...metaForm, footer_style: s.id as any })}
                       className={`w-full p-2 rounded-xl border text-left text-xs transition-all cursor-pointer ${
                         (metaForm.footer_style || 'GLASS') === s.id
-                          ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                          : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                          : isLight
+                          ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                       }`}
                     >
                       {s.label}
@@ -2536,7 +2782,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                 {/* Garis Pembatas Atas Footer */}
                 <div className="space-y-1.5">
-                  <label className="block text-slate-700 font-bold text-xs">
+                  <label className={labelClass}>
                     4. Garis Pembatas Atas:
                   </label>
                   {[
@@ -2551,8 +2797,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       onClick={() => setMetaForm({ ...metaForm, footer_border_accent: b.id as any })}
                       className={`w-full p-2 rounded-xl border text-left text-xs transition-all cursor-pointer ${
                         (metaForm.footer_border_accent || 'SUBTLE') === b.id
-                          ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                          : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                          : isLight
+                          ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                       }`}
                     >
                       {b.label}
@@ -2562,7 +2810,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                 {/* Bentuk Background Icon */}
                 <div className="space-y-1.5">
-                  <label className="block text-slate-700 font-bold text-xs">
+                  <label className={labelClass}>
                     5. Bentuk Background Icon:
                   </label>
                   {[
@@ -2578,8 +2826,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       onClick={() => setMetaForm({ ...metaForm, footer_icon_bg_style: shape.id as any })}
                       className={`w-full p-2 rounded-xl border text-left text-xs transition-all cursor-pointer ${
                         (metaForm.footer_icon_bg_style || 'SUBTLE') === shape.id
-                          ? 'border-teal-500 bg-teal-100 text-teal-950 font-bold ring-1 ring-teal-400'
-                          : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          ? 'border-teal-500 bg-teal-600 text-white font-bold ring-1 ring-teal-400'
+                          : isLight
+                          ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                          : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                       }`}
                     >
                       {shape.label}
@@ -2590,8 +2840,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
               {/* 6. Kustom Warna Background Icon Aktif & Diam */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
-                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                <div className={`p-3.5 rounded-2xl border space-y-2 shadow-xs ${
+                  isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-950 border-slate-700 text-slate-100'
+                }`}>
+                  <label className={`text-xs font-bold flex items-center justify-between ${
+                    isLight ? 'text-slate-800' : 'text-slate-200'
+                  }`}>
                     <span>Warna Background Icon Aktif</span>
                     <span
                       className="w-4 h-4 rounded border border-slate-300 inline-block"
@@ -2606,9 +2860,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       value={metaForm.footer_icon_active_bg || ''}
                       onChange={(e) => setMetaForm({ ...metaForm, footer_icon_active_bg: e.target.value })}
                       placeholder="Default: Warna Tema"
-                      className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-mono text-xs outline-none"
+                      className={`flex-1 px-3 py-1.5 rounded-xl border font-mono text-xs outline-none ${
+                        isLight ? 'bg-slate-50 border-teal-200 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
                     />
-                    <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold">
+                    <label className={`px-2.5 py-1.5 rounded-xl border cursor-pointer text-xs font-bold ${
+                      isLight ? 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800' : 'bg-slate-800 hover:bg-slate-700 border-slate-600 text-teal-300'
+                    }`}>
                       <input
                         type="color"
                         value={
@@ -2623,8 +2881,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white border border-teal-200 space-y-2 shadow-xs">
-                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                <div className={`p-3.5 rounded-2xl border space-y-2 shadow-xs ${
+                  isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-950 border-slate-700 text-slate-100'
+                }`}>
+                  <label className={`text-xs font-bold flex items-center justify-between ${
+                    isLight ? 'text-slate-800' : 'text-slate-200'
+                  }`}>
                     <span>Warna Background Icon Diam</span>
                     <span
                       className="w-4 h-4 rounded border border-slate-300 inline-block"
@@ -2639,9 +2901,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       value={metaForm.footer_icon_custom_bg || ''}
                       onChange={(e) => setMetaForm({ ...metaForm, footer_icon_custom_bg: e.target.value })}
                       placeholder="Default: Transparan"
-                      className="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-800 font-mono text-xs outline-none"
+                      className={`flex-1 px-3 py-1.5 rounded-xl border font-mono text-xs outline-none ${
+                        isLight ? 'bg-slate-50 border-teal-200 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
                     />
-                    <label className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer text-xs text-teal-800 font-bold">
+                    <label className={`px-2.5 py-1.5 rounded-xl border cursor-pointer text-xs font-bold ${
+                      isLight ? 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800' : 'bg-slate-800 hover:bg-slate-700 border-slate-600 text-teal-300'
+                    }`}>
                       <input
                         type="color"
                         value={
@@ -2659,14 +2925,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Section 3: Custom Tampilan Portal Jemaat (Mobile & Dashboard Jemaat) */}
-            <div className="rounded-3xl bg-white border-2 border-teal-200/90 p-6 text-slate-800 space-y-4 shadow-xl shadow-teal-950/5">
-              <div className="flex items-center justify-between pb-3 border-b border-teal-100">
+            <div className={cardContainerClass}>
+              <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-teal-100' : 'border-slate-800'}`}>
                 <div>
-                  <h3 className="text-base font-bold text-teal-900 flex items-center gap-2">
+                  <h3 className={`text-base font-bold flex items-center gap-2 ${isLight ? 'text-teal-900' : 'text-teal-400'}`}>
                     <Sparkles className="w-5 h-5 text-teal-600" />
-                    <span>3. Kustomisasi Tampilan Portal Jemaat (Hape & Mobile View)</span>
+                    <span>3. Kustomisasi Tampilan Portal Jemaat (Hape &amp; Mobile View)</span>
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                     Atur ucapan selamat datang, gaya banner, teks pengumuman, serta aktifkan/nonaktifkan modul di Dashboard Jemaat.
                   </p>
                 </div>
@@ -2674,35 +2940,43 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Judul Banner Selamat Datang Jemaat</label>
+                  <label className={labelClass}>Judul Banner Selamat Datang Jemaat</label>
                   <input
                     type="text"
                     value={metaForm.jemaat_banner_title || 'Shalom & Selamat Datang'}
                     onChange={(e) => setMetaForm({ ...metaForm, jemaat_banner_title: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 font-bold text-xs"
+                    className={inputClass}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-1 font-bold text-xs">Subtitle Banner Jemaat</label>
+                  <label className={labelClass}>Subtitle Banner Jemaat</label>
                   <input
                     type="text"
                     value={metaForm.jemaat_banner_subtitle || 'Portal Layanan Jemaat Resmi & Sistem Informasi Terpadu'}
                     onChange={(e) => setMetaForm({ ...metaForm, jemaat_banner_subtitle: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-teal-200 text-slate-900 text-xs"
+                    className={inputClass}
                   />
                 </div>
 
                 {/* DEDIKASI PENGATURAN WARTA & PENGUMUMAN DENGAN ICON TOA */}
-                <div className="sm:col-span-2 p-4 sm:p-5 rounded-2xl bg-teal-50/70 border-2 border-teal-300 text-teal-950 space-y-3 shadow-inner">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-teal-200">
-                    <div className="flex items-center gap-2 text-teal-900 font-bold text-xs sm:text-sm">
+                <div className={`sm:col-span-2 p-4 sm:p-5 rounded-2xl border-2 space-y-3 shadow-inner ${
+                  isLight ? 'bg-teal-50/70 border-teal-300 text-teal-950' : 'bg-slate-950/80 border-teal-800/60 text-slate-100'
+                }`}>
+                  <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b ${
+                    isLight ? 'border-teal-200' : 'border-slate-800'
+                  }`}>
+                    <div className={`flex items-center gap-2 font-bold text-xs sm:text-sm ${
+                      isLight ? 'text-teal-900' : 'text-teal-300'
+                    }`}>
                       <div className="p-1.5 rounded-lg bg-teal-100 text-teal-700 border border-teal-300">
                         <Megaphone className="w-4 h-4 animate-pulse text-teal-600" />
                       </div>
                       <span>Pengaturan Warta &amp; Pengumuman Dashboard (Icon Toa)</span>
                     </div>
-                    <label className="flex items-center gap-2 cursor-pointer text-xs text-teal-900 font-bold bg-white px-3 py-1.5 rounded-xl border border-teal-300 w-fit shadow-xs">
+                    <label className={`flex items-center gap-2 cursor-pointer text-xs font-bold px-3 py-1.5 rounded-xl border w-fit shadow-xs ${
+                      isLight ? 'bg-white border-teal-300 text-teal-900' : 'bg-slate-900 border-teal-700 text-teal-200'
+                    }`}>
                       <input
                         type="checkbox"
                         checked={metaForm.show_pinned_notif_banner !== false}
@@ -2713,24 +2987,26 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     </label>
                   </div>
 
-                  <p className="text-[11px] text-slate-600">
+                  <p className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
                     Teks pengumuman ini akan muncul di bagian atas halaman Dashboard dengan icon <strong>Toa (Megaphone)</strong> berkedip untuk seluruh jemaat dan pengunjung.
                   </p>
 
                   {/* Pratinjau Tampilan Dashboard */}
                   <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-teal-800' : 'text-teal-400'}`}>
                       Pratinjau Tampilan di Dashboard:
                     </span>
-                    <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-teal-300 text-slate-800 flex items-center gap-3 shadow-sm">
+                    <div className={`p-3 sm:p-3.5 rounded-2xl border flex items-center gap-3 shadow-sm ${
+                      isLight ? 'bg-white border-teal-300 text-slate-800' : 'bg-slate-900 border-teal-800 text-white'
+                    }`}>
                       <span className="p-2 rounded-xl bg-teal-100 text-teal-700 border border-teal-200 shrink-0">
                         <Megaphone className="w-4 h-4 animate-pulse text-teal-600" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <span className="text-[10px] uppercase font-black tracking-wider text-teal-800 block sm:inline mr-2">
+                        <span className={`text-[10px] uppercase font-black tracking-wider block sm:inline mr-2 ${isLight ? 'text-teal-800' : 'text-teal-400'}`}>
                           Warta &amp; Pengumuman Gereja:
                         </span>
-                        <span className="text-xs font-semibold text-slate-800 break-words">
+                        <span className={`text-xs font-semibold break-words ${isLight ? 'text-slate-800' : 'text-slate-100'}`}>
                           {metaForm.jemaat_announcement_text?.trim() || 'Teks pengumuman yang Anda ketik di bawah akan tampil di sini...'}
                         </span>
                       </div>
@@ -2738,7 +3014,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 mb-1 font-bold text-xs">
+                    <label className={labelClass}>
                       Isi Teks Warta / Pengumuman Gereja:
                     </label>
                     <textarea
@@ -2746,7 +3022,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       value={metaForm.jemaat_announcement_text || ''}
                       onChange={(e) => setMetaForm({ ...metaForm, jemaat_announcement_text: e.target.value })}
                       placeholder="Contoh: Ibadah Raya Minggu ini diadakan pukul 09:00 WIB di Gedung Utama. Dilanjutkan perjamuan kudus..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-teal-200 text-slate-900 text-xs leading-relaxed placeholder-slate-400 focus:outline-none focus:border-teal-500"
+                      className={`w-full px-3.5 py-2.5 rounded-xl border text-xs leading-relaxed placeholder-slate-400 focus:outline-none ${
+                        isLight ? 'bg-white border-teal-200 text-slate-900 focus:border-teal-500' : 'bg-slate-900 border-slate-700 text-white focus:border-teal-400'
+                      }`}
                     />
                     <div className="pt-2 flex justify-end">
                       <button
@@ -2763,8 +3041,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-slate-700 font-bold text-xs sm:text-sm">Pengaturan Lebar Kartu Dashboard Jemaat</label>
-                    <span className="text-[10px] text-teal-700 font-mono font-bold bg-teal-50 px-2 py-0.5 rounded border border-teal-200">Pilih 1 Ukuran Lebar</span>
+                    <label className={`font-bold text-xs sm:text-sm ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>Pengaturan Lebar Kartu Dashboard Jemaat</label>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${isLight ? 'text-teal-700 bg-teal-50 border-teal-200' : 'text-teal-300 bg-teal-950 border-teal-800'}`}>Pilih 1 Ukuran Lebar</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
@@ -2782,17 +3060,19 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           onClick={() => setMetaForm({ ...metaForm, jemaat_card_width: cw.id as any })}
                           className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
-                              ? 'border-teal-500 bg-teal-50 ring-2 ring-teal-300 text-teal-950 shadow-sm'
-                              : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              ? 'border-teal-500 bg-teal-600 text-white shadow-sm'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <div className="flex items-center justify-between w-full mb-1">
                             <span className="font-bold text-[11px]">{cw.label}</span>
-                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-teal-500 bg-teal-600' : 'border-slate-300'}`}>
-                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-teal-300 bg-white' : 'border-slate-300'}`}>
+                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-teal-600" />}
                             </div>
                           </div>
-                          <div className="text-[9px] text-slate-400">{cw.desc}</div>
+                          <div className={`text-[9px] ${isSelected ? 'text-teal-100' : 'text-slate-400'}`}>{cw.desc}</div>
                         </button>
                       );
                     })}
@@ -2801,8 +3081,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-slate-700 font-bold text-xs sm:text-sm">Ukuran Kepadatan Padding Kartu (Density)</label>
-                    <span className="text-[10px] text-teal-700 font-mono font-bold bg-teal-50 px-2 py-0.5 rounded border border-teal-200">Pilih 1 Padding</span>
+                    <label className={`font-bold text-xs sm:text-sm ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>Ukuran Kepadatan Padding Kartu (Density)</label>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${isLight ? 'text-teal-700 bg-teal-50 border-teal-200' : 'text-teal-300 bg-teal-950 border-teal-800'}`}>Pilih 1 Padding</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
@@ -2818,17 +3098,19 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           onClick={() => setMetaForm({ ...metaForm, card_size: cs.id as any })}
                           className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
-                              ? 'border-teal-500 bg-teal-50 ring-2 ring-teal-300 text-teal-950 shadow-sm'
-                              : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              ? 'border-teal-500 bg-teal-600 text-white shadow-sm'
+                              : isLight
+                              ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                              : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                           }`}
                         >
                           <div className="flex items-center justify-between w-full mb-1">
                             <span className="font-bold text-[11px]">{cs.label}</span>
-                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-teal-500 bg-teal-600' : 'border-slate-300'}`}>
-                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-teal-300 bg-white' : 'border-slate-300'}`}>
+                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-teal-600" />}
                             </div>
                           </div>
-                          <div className="text-[9px] text-slate-400">{cs.desc}</div>
+                          <div className={`text-[9px] ${isSelected ? 'text-teal-100' : 'text-slate-400'}`}>{cs.desc}</div>
                         </button>
                       );
                     })}
@@ -2836,7 +3118,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-2 font-bold text-xs">Style Warna Background Seluruh Kartu Dashboard & Jemaat</label>
+                  <label className={`block mb-2 font-bold text-xs ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>Style Warna Background Seluruh Kartu Dashboard &amp; Jemaat</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
                       { id: 'DEFAULT_GLASS', label: '✨ Transparan Glass' },
@@ -2855,8 +3137,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         onClick={() => setMetaForm({ ...metaForm, jemaat_cards_bg: cb.id as any })}
                         className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all cursor-pointer ${
                           (metaForm.jemaat_cards_bg || 'DEFAULT_GLASS') === cb.id
-                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-xs'
-                            : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                            ? 'border-teal-500 ring-2 ring-teal-400 bg-teal-600 text-white shadow-xs'
+                            : isLight
+                            ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                            : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                         }`}
                       >
                         {cb.label}
@@ -2866,7 +3150,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-2 font-bold text-xs">Style Background Banner Utama Jemaat (Paling Atas)</label>
+                  <label className={`block mb-2 font-bold text-xs ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>Style Background Banner Utama Jemaat (Paling Atas)</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { id: 'GRADIENT_INDIGO', label: '🌌 Royal Twilight' },
@@ -2882,8 +3166,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                         onClick={() => setMetaForm({ ...metaForm, jemaat_banner_bg: gb.id as any })}
                         className={`p-2.5 rounded-xl border text-left text-xs font-bold transition-all cursor-pointer ${
                           (metaForm.jemaat_banner_bg || 'GRADIENT_INDIGO') === gb.id
-                            ? 'border-teal-500 ring-2 ring-teal-300 bg-teal-50 text-teal-950 shadow-xs'
-                            : 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                            ? 'border-teal-500 ring-2 ring-teal-400 bg-teal-600 text-white shadow-xs'
+                            : isLight
+                            ? 'border-teal-200 bg-white text-slate-700 hover:border-teal-400'
+                            : 'border-slate-700 bg-slate-950 text-slate-200 hover:border-teal-400'
                         }`}
                       >
                         {gb.label}
@@ -2893,7 +3179,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 mb-2 font-bold text-xs">Sakelar Komponen Dashboard Jemaat (Aktif/Nonaktif)</label>
+                  <label className={`block mb-2 font-bold text-xs ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>Sakelar Komponen Dashboard Jemaat (Aktif/Nonaktif)</label>
                   <div className="grid grid-cols-1 gap-2">
                     {[
                       { key: 'show_jemaat_announcement_banner', label: 'Banner Pengumuman Ticker' },
@@ -2906,9 +3192,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     ].map((jItem) => (
                       <label
                         key={jItem.key}
-                        className="p-2.5 rounded-xl bg-white border border-teal-200 flex items-center justify-between cursor-pointer text-xs font-semibold hover:border-teal-400 shadow-2xs"
+                        className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer text-xs font-semibold hover:border-teal-400 shadow-2xs transition-colors ${
+                          isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-950 border-slate-700 text-slate-200'
+                        }`}
                       >
-                        <span className="text-slate-800">{jItem.label}</span>
+                        <span>{jItem.label}</span>
                         <input
                           type="checkbox"
                           checked={(metaForm as any)[jItem.key] !== false}
@@ -2923,7 +3211,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Section 4: Pengaturan Lengkap Visibilitas Komponen Dashboard Home (Admin & Jemaat) */}
-            <div className="rounded-3xl bg-white border-2 border-teal-100 shadow-xl shadow-teal-900/5 p-6 text-slate-800 space-y-4">
+            <div className={cardContainerClass}>
               <DashboardVisibilityManager
                 settings={metaForm}
                 onChange={(newSettings) => setMetaForm(newSettings)}
@@ -2931,22 +3219,26 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
             </div>
 
             {/* Section 5: Kontrol Tombol Floating Download Aplikasi Mobile (.APK Android) */}
-            <div className="rounded-3xl bg-white border-2 border-teal-100 shadow-xl shadow-teal-900/5 p-6 text-slate-800 space-y-4">
-              <h3 className="text-base font-extrabold text-slate-900 pb-3 border-b border-teal-100 flex items-center justify-between">
-                <span className="flex items-center gap-2 text-teal-700">
+            <div className={cardContainerClass}>
+              <h3 className={sectionTitleClass}>
+                <span className="flex items-center gap-2 text-teal-600">
                   <Sparkles className="w-5 h-5 text-teal-600" />
                   <span>5. Kontrol Tombol Melayang Download APK Mobile Android</span>
                 </span>
-                <span className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-full">
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                  isLight ? 'text-teal-800 bg-teal-50 border-teal-200' : 'text-teal-300 bg-teal-950 border-teal-800'
+                }`}>
                   Mobile APK Download Control
                 </span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="p-3.5 rounded-2xl bg-teal-50/50 border border-teal-200 hover:border-teal-300 flex items-center justify-between cursor-pointer transition-all sm:col-span-2">
+                <label className={`p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all sm:col-span-2 ${
+                  isLight ? 'bg-teal-50/50 border-teal-200 hover:border-teal-300' : 'bg-slate-950 border-slate-700 hover:border-slate-600'
+                }`}>
                   <div>
-                    <div className="font-bold text-xs text-teal-900">Tampilkan Tombol Floating Download APK Mobile Android</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">Jika diaktifkan, tombol melayang untuk mengunduh file .APK akan tampil di sudut kanan bawah dashboard.</div>
+                    <div className={`font-bold text-xs ${isLight ? 'text-teal-900' : 'text-teal-300'}`}>Tampilkan Tombol Floating Download APK Mobile Android</div>
+                    <div className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Jika diaktifkan, tombol melayang untuk mengunduh file .APK akan tampil di sudut kanan bawah dashboard.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -2957,10 +3249,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 </label>
 
                 {/* Notifikasi jika disembunyikan oleh tombol (X) */}
-                <div className="sm:col-span-2 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className={`sm:col-span-2 p-3.5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+                  isLight ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-slate-950 border-slate-800 text-slate-200'
+                }`}>
                   <div>
-                    <div className="font-bold text-slate-800 text-xs">Status Tombol Melayang di Perangkat Ini:</div>
-                    <div className="text-[11px] text-slate-500">
+                    <div className={`font-bold text-xs ${isLight ? 'text-slate-800' : 'text-white'}`}>Status Tombol Melayang di Perangkat Ini:</div>
+                    <div className={`text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                       Pengguna dapat menyembunyikan tombol melayang langsung dari dashboard dengan menekan tombol silang <strong>(x)</strong>.
                     </div>
                   </div>
@@ -2980,14 +3274,16 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   </button>
                 </div>
 
-                <div className="sm:col-span-2 space-y-2 p-3.5 rounded-2xl bg-teal-50/50 border border-teal-200">
+                <div className={`sm:col-span-2 space-y-2 p-3.5 rounded-2xl border ${
+                  isLight ? 'bg-teal-50/50 border-teal-200' : 'bg-slate-950 border-slate-700'
+                }`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <label className="block text-teal-900 font-bold text-xs flex items-center gap-1.5">
+                      <label className={`block font-bold text-xs flex items-center gap-1.5 ${isLight ? 'text-teal-900' : 'text-teal-300'}`}>
                         <Smartphone className="w-4 h-4 text-teal-600" />
                         <span>Link File .APK Google Drive Khusus Gereja Ini:</span>
                       </label>
-                      <p className="text-[11px] text-slate-500">
+                      <p className={`text-[11px] ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                         Setiap gereja memiliki link APK terpisah. Tempelkan link file APK Google Drive resmi milik gereja Anda di sini.
                       </p>
                     </div>
@@ -3009,13 +3305,17 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     value={metaForm.apk_download_url || ''}
                     onChange={(e) => setMetaForm({ ...metaForm, apk_download_url: e.target.value })}
                     placeholder="https://drive.google.com/file/d/.../view?usp=sharing"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-teal-200 text-slate-800 font-mono text-xs focus:ring-2 focus:ring-teal-500 outline-none"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border font-mono text-xs focus:ring-2 focus:ring-teal-500 outline-none ${
+                      isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-900 border-slate-700 text-white'
+                    }`}
                   />
                   <div className="flex flex-wrap items-center gap-2 text-[10px] text-slate-500 pt-1">
-                    <span className="px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 border border-teal-200 font-semibold">
+                    <span className={`px-2 py-0.5 rounded-md border font-semibold ${
+                      isLight ? 'bg-teal-100 text-teal-800 border-teal-200' : 'bg-teal-900/60 text-teal-300 border-teal-700'
+                    }`}>
                       ✓ Terisolasi Per-Gereja
                     </span>
-                    <span>
+                    <span className={isLight ? 'text-slate-600' : 'text-slate-400'}>
                       Pastikan izin sharing file Google Drive diatur ke <b>"Anyone with the link" (Siapa saja yang memiliki link)</b>.
                     </span>
                   </div>
@@ -3564,22 +3864,24 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
           )}
 
           {/* Google Sheets GAS REST API Section */}
-          <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className={`rounded-3xl border-2 p-6 space-y-4 shadow-xl transition-colors ${
+            isLight ? 'bg-white border-teal-100 text-slate-800 shadow-teal-900/5' : 'bg-slate-900 border-slate-800 text-white'
+          }`}>
+            <div className={`flex items-center justify-between pb-3 border-b ${isLight ? 'border-teal-100' : 'border-slate-800'}`}>
               <div>
-                <h3 className="text-base font-bold flex items-center gap-2">
-                  <Database className="w-5 h-5 text-emerald-400" />
-                  <span>Google Sheets REST API & Google Apps Script (GAS)</span>
+                <h3 className={`text-base font-bold flex items-center gap-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  <Database className="w-5 h-5 text-teal-600" />
+                  <span>Google Sheets REST API &amp; Google Apps Script (GAS)</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Tempelkan Web App URL hasil Deploy Apps Script Anda di sini. Kemudian klik tombol <strong>Simpan & Sinkronkan</strong> di bawah.
+                <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                  Tempelkan Web App URL hasil Deploy Apps Script Anda di sini. Kemudian klik tombol <strong>Simpan &amp; Sinkronkan</strong> di bawah.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={handleCopyGASCode}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow flex items-center gap-1.5 shrink-0"
+                className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow flex items-center gap-1.5 shrink-0 cursor-pointer"
               >
                 {copiedCode ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
                 <span>{copiedCode ? 'Tersalin ke Clipboard!' : 'Salin Kode GAS (18 Sheets)'}</span>
@@ -3588,37 +3890,45 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">
-                  Google Apps Script Web App URL <span className="text-emerald-400">* (Tempel di sini)</span>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                  Google Apps Script Web App URL <span className="text-teal-600 font-bold">* (Tempel di sini)</span>
                 </label>
                 <input
                   type="text"
                   placeholder="https://script.google.com/macros/s/.../exec"
                   value={metaForm.gas_api_url || ''}
                   onChange={(e) => setMetaForm({ ...metaForm, gas_api_url: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-indigo-500/50 text-white font-mono text-[11px] focus:outline-none focus:border-indigo-400"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] focus:outline-none border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-indigo-500/50 text-white focus:border-indigo-400'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Google Spreadsheet ID (Opsional)</label>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Google Spreadsheet ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
                   value={metaForm.google_sheet_id || ''}
                   onChange={(e) => setMetaForm({ ...metaForm, google_sheet_id: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-slate-700 text-white'
+                  }`}
                 />
               </div>
             </div>
 
             {/* Save & Sync Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+            <div className={`flex flex-wrap items-center justify-between gap-3 pt-3 border-t ${isLight ? 'border-teal-100' : 'border-slate-800'}`}>
               <button
                 type="button"
                 onClick={handleSyncAllDataToGAS}
                 disabled={testingGAS}
-                className="px-4 py-2.5 rounded-xl bg-emerald-900/40 hover:bg-emerald-800/80 text-emerald-300 border border-emerald-700/50 text-xs font-bold flex items-center gap-1.5 transition-all"
+                className={`px-4 py-2.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  isLight
+                    ? 'bg-teal-50 hover:bg-teal-100 text-teal-900 border-teal-300'
+                    : 'bg-emerald-900/40 hover:bg-emerald-800/80 text-emerald-300 border-emerald-700/50'
+                }`}
               >
                 <RefreshCw className={`w-4 h-4 ${testingGAS ? 'animate-spin' : ''}`} />
                 <span>Sinkronkan Semua Data 18 Sheets Sekarang</span>
@@ -3627,49 +3937,57 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <button
                 type="submit"
                 disabled={testingGAS}
-                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-lg shadow-teal-600/30 flex items-center gap-2 cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>{testingGAS ? 'Menyimpan & Menguji...' : 'Simpan Konfigurasi & Tes REST API'}</span>
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
-              <h4 className="font-bold text-white flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-indigo-400" />
-                <span>Panduan Cara Kerja Integration & Sinkronisasi:</span>
+            <div className={`p-4 rounded-2xl border text-xs space-y-2 ${
+              isLight ? 'bg-teal-50/70 border-teal-200 text-slate-800' : 'bg-slate-950 border border-slate-800 text-slate-300'
+            }`}>
+              <h4 className={`font-bold flex items-center gap-1.5 ${isLight ? 'text-teal-950' : 'text-white'}`}>
+                <ShieldCheck className="w-4 h-4 text-teal-600" />
+                <span>Panduan Cara Kerja Integration &amp; Sinkronisasi:</span>
               </h4>
-              <ol className="list-decimal list-inside space-y-1.5 text-slate-400 text-[11px]">
+              <ol className={`list-decimal list-inside space-y-1.5 text-[11px] ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
                 <li><strong>Tempel URL:</strong> Salin Web App URL dari Google Apps Script lalu tempel di kolom "Google Apps Script Web App URL".</li>
-                <li><strong>Klik Simpan:</strong> Klik tombol <strong className="text-indigo-300">"Simpan Konfigurasi & Tes REST API"</strong> di atas. Sistem akan menyimpan URL ke database dan melakukan verifikasi ping.</li>
-                <li><strong>Sinkronkan Data:</strong> Klik tombol <strong className="text-emerald-300">"Sinkronkan Semua Data 18 Sheets Sekarang"</strong> untuk mengunggah seluruh database lokal ke Google Spreadsheet.</li>
+                <li><strong>Klik Simpan:</strong> Klik tombol <strong className={isLight ? 'text-teal-950 font-bold' : 'text-indigo-300'}>"Simpan Konfigurasi &amp; Tes REST API"</strong> di atas. Sistem akan menyimpan URL ke database dan melakukan verifikasi ping.</li>
+                <li><strong>Sinkronkan Data:</strong> Klik tombol <strong className={isLight ? 'text-teal-950 font-bold' : 'text-emerald-300'}>"Sinkronkan Semua Data 18 Sheets Sekarang"</strong> untuk mengunggah seluruh database lokal ke Google Spreadsheet.</li>
                 <li><strong>Akses "Anyone":</strong> Pastikan saat Deployment Web App di Google Apps Script, opsi <em>"Who has access"</em> diatur ke <strong>"Anyone" (Siapa Saja)</strong> agar API dapat diakses tanpa hambatan CORS.</li>
               </ol>
             </div>
           </div>
 
           {/* Firebase Cloud Firestore Setup & Multi-Device Real-Time Sync */}
-          <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white space-y-4 shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div className={`rounded-3xl border-2 p-6 space-y-4 shadow-xl transition-colors ${
+            isLight ? 'bg-white border-teal-100 text-slate-800 shadow-teal-900/5' : 'bg-slate-900 border-slate-800 text-white'
+          }`}>
+            <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b ${isLight ? 'border-teal-100' : 'border-slate-800'}`}>
               <div>
-                <h3 className="text-base font-bold flex items-center gap-2">
-                  <Key className="w-5 h-5 text-amber-400" />
+                <h3 className={`text-base font-bold flex items-center gap-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  <Key className="w-5 h-5 text-amber-500" />
                   <span>Firebase Cloud Firestore (Koneksi Database Multi-Device Real-Time)</span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
                   Secara default, aplikasi <strong>sudah terhubung secara otomatis</strong> ke Cloud Firestore real-time. Semua data admin dan hape jemaat tersinkron otomatis.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
                 {isQuotaExhausted() ? (
-                  <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 border ${
+                    isLight ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                  }`}>
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
                     <span>Mode Manual / Penyimpanan Lokal Aktif</span>
                   </span>
                 ) : (
-                  <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 border ${
+                    isLight ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                  }`}>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                     <span>Cloud Sync Aktif: {getActiveFirebaseConfig().projectId}</span>
                   </span>
                 )}
@@ -3678,17 +3996,19 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
             {/* Quota Exhausted / Manual Mode Alert Banner */}
             {isQuotaExhausted() && (
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-2.5 shadow-inner">
-                <div className="font-bold flex items-center gap-2 text-amber-300 text-sm">
-                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-amber-400" />
-                  <span>Pengalihan Otomatis: Mode Manual & Penyimpanan Lokal Aktif</span>
+              <div className={`p-4 rounded-2xl border-2 text-xs space-y-2.5 shadow-inner ${
+                isLight ? 'bg-amber-50 border-amber-300 text-amber-950' : 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+              }`}>
+                <div className={`font-bold flex items-center gap-2 text-sm ${isLight ? 'text-amber-950' : 'text-amber-300'}`}>
+                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-amber-500" />
+                  <span>Pengalihan Otomatis: Mode Manual &amp; Penyimpanan Lokal Aktif</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-amber-100/90">
+                <p className={`text-[11px] leading-relaxed ${isLight ? 'text-slate-700 font-medium' : 'text-amber-100/90'}`}>
                   Kuota penulisan harian gratis (Firestore Daily Write Quota) pada project Firebase bawaan telah tercapai.
                   Sistem telah secara otomatis mengalihkan penyimpanan ke <strong>Mode Penyimpanan Lokal (LocalStorage)</strong>.
                   Seluruh data Anda <strong>100% aman tersimpan di browser perangkat ini</strong> tanpa ada data yang hilang.
                 </p>
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-500/20">
+                <div className={`flex flex-wrap items-center justify-between gap-2 pt-1 border-t ${isLight ? 'border-amber-200' : 'border-amber-500/20'}`}>
                   <button
                     type="button"
                     onClick={async () => {
@@ -3703,7 +4023,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     <span>Coba Sinkronkan Manual Ke Cloud</span>
                   </button>
 
-                  <span className="text-[11px] text-amber-300/80">
+                  <span className={`text-[11px] ${isLight ? 'text-slate-700 font-medium' : 'text-amber-300/80'}`}>
                     💡 <strong>Saran:</strong> Anda dapat memasukkan API Key Firebase Console milik Anda sendiri pada form di bawah untuk menggunakan kuota cloud fresh.
                   </span>
                 </div>
@@ -3715,25 +4035,27 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <div
                 className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between ${
                   firebaseStatusMsg.type === 'success'
-                    ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
+                    ? (isLight ? 'bg-emerald-50 border-emerald-400 text-emerald-950' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300')
                     : firebaseStatusMsg.type === 'error'
-                    ? 'bg-rose-500/20 border-rose-500/30 text-rose-300'
-                    : 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300'
+                    ? (isLight ? 'bg-rose-50 border-rose-400 text-rose-950' : 'bg-rose-500/20 border-rose-500/30 text-rose-300')
+                    : (isLight ? 'bg-teal-50 border-teal-300 text-teal-950' : 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300')
                 }`}
               >
                 <span>{firebaseStatusMsg.text}</span>
               </div>
             )}
 
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
-              <p className="text-slate-300 leading-relaxed text-[11px]">
-                💡 <strong>Koneksi Bawaan vs Custom:</strong> Sistem telah menyediakan project Firebase otomatis (ID: <code className="text-indigo-300 font-mono">{getActiveFirebaseConfig().projectId}</code>). Jika Anda ingin menggunakan project Firebase Console milik Anda sendiri, isi form di bawah ini dan klik <strong className="text-indigo-300">Simpan Konfigurasi</strong>.
+            <div className={`p-4 rounded-2xl border text-xs space-y-2 ${
+              isLight ? 'bg-teal-50/70 border-teal-200 text-slate-800' : 'bg-slate-950 border border-slate-800 text-slate-300'
+            }`}>
+              <p className={`leading-relaxed text-[11px] ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                💡 <strong>Koneksi Bawaan vs Custom:</strong> Sistem telah menyediakan project Firebase otomatis (ID: <code className={`font-mono font-bold px-1.5 py-0.5 rounded ${isLight ? 'bg-teal-100 text-teal-950 border border-teal-300' : 'bg-slate-900 text-indigo-300'}`}>{getActiveFirebaseConfig().projectId}</code>). Jika Anda ingin menggunakan project Firebase Console milik Anda sendiri, isi form di bawah ini dan klik <strong className={isLight ? 'text-teal-950' : 'text-indigo-300'}>Simpan Konfigurasi</strong>.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase API Key</label>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Firebase API Key</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().apiKey}
@@ -3744,12 +4066,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, apiKey: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-slate-700 text-white'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase Project ID</label>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Firebase Project ID</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().projectId}
@@ -3760,12 +4084,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, projectId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-slate-700 text-white'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase Auth Domain (Opsional)</label>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Firebase Auth Domain (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().authDomain}
@@ -3776,12 +4102,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, authDomain: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-slate-700 text-white'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Firebase Storage Bucket (Opsional)</label>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Firebase Storage Bucket (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().storageBucket}
@@ -3792,12 +4120,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, storageBucket: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-slate-700 text-white'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">Messaging Sender ID (Opsional)</label>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Messaging Sender ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().messagingSenderId}
@@ -3808,12 +4138,14 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, messagingSenderId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-slate-700 text-white'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-400 mb-1 font-semibold">App ID (Opsional)</label>
+                <label className={`block mb-1 font-bold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>App ID (Opsional)</label>
                 <input
                   type="text"
                   placeholder={getActiveFirebaseConfig().appId}
@@ -3824,20 +4156,24 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       firebaseConfig: { ...metaForm.firebaseConfig, appId: e.target.value }
                     })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-[11px]"
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-mono text-[11px] border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900 focus:bg-white focus:border-teal-500' : 'bg-slate-950 border-slate-700 text-white'
+                  }`}
                 />
               </div>
             </div>
 
             {/* FCM Push Notification Setup & Tester Card */}
-            <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-3">
+            <div className={`p-4 rounded-2xl border-2 space-y-3 ${
+              isLight ? 'bg-indigo-50/90 border-indigo-200 text-indigo-950' : 'bg-indigo-950/40 border-indigo-500/30 text-white'
+            }`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-extrabold text-indigo-200 flex items-center gap-1.5">
-                    <span>🔔 Firebase Cloud Messaging (FCM) & Notifikasi Status Bar HP</span>
+                  <h4 className={`text-xs font-extrabold flex items-center gap-1.5 ${isLight ? 'text-indigo-950' : 'text-indigo-200'}`}>
+                    <span>🔔 Firebase Cloud Messaging (FCM) &amp; Notifikasi Status Bar HP</span>
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Notifikasi push dikirim melalui Service Worker bawaan sehingga tetap muncul di status bar atas HP dengan suara lonceng & getar meskipun aplikasi sedang ditutup.
+                  <p className={`text-[11px] mt-0.5 ${isLight ? 'text-indigo-900 font-medium' : 'text-slate-400'}`}>
+                    Notifikasi push dikirim melalui Service Worker bawaan sehingga tetap muncul di status bar atas HP dengan suara lonceng &amp; getar meskipun aplikasi sedang ditutup.
                   </p>
                 </div>
               </div>
@@ -4413,18 +4749,20 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
         <div className="space-y-4">
           {/* Header & Alert Notifications */}
           {userSuccess && (
-            <div className="p-3 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold flex items-center justify-between">
+            <div className={`p-3 border-2 rounded-xl text-xs font-bold flex items-center justify-between ${
+              isLight ? 'bg-emerald-50 border-emerald-400 text-emerald-950' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
+            }`}>
               <span>{userSuccess}</span>
             </div>
           )}
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Users className="w-4 h-4 text-indigo-400" />
-                <span>Manajemen Username, Password & Hak Akses (01_USERS)</span>
+              <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                <Users className="w-4 h-4 text-teal-600" />
+                <span>Manajemen Username, Password &amp; Hak Akses (01_USERS)</span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
                 {currentUser.role === 'SUPER_ADMIN'
                   ? 'Kelola kredensial login (Username & Password) untuk Super Admin, Admin Sekretariat, dan Jemaat lintas gereja.'
                   : 'Kelola kredensial login (Username & Password) untuk Admin Sekretariat dan Jemaat gereja Anda.'}
@@ -4459,7 +4797,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   });
                   setIsUserModal(true);
                 }}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Tambah User Akun Baru</span>
@@ -4468,31 +4806,45 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
           </div>
 
           {/* Multi-Tenant Isolation Status Box */}
-          <div className="p-3.5 bg-indigo-950/40 border border-indigo-500/30 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className={`p-3.5 border-2 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-colors ${
+            isLight
+              ? 'bg-teal-50/80 border-teal-200 text-slate-800'
+              : 'bg-indigo-950/40 border-indigo-500/30 text-white'
+          }`}>
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5 text-indigo-400" />
+              <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
+                isLight ? 'bg-teal-100 border-teal-300 text-teal-700' : 'bg-indigo-600/30 border-indigo-500/40 text-indigo-400'
+              }`}>
+                <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-white font-bold flex items-center gap-2">
+                <div className={`font-bold flex items-center gap-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
                   <span>Isolasi Multi-Tenant Aktif</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                    isLight
+                      ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  }`}>
                     Data Terisolasi Mandiri
                   </span>
                 </div>
-                <p className="text-slate-400 text-[11px] mt-0.5">
-                  Ruang Kerja Aktif: <strong className="text-indigo-200">{activeChurchName}</strong> ({activeAdminTenantId}). Setiap akun gereja terisolasi dan tidak dapat diakses gereja lain.
+                <p className={`text-[11px] mt-0.5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                  Ruang Kerja Aktif: <strong className={isLight ? 'text-teal-900 font-bold' : 'text-indigo-200'}>{activeChurchName}</strong> ({activeAdminTenantId}). Setiap akun gereja terisolasi dan tidak dapat diakses gereja lain.
                 </p>
               </div>
             </div>
 
             {currentUser.role === 'SUPER_ADMIN' && (
-              <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700/80 p-1.5 rounded-xl self-start sm:self-auto shrink-0">
-                <span className="text-slate-400 text-[11px] pl-1 font-medium">Lingkup SuperAdmin:</span>
+              <div className={`flex items-center gap-2 border p-1.5 rounded-xl self-start sm:self-auto shrink-0 ${
+                isLight ? 'bg-white border-teal-200 text-slate-800' : 'bg-slate-900/90 border-slate-700/80 text-white'
+              }`}>
+                <span className={`text-[11px] pl-1 font-medium ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Lingkup SuperAdmin:</span>
                 <select
                   value={filterTenantScope}
                   onChange={(e) => setFilterTenantScope(e.target.value as any)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-950 border border-indigo-500/50 text-indigo-200 text-xs font-bold focus:outline-none"
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold focus:outline-none border ${
+                    isLight ? 'bg-slate-50 border-teal-200 text-slate-900' : 'bg-slate-950 border-indigo-500/50 text-indigo-200'
+                  }`}
                 >
                   <option value="CURRENT_CHURCH">Hanya Gereja Ini ({activeAdminTenantId})</option>
                   <option value="ALL_CHURCHES">Semua Gereja (Global Super Admin)</option>
@@ -4502,7 +4854,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
           </div>
 
           {/* Search & Filter Toolbar */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-900/90 border border-slate-800 p-3 rounded-2xl">
+          <div className={`grid grid-cols-1 sm:grid-cols-12 gap-3 p-3 rounded-2xl border transition-colors ${
+            isLight
+              ? 'bg-white border-teal-200 shadow-xs text-slate-800'
+              : 'bg-slate-900/90 border border-slate-800 text-white'
+          }`}>
             <div className="sm:col-span-6 relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -4510,7 +4866,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 placeholder="Cari Username, Nama, atau Email..."
                 value={searchUser}
                 onChange={(e) => setSearchUser(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+                className={`w-full pl-9 pr-3 py-2 rounded-xl text-xs focus:outline-none transition-colors border ${
+                  isLight
+                    ? 'bg-slate-50 border-teal-200 text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white'
+                    : 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 focus:border-indigo-500'
+                }`}
               />
             </div>
 
@@ -4518,7 +4878,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs font-semibold"
+                className={`w-full px-3 py-2 rounded-xl text-xs font-semibold focus:outline-none border ${
+                  isLight
+                    ? 'bg-slate-50 border-teal-200 text-slate-900'
+                    : 'bg-slate-950 border-slate-800 text-white'
+                }`}
               >
                 <option value="ALL">Semua Role</option>
                 {currentUser.role === 'SUPER_ADMIN' && (
@@ -4533,7 +4897,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                className={`w-full px-3 py-2 rounded-xl text-xs focus:outline-none border ${
+                  isLight
+                    ? 'bg-slate-50 border-teal-200 text-slate-900'
+                    : 'bg-slate-950 border-slate-800 text-white'
+                }`}
               >
                 <option value="ALL">Semua Status</option>
                 <option value="Aktif">Status: Aktif</option>
@@ -4543,13 +4911,21 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
           </div>
 
           {/* Users Table */}
-          <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+          <div className={`rounded-2xl border-2 overflow-hidden shadow-xl transition-colors ${
+            isLight
+              ? 'bg-white border-teal-100 text-slate-800'
+              : 'bg-slate-900 border-slate-800 text-slate-300'
+          }`}>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs text-slate-300">
+              <table className={`w-full text-left border-collapse text-xs ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                 <thead>
-                  <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="p-3.5">Username & ID</th>
-                    <th className="p-3.5">Nama Lengkap & Kontak</th>
+                  <tr className={`border-b font-bold uppercase tracking-wider text-[11px] ${
+                    isLight
+                      ? 'bg-teal-50/80 border-teal-200 text-teal-950'
+                      : 'bg-slate-950/80 border-slate-800 text-slate-400'
+                  }`}>
+                    <th className="p-3.5">Username &amp; ID</th>
+                    <th className="p-3.5">Nama Lengkap &amp; Kontak</th>
                     <th className="p-3.5">Gereja / Ruang Lingkup</th>
                     <th className="p-3.5">Password Kredensial</th>
                     <th className="p-3.5">Hak Akses Role</th>
@@ -4557,7 +4933,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     <th className="p-3.5 text-center">Aksi Manajemen</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className={`divide-y ${isLight ? 'divide-teal-100/70' : 'divide-slate-800/60'}`}>
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="p-6 text-center text-slate-500 text-xs">
@@ -4572,25 +4948,25 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       const userChurch = tenantsList.find((t) => t.tenant_id === userTenant);
 
                       return (
-                        <tr key={u.user_id} className="hover:bg-slate-800/40 transition-all">
+                        <tr key={u.user_id} className={`transition-all ${isLight ? 'hover:bg-teal-50/40' : 'hover:bg-slate-800/40'}`}>
                           <td className="p-3.5 font-mono">
-                            <div className="text-indigo-300 font-bold text-xs">{u.username}</div>
+                            <div className={`font-bold text-xs ${isLight ? 'text-teal-800' : 'text-indigo-300'}`}>{u.username}</div>
                             <div className="text-[10px] text-slate-500">{u.user_id}</div>
                           </td>
 
                           <td className="p-3.5">
-                            <div className="font-bold text-white text-xs">{u.nama}</div>
-                            <div className="text-[11px] text-slate-400">{u.email || '-'}</div>
+                            <div className={`font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>{u.nama}</div>
+                            <div className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>{u.email || '-'}</div>
                             {u.no_hp && <div className="text-[10px] text-slate-500">{u.no_hp}</div>}
                           </td>
 
                           <td className="p-3.5">
                             <div className="flex flex-col gap-0.5">
-                              <span className="inline-flex items-center gap-1 font-mono font-bold text-[10px] text-indigo-300">
-                                <Building className="w-3 h-3 text-indigo-400" />
+                              <span className={`inline-flex items-center gap-1 font-mono font-bold text-[10px] ${isLight ? 'text-teal-800' : 'text-indigo-300'}`}>
+                                <Building className={`w-3 h-3 ${isLight ? 'text-teal-600' : 'text-indigo-400'}`} />
                                 {userTenant}
                               </span>
-                              <span className="text-[11px] text-slate-400 max-w-[150px] truncate" title={userTenant === 'ALL' ? 'Global Super Admin' : (userChurch?.nama_gereja || userTenant)}>
+                              <span className={`text-[11px] max-w-[150px] truncate ${isLight ? 'text-slate-600' : 'text-slate-400'}`} title={userTenant === 'ALL' ? 'Global Super Admin' : (userChurch?.nama_gereja || userTenant)}>
                                 {userTenant === 'ALL'
                                   ? 'Global (Semua Gereja)'
                                   : (userChurch?.nama_gereja || 'GKFC Sunter')}
@@ -4599,14 +4975,16 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           </td>
 
                           <td className="p-3.5">
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-amber-300">
+                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-xs border ${
+                              isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-slate-950 border border-slate-800 text-amber-300'
+                            }`}>
                               <KeyRound className="w-3 h-3 text-slate-500" />
-                              <span>{isPasswordShown ? displayPass : '••••••••'}</span>
+                              <span className="font-bold">{isPasswordShown ? displayPass : '••••••••'}</span>
                               <button
                                 type="button"
                                 onClick={() => toggleTablePasswordVisible(u.user_id)}
                                 title={isPasswordShown ? 'Sembunyikan' : 'Tampilkan Password'}
-                                className="text-slate-400 hover:text-white ml-1"
+                                className={`ml-1 cursor-pointer ${isLight ? 'text-slate-500 hover:text-slate-800' : 'text-slate-400 hover:text-white'}`}
                               >
                                 {isPasswordShown ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                               </button>
@@ -4615,12 +4993,12 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                           <td className="p-3.5">
                             <span
-                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                                 u.role === 'SUPER_ADMIN'
-                                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                  ? (isLight ? 'bg-purple-100 text-purple-900 border-purple-300' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30')
                                   : u.role === 'ADMIN'
-                                  ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  ? (isLight ? 'bg-blue-100 text-blue-900 border-blue-300' : 'bg-blue-500/20 text-blue-300 border-blue-500/30')
+                                  : (isLight ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30')
                               }`}
                             >
                               {u.role}
@@ -4629,10 +5007,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
                           <td className="p-3.5">
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
                                 u.status === 'Aktif'
-                                  ? 'bg-emerald-500/20 text-emerald-400'
-                                  : 'bg-rose-500/20 text-rose-400'
+                                  ? (isLight ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30')
+                                  : (isLight ? 'bg-rose-100 text-rose-900 border-rose-300' : 'bg-rose-500/20 text-rose-400 border-rose-500/30')
                               }`}
                             >
                               {u.status}
@@ -4650,7 +5028,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                 {/* Edit Username & Password Button */}
                                 <button
                                   onClick={() => handleOpenEditUser(u)}
-                                  className="p-1.5 rounded-lg bg-indigo-900/40 hover:bg-indigo-800/80 text-indigo-300 border border-indigo-700/50 transition-all cursor-pointer"
+                                  className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                    isLight ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 shadow-2xs' : 'bg-indigo-900/40 hover:bg-indigo-800/80 text-indigo-300 border border-indigo-700/50'
+                                  }`}
                                   title="Ubah Username & Password / Edit Profile"
                                 >
                                   <Edit className="w-3.5 h-3.5" />
@@ -4659,7 +5039,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                 {/* Reset Quick Password */}
                                 <button
                                   onClick={() => handleQuickResetPassword(u)}
-                                  className="p-1.5 rounded-lg bg-amber-900/40 hover:bg-amber-800/80 text-amber-300 border border-amber-700/50 transition-all cursor-pointer"
+                                  className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                    isLight ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300 shadow-2xs' : 'bg-amber-900/40 hover:bg-amber-800/80 text-amber-300 border border-amber-700/50'
+                                  }`}
                                   title="Reset Password Acak"
                                 >
                                   <KeyRound className="w-3.5 h-3.5" />
@@ -4668,10 +5050,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                 {/* Toggle Status */}
                                 <button
                                   onClick={() => handleToggleUserStatus(u.user_id)}
-                                  className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                                  className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
                                     u.status === 'Aktif'
-                                      ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-                                      : 'bg-emerald-900/40 hover:bg-emerald-800 text-emerald-300 border border-emerald-700/50'
+                                      ? (isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700')
+                                      : (isLight ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-emerald-900/40 hover:bg-emerald-800 text-emerald-300 border border-emerald-700/50')
                                   }`}
                                 >
                                   {u.status === 'Aktif' ? 'Nonaktifkan' : 'Aktifkan'}
@@ -4681,7 +5063,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                 {u.username !== 'superadmin' && u.role !== 'SUPER_ADMIN' && u.user_id !== currentUser.user_id && (
                                   <button
                                     onClick={() => handleDeleteUser(u)}
-                                    className="p-1.5 rounded-lg bg-rose-900/30 hover:bg-rose-800/80 text-rose-300 border border-rose-800/50 transition-all cursor-pointer"
+                                    className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                      isLight ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200 shadow-2xs' : 'bg-rose-900/30 hover:bg-rose-800/80 text-rose-300 border border-rose-800/50'
+                                    }`}
                                     title="Hapus User"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -4695,7 +5079,9 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                       setTargetedSecurityAlertUserId(u.user_id);
                                       setIsSecurityAlertModalOpen(true);
                                     }}
-                                    className="p-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 border border-rose-500/40 transition-all cursor-pointer"
+                                    className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                      isLight ? 'bg-rose-100 hover:bg-rose-200 text-rose-800 border-rose-300' : 'bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 border border-rose-500/40'
+                                    }`}
                                     title={`Kirim Peringatan Keamanan Merah ke ${u.username}`}
                                   >
                                     <AlertTriangle className="w-3.5 h-3.5" />
@@ -4718,32 +5104,38 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
       {/* Tab 4: Audit Logs */}
       {activeTab === 'AUDIT' && (
         <div className="space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-            Audit Activity Logs & Login History (17_ACTIVITY_LOGS)
+          <h3 className={`text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            Audit Activity Logs &amp; Login History (17_ACTIVITY_LOGS)
           </h3>
 
-          <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+          <div className={`rounded-2xl border-2 overflow-hidden shadow-xl transition-colors ${
+            isLight ? 'bg-white border-teal-100 text-slate-800' : 'bg-slate-900 border border-slate-800 text-slate-300'
+          }`}>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs text-slate-300">
+              <table className={`w-full text-left border-collapse text-xs ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                 <thead>
-                  <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="p-3.5">Log ID & Waktu</th>
+                  <tr className={`border-b font-bold uppercase tracking-wider text-[11px] ${
+                    isLight ? 'bg-teal-50/80 border-teal-200 text-teal-950' : 'bg-slate-950/80 border-slate-800 text-slate-400'
+                  }`}>
+                    <th className="p-3.5">Log ID &amp; Waktu</th>
                     <th className="p-3.5">User Operasional</th>
                     <th className="p-3.5">Aktivitas Perubahan</th>
                     <th className="p-3.5">Module</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className={`divide-y ${isLight ? 'divide-teal-100/70' : 'divide-slate-800/60'}`}>
                   {activityLogs.map((log) => (
-                    <tr key={log.log_id} className="hover:bg-slate-800/40 transition-all">
-                      <td className="p-3.5 font-mono text-slate-400">
+                    <tr key={log.log_id} className={`transition-all ${isLight ? 'hover:bg-teal-50/40' : 'hover:bg-slate-800/40'}`}>
+                      <td className="p-3.5 font-mono text-slate-500">
                         <div>{log.tanggal}</div>
-                        <div className="text-[10px] text-slate-500">{log.log_id}</div>
+                        <div className="text-[10px] text-slate-400">{log.log_id}</div>
                       </td>
-                      <td className="p-3.5 font-bold text-indigo-300">{log.user}</td>
-                      <td className="p-3.5 text-slate-200">{log.aktivitas}</td>
+                      <td className={`p-3.5 font-bold ${isLight ? 'text-teal-800' : 'text-indigo-300'}`}>{log.user}</td>
+                      <td className={`p-3.5 ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>{log.aktivitas}</td>
                       <td className="p-3.5">
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-bold">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                          isLight ? 'bg-slate-100 text-slate-800 border-slate-300' : 'bg-slate-800 text-slate-300 border-slate-700'
+                        }`}>
                           {log.module}
                         </span>
                       </td>

@@ -11,7 +11,7 @@ import { AlertTriangle, ArrowLeft, Grid, Home, MessageCircle, X } from 'lucide-r
 import { menuModules } from './data/navigationMenu';
 import { playNotificationChime } from './utils/soundHelper';
 
-import { getThemeClasses } from './utils/themeHelper';
+import { getThemeClasses, isColorLight } from './utils/themeHelper';
 import { registerMessagingServiceWorker, listenToForegroundMessages } from './utils/firebaseMessaging';
 import { initOneSignalWebSDK } from './utils/pushNotificationService';
 
@@ -514,21 +514,31 @@ export default function App() {
         <main className="flex-1 min-w-0 p-3 sm:p-5 lg:p-6 pb-24 lg:pb-12 max-w-7xl mx-auto w-full">
           {/* Top Breadcrumb & Quick Back Bar when in Sub-Modules */}
           {activeTab !== 'dashboard' && (
-            <div className="mb-4 p-3.5 rounded-2xl bg-white border border-slate-200/90 text-slate-800 shadow-xs flex items-center justify-between gap-3 animate-fade-in">
+            <div className={`mb-4 p-3.5 rounded-2xl border flex items-center justify-between gap-3 animate-fade-in transition-colors ${
+              theme.isLight
+                ? 'bg-white border-slate-200/90 text-slate-800 shadow-xs'
+                : 'bg-slate-900 border-slate-800 text-white shadow-md'
+            }`}>
               <div className="flex items-center gap-2.5 min-w-0">
                 <button
                   onClick={() => handleSelectTab('dashboard')}
-                  style={{ backgroundColor: settings.warna_tema || '#0d9488' }}
-                  className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
+                  style={{
+                    backgroundColor: settings.warna_tema || '#0d9488',
+                    color: isColorLight(settings.warna_tema || '#0d9488') ? '#0f172a' : '#ffffff'
+                  }}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
                 >
-                  <ArrowLeft className="w-4 h-4 text-white" />
+                  <ArrowLeft
+                    className="w-4 h-4"
+                    style={{ color: isColorLight(settings.warna_tema || '#0d9488') ? '#0f172a' : '#ffffff' }}
+                  />
                   <span>Kembali ke Dashboard Utama</span>
                 </button>
 
-                <span className="text-slate-400 font-bold hidden sm:inline">/</span>
+                <span className={`${theme.isLight ? 'text-slate-400' : 'text-slate-500'} font-bold hidden sm:inline`}>/</span>
 
                 <div className="hidden sm:flex items-center gap-2 min-w-0">
-                  <span className="text-xs font-bold text-teal-700 uppercase tracking-wider truncate">
+                  <span className={`text-xs font-bold uppercase tracking-wider truncate ${theme.isLight ? 'text-teal-800' : 'text-teal-300'}`}>
                     Modul: {menuModules.find((m) => m.id === activeTab)?.title || activeTab}
                   </span>
                 </div>
@@ -536,7 +546,11 @@ export default function App() {
 
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="px-3.5 py-2 rounded-xl bg-white border border-teal-200 text-teal-800 hover:bg-teal-50 text-xs font-bold flex items-center gap-2 shadow-xs transition-all shrink-0 cursor-pointer lg:hidden"
+                className={`px-3.5 py-2 rounded-xl border text-xs font-bold flex items-center gap-2 shadow-xs transition-all shrink-0 cursor-pointer lg:hidden ${
+                  theme.isLight
+                    ? 'bg-white border-teal-200 text-teal-800 hover:bg-teal-50'
+                    : 'bg-slate-800 border-slate-700 text-teal-300 hover:bg-slate-700'
+                }`}
               >
                 <Grid className="w-4 h-4 text-teal-600" />
                 <span>Menu</span>
