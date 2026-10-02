@@ -318,24 +318,29 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
           >
             <Building2 className="w-5 h-5" />
           </div>
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col min-w-0 justify-center">
+            <div className="flex items-center gap-2 min-w-0">
               <h1
-                className={`text-xs sm:text-base font-black tracking-tight truncate leading-tight ${theme.navbar.titleClass}`}
+                className={`text-xs sm:text-base font-black tracking-tight truncate leading-snug ${theme.navbar.titleClass}`}
                 style={theme.navbar.titleStyle}
               >
                 {settings?.nama_gereja || 'Jesus Kingdom Christ'}
               </h1>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 border ${theme.navbar.pillClass}`}>
+              <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 border whitespace-nowrap ${theme.navbar.pillClass}`}>
                 Portal Jemaat
               </span>
             </div>
-            <p
-              className={`text-[10px] sm:text-[11px] font-medium leading-none mt-0.5 truncate max-w-[160px] xs:max-w-none ${theme.navbar.subtextClass}`}
-              style={theme.navbar.subtextStyle}
-            >
-              Sistem Informasi Manajemen Gereja
-            </p>
+            <div className="flex items-center gap-1.5 min-w-0 mt-0.5">
+              <p
+                className={`text-[10px] sm:text-[11px] font-medium leading-tight truncate ${theme.navbar.subtextClass}`}
+                style={theme.navbar.subtextStyle}
+              >
+                Sistem Informasi Manajemen Gereja
+              </p>
+              <span className={`sm:hidden inline-flex items-center text-[9px] font-bold px-1.5 py-0.2 rounded-md border shrink-0 ${theme.navbar.pillClass}`}>
+                Portal
+              </span>
+            </div>
           </div>
         </div>
       </div>
