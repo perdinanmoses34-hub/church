@@ -865,7 +865,7 @@ export const initialChatMessages: ChatMessage[] = [
     sender_name: 'Dkn. Maria Melani (Sekretariat)',
     sender_id: 'adminsekretariat',
     sender_role: 'ADMIN',
-    message: 'Syalom Bapak/Ibu dan Saudara sekalian! Selamat datang di Ruang Chat Komunitas Jemaat GKFC. Di sini kita dapat saling bertukar sapa, berbagi pokok doa, dan saling menguatkan di dalam kasih Kristus. 🙏🕊️',
+    message: 'Syalom Bapak/Ibu dan Saudara sekalian! Selamat datang di Ruang Chat Komunitas Jemaat Gereja. Di sini kita dapat saling bertukar sapa, berbagi pokok doa, dan saling menguatkan di dalam kasih Kristus. 🙏🕊️',
     created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
     tag: 'INFO',
     is_pinned: true
