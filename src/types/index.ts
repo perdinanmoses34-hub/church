@@ -292,6 +292,11 @@ export interface AppSettings {
   // Dashboard Visual Customization
   header_title?: string;
   header_subtitle?: string;
+  // Running Text / Topbar Marquee Configuration
+  topbar_marquee_enabled?: boolean;
+  topbar_text?: string;
+  topbar_speed?: 'slow' | 'normal' | 'fast';
+  show_topbar?: boolean;
   theme_preset?: 'EMERALD_LIGHT' | 'DARK_SLATE' | 'MIDNIGHT_BLUE' | 'DEEP_PURPLE' | 'WARM_GOLD' | 'FOREST_GREEN' | 'LUXE_LIGHT';
   accent_color?: 'INDIGO' | 'EMERALD' | 'AMBER' | 'ROSE' | 'CYAN' | 'PURPLE' | 'ROYAL_GOLD';
   card_style?: 'GLASS' | 'SOLID' | 'NEON' | 'FLAT';

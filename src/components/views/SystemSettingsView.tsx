@@ -1306,6 +1306,171 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
               </div>
             </div>
 
+            {/* Section 1.2: Pengaturan Bar Teks Berjalan Atas (Running Text / Marquee Ticker) */}
+            <div className={cardContainerClass}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
+                <div>
+                  <h3 className={sectionTitleClass}>
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-teal-600" />
+                      <span>Pengaturan Teks Berjalan Atas (Marquee Header Ticker)</span>
+                    </span>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                      isLight ? 'text-teal-800 bg-teal-50 border-teal-200' : 'text-teal-300 bg-teal-950/60 border-teal-700'
+                    }`}>
+                      Tampilan Mobile &amp; Desktop
+                    </span>
+                  </h3>
+                  <p className={`text-xs mt-1 ${isLight ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
+                    Atur teks berjalan di atas navbar yang tampil pada layar handphone/desktop untuk warta singkat, nama gereja, dan informasi sistem manajemen.
+                  </p>
+                </div>
+              </div>
+
+              {/* Live Preview Box */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Pratinjau Langsung (Live Preview)
+                  </label>
+                  <span className="text-[10px] text-teal-600 dark:text-teal-400 font-medium">
+                    Sentuh atau arahkan kursor untuk menjeda teks
+                  </span>
+                </div>
+                <div className="h-8 bg-teal-950 rounded-xl text-white/90 text-xs px-3 sm:px-4 flex items-center overflow-hidden font-medium select-none shadow-inner border border-teal-900/60">
+                  <div className="flex items-center gap-2 shrink-0 pr-2.5 sm:pr-3 z-10 bg-teal-950">
+                    <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0" />
+                    <span className="font-bold uppercase tracking-wider text-[10px] text-teal-300 shrink-0">
+                      CMS GEREJA
+                    </span>
+                    <span className="text-teal-700/80 select-none">|</span>
+                  </div>
+
+                  <div className="flex-1 overflow-hidden relative flex items-center min-w-0">
+                    {metaForm.topbar_marquee_enabled !== false ? (
+                      <div
+                        className={`text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap ${
+                          metaForm.topbar_speed === 'slow'
+                            ? 'animate-marquee-slow'
+                            : metaForm.topbar_speed === 'fast'
+                            ? 'animate-marquee-fast'
+                            : 'animate-marquee-normal'
+                        }`}
+                      >
+                        {metaForm.topbar_text && metaForm.topbar_text.trim()
+                          ? metaForm.topbar_text.trim()
+                          : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                      </div>
+                    ) : (
+                      <span className="font-semibold tracking-wide truncate text-[11px] sm:text-xs text-white/95">
+                        {metaForm.topbar_text && metaForm.topbar_text.trim()
+                          ? metaForm.topbar_text.trim()
+                          : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                {/* 1. Toggle Tampilkan Bar Atas */}
+                <div className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 ${
+                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-800/60 border-slate-700'
+                }`}>
+                  <div>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-100">Tampilkan Bar Atas</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Aktifkan bar kecil di atas navbar</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={metaForm.show_topbar !== false}
+                      onChange={(e) => setMetaForm({ ...metaForm, show_topbar: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-600"></div>
+                  </label>
+                </div>
+
+                {/* 2. Toggle Animasi Marquee Teks Berjalan */}
+                <div className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 ${
+                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-800/60 border-slate-700'
+                }`}>
+                  <div>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-100">Efek Teks Berjalan (Marquee)</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Teks bergerak halus melintasi layar</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={metaForm.topbar_marquee_enabled !== false}
+                      onChange={(e) => setMetaForm({ ...metaForm, topbar_marquee_enabled: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-600"></div>
+                  </label>
+                </div>
+              </div>
+
+              {/* 3. Input Kustom Teks Berjalan */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className={labelClass}>Isi Tulisan / Teks Berjalan</label>
+                  {metaForm.topbar_text && (
+                    <button
+                      type="button"
+                      onClick={() => setMetaForm({ ...metaForm, topbar_text: '' })}
+                      className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline font-semibold"
+                    >
+                      Reset ke Teks Otomatis
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  value={metaForm.topbar_text || ''}
+                  placeholder={`CMS GEREJA • ${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                  onChange={(e) => setMetaForm({ ...metaForm, topbar_text: e.target.value })}
+                  className={inputClass}
+                />
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Tip: Jika dikosongkan, sistem otomatis memakai format: <span className="font-mono text-teal-600 dark:text-teal-400">[Nama Gereja] — [Subtitle Header]</span>. Anda dapat menuliskan warta jemaat atau pengumuman khusus di sini.
+                </p>
+              </div>
+
+              {/* 4. Kecepatan Teks Berjalan */}
+              <div className="space-y-2">
+                <label className={labelClass}>Pilihan Kecepatan Gerak Teks</label>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'slow', label: '🐢 Lambat (36s)', desc: 'Nyaman dibaca' },
+                    { id: 'normal', label: '🚶 Sedang (22s)', desc: 'Kecepatan standar' },
+                    { id: 'fast', label: '⚡ Cepat (14s)', desc: 'Animasi dinamis' }
+                  ].map((spd) => {
+                    const isSelected = (metaForm.topbar_speed || 'normal') === spd.id;
+                    return (
+                      <button
+                        type="button"
+                        key={spd.id}
+                        onClick={() => setMetaForm({ ...metaForm, topbar_speed: spd.id as any })}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? 'bg-teal-50 dark:bg-teal-950/60 border-teal-500 text-teal-900 dark:text-teal-200 ring-2 ring-teal-500/30'
+                            : isLight
+                            ? 'bg-white border-slate-200 text-slate-700 hover:border-teal-300'
+                            : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-600'
+                        }`}
+                      >
+                        <div className="font-bold text-xs">{spd.label}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">{spd.desc}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
             {/* Section 1.5: Pengaturan Rekening Bank & QRIS Persembahan Digital */}
             <div className={cardContainerClass}>
               <h3 className={sectionTitleClass}>
