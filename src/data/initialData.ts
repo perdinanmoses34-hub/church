@@ -262,7 +262,7 @@ export const initialUsers: User[] = [
     status: 'Aktif',
     created_at: '2025-01-01 08:00',
     last_login: '2026-07-28 20:45',
-    tenant_id: 'CHURCH-001'
+    tenant_id: 'CHURCH-004'
   },
   {
     user_id: 'USR-002B',

@@ -487,6 +487,7 @@ export interface ChatMessage {
   recipient_name?: string;
   recipient_role?: 'SUPER_ADMIN' | 'ADMIN' | 'JEMAAT' | 'TAMU';
   recipient_avatar?: string;
+  tenant_id?: string;
 }
 
 export type HymnSongCategory = 'KJ' | 'NKB' | 'PKJ' | 'KONTEMPORER';

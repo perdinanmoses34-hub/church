@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { User, AppSettings, ChatMessage, ChatTag, Jemaat } from '../../types';
-import { StorageManager } from '../../utils/storage';
+import { StorageManager, normalizeTenantId } from '../../utils/storage';
 import { playNotificationChime } from '../../utils/soundHelper';
 import { confirmDialog } from '../../utils/confirmDialog';
 import {
@@ -194,15 +194,82 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     };
   }, [soundEnabled]);
 
-  // Build Contact List from registered Users & Jemaat
+  // Strict Multi-Tenant Isolation: Determine the active church tenant ID
+  const currentActiveTenantId = StorageManager.getActiveTenantId() || 'CHURCH-001';
+  const effectiveChurchTenantId = useMemo(() => {
+    // 1. If currentUser is assigned to a specific church tenant (non-SUPER_ADMIN)
+    if (currentUser.role !== 'SUPER_ADMIN' && currentUser.tenant_id && currentUser.tenant_id !== 'ALL') {
+      return normalizeTenantId(currentUser.tenant_id);
+    }
+    // 2. If settings.nama_gereja explicitly identifies Monapa Puriala or another church
+    const churchName = (settings?.nama_gereja || '').toLowerCase().trim();
+    if (churchName.includes('monapa') || churchName.includes('puriala')) {
+      return 'CHURCH-004';
+    }
+    if (churchName.includes('gbi') || churchName.includes('rock') || churchName.includes('juanda')) {
+      return 'CHURCH-002';
+    }
+    if (churchName.includes('gkii') || churchName.includes('sejahtera')) {
+      return 'CHURCH-003';
+    }
+    return normalizeTenantId(currentActiveTenantId);
+  }, [currentUser.tenant_id, currentUser.role, currentActiveTenantId, settings?.nama_gereja]);
+
+  // Build Contact List from registered Users & Jemaat (STRICTLY ISOLATED TO CURRENT CHURCH ONLY)
   const contactsList = useMemo<ChatContact[]>(() => {
     const users = StorageManager.getUsers();
     const jemaatList = StorageManager.getJemaat();
     const contactsMap = new Map<string, ChatContact>();
 
+    const isCurrentMonapa =
+      effectiveChurchTenantId === 'CHURCH-004' ||
+      (settings?.nama_gereja &&
+        (settings.nama_gereja.toLowerCase().includes('monapa') ||
+          settings.nama_gereja.toLowerCase().includes('puriala')));
+
     // 1. Add registered users (admins, pastors, staff, jemaat accounts)
+    // STRICT MULTI-TENANT ISOLATION:
     users.forEach((u) => {
+      if (!u) return;
       if (u.user_id === activeUserId || u.username === currentUser.username) return;
+
+      // NEVER show SuperAdmin or platform-wide accounts in church private chat
+      if (u.role === 'SUPER_ADMIN' || u.username.toLowerCase() === 'superadmin' || u.tenant_id === 'ALL') {
+        return;
+      }
+
+      // Determine the user's assigned church tenant
+      let uTenant = normalizeTenantId(u.tenant_id || 'CHURCH-001');
+      if (u.username === 'admin_monapa' || u.nama?.toLowerCase().includes('monapa puriala')) {
+        uTenant = 'CHURCH-004';
+      } else if (u.username === 'admin_gbi' || u.nama?.toLowerCase().includes('gbi') || u.nama?.toLowerCase().includes('rock')) {
+        uTenant = 'CHURCH-002';
+      } else if (u.username === 'admin_gkii' || u.nama?.toLowerCase().includes('gkii')) {
+        uTenant = 'CHURCH-003';
+      }
+
+      // Explicit cross-church block:
+      // If we are in Monapa Puriala, explicitly reject any GBI ROCK Juanda, ingelin, GKII, etc.
+      const uNameLower = (u.nama || '').toLowerCase();
+      const uUserLower = (u.username || '').toLowerCase();
+      if (isCurrentMonapa) {
+        if (
+          uTenant !== 'CHURCH-004' ||
+          uNameLower.includes('gbi') ||
+          uNameLower.includes('rock') ||
+          uNameLower.includes('juanda') ||
+          uUserLower.includes('gbi') ||
+          uUserLower.includes('ingelin') ||
+          uNameLower.includes('ingelin')
+        ) {
+          return; // Strictly reject accounts from other churches!
+        }
+      } else {
+        // In other churches, strictly require uTenant to match effectiveChurchTenantId
+        if (uTenant !== effectiveChurchTenantId) {
+          return;
+        }
+      }
 
       contactsMap.set(u.user_id, {
         id: u.user_id,
@@ -210,14 +277,28 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         username: u.username,
         role: u.role,
         avatar: u.foto,
-        wilayah: 'Pengurus / User Terdaftar'
+        wilayah: 'Pengurus / Pelayan Gereja'
       });
     });
 
-    // 2. Add all jemaat database members
+    // 2. Add all jemaat database members of this church
     jemaatList.forEach((j) => {
+      if (!j) return;
       if (j.jemaat_id === activeUserId || j.jemaat_id === currentUser.jemaat_id) return;
       if (j.nama_lengkap.toLowerCase().trim() === activeUserName.toLowerCase().trim()) return;
+
+      // Guard against any demo data cross-talk
+      if (isCurrentMonapa) {
+        const jNameLower = (j.nama_lengkap || '').toLowerCase();
+        if (
+          jNameLower.includes('gbi') ||
+          jNameLower.includes('rock') ||
+          jNameLower.includes('juanda') ||
+          jNameLower.includes('ingelin')
+        ) {
+          return;
+        }
+      }
 
       if (!contactsMap.has(j.jemaat_id)) {
         contactsMap.set(j.jemaat_id, {
@@ -241,6 +322,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       // Strictly isolated: only messages that belong to the exact pair (activeUserId and contact.id)
       const relatedPrivate = messages.filter((m) => {
         if (!m.is_private) return false;
+        if (m.tenant_id && m.tenant_id !== effectiveChurchTenantId) return false;
         if (m.conversation_id) {
           return m.conversation_id === expectedConvId;
         }
@@ -274,7 +356,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       if (b.lastTime) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [messages, activeUserId, currentUser, activeUserName]);
+  }, [messages, activeUserId, currentUser, activeUserName, effectiveChurchTenantId, settings?.nama_gereja]);
 
   // Total unread private messages strictly addressed to activeUserId
   const totalUnreadPrivateCount = useMemo(() => {
@@ -365,7 +447,8 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         conversation_id: convId,
         recipient_id: selectedContact.id,
         recipient_name: selectedContact.name,
-        recipient_role: selectedContact.role
+        recipient_role: selectedContact.role,
+        tenant_id: effectiveChurchTenantId
       });
     } else {
       StorageManager.addChatMessage({
@@ -375,6 +458,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         message: trimmed,
         tag: selectedTag,
         is_private: false,
+        tenant_id: effectiveChurchTenantId,
         reply_to: replyTarget
           ? {
               id: replyTarget.id,
@@ -458,6 +542,12 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
   // AIRTIGHT ISOLATION: Strict conversation filter
   const currentFeedMessages = useMemo(() => {
+    const isCurrentMonapa =
+      effectiveChurchTenantId === 'CHURCH-004' ||
+      (settings?.nama_gereja &&
+        (settings.nama_gereja.toLowerCase().includes('monapa') ||
+          settings.nama_gereja.toLowerCase().includes('puriala')));
+
     if (chatMode === 'PRIVATE') {
       if (!selectedContact) return [];
       const expectedConvId = [activeUserId, selectedContact.id].sort().join('___');
@@ -465,6 +555,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       // STRICT ISOLATION: A private message is ONLY shown if it explicitly belongs to this exact pair
       return messages.filter((msg) => {
         if (!msg.is_private) return false;
+        if (msg.tenant_id && msg.tenant_id !== effectiveChurchTenantId) return false;
         if (msg.conversation_id) {
           return msg.conversation_id === expectedConvId;
         }
@@ -479,6 +570,17 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     // Community Mode: NEVER show private messages in the community feed!
     return messages.filter((msg) => {
       if (msg.is_private) return false;
+
+      // Multi-tenant check: never show community messages from another church
+      if (msg.tenant_id && msg.tenant_id !== effectiveChurchTenantId) {
+        return false;
+      }
+      if (isCurrentMonapa) {
+        const sNameLower = (msg.sender_name || '').toLowerCase();
+        if (sNameLower.includes('gbi rock') || sNameLower.includes('juanda') || sNameLower.includes('ingelin')) {
+          return false;
+        }
+      }
 
       if (filterTag === 'PINNED') {
         if (!msg.is_pinned) return false;
@@ -495,7 +597,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
       return true;
     });
-  }, [messages, chatMode, selectedContact, filterTag, searchQuery, activeUserId]);
+  }, [messages, chatMode, selectedContact, filterTag, searchQuery, activeUserId, effectiveChurchTenantId, settings?.nama_gereja]);
 
   const pinnedMessages = useMemo(() => {
     return messages.filter((m) => m.is_pinned && !m.is_private);

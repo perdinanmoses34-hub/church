@@ -937,13 +937,17 @@ export const StorageManager = {
         status: 'Aktif',
         created_at: '2025-01-01 08:00',
         last_login: '2026-07-28 20:45',
-        tenant_id: 'CHURCH-001'
+        tenant_id: 'CHURCH-004'
       };
       list.push(monapaAccount);
       setItem(KEYS.USERS, list);
     } else {
       const monapa = list[monapaIndex];
       let updated = false;
+      if (monapa.tenant_id !== 'CHURCH-004') {
+        monapa.tenant_id = 'CHURCH-004';
+        updated = true;
+      }
       if (!monapa.password_hash) {
         monapa.password_hash = 'admin123';
         updated = true;
@@ -1081,7 +1085,14 @@ export const StorageManager = {
     const rawActive = targetTenantId || StorageManager.getActiveTenantId() || 'CHURCH-001';
     const activeTenantId = normalizeTenantId(rawActive);
     return allUsers.filter((u) => {
-      const uTenant = normalizeTenantId(u.tenant_id || (u.role === 'SUPER_ADMIN' ? 'ALL' : 'CHURCH-001'));
+      let uTenant = normalizeTenantId(u.tenant_id || (u.role === 'SUPER_ADMIN' ? 'ALL' : 'CHURCH-001'));
+      if (u.username === 'admin_monapa' || u.nama?.toLowerCase().includes('monapa puriala')) {
+        uTenant = 'CHURCH-004';
+      } else if (u.username === 'admin_gbi' || u.nama?.toLowerCase().includes('gbi') || u.nama?.toLowerCase().includes('rock')) {
+        uTenant = 'CHURCH-002';
+      } else if (u.username === 'admin_gkii' || u.nama?.toLowerCase().includes('gkii')) {
+        uTenant = 'CHURCH-003';
+      }
       return uTenant === activeTenantId;
     });
   },

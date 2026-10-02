@@ -277,6 +277,18 @@ export default function App() {
         }
       }
 
+      // Multi-Tenant Isolation: Never show chat notifications from other churches
+      if (latest.tenant_id && latest.tenant_id !== activeTenantId) {
+        return;
+      }
+      const isMonapa = activeTenantId === 'CHURCH-004' || (settings?.nama_gereja && settings.nama_gereja.toLowerCase().includes('monapa'));
+      if (isMonapa) {
+        const sLower = (latest.sender_name || '').toLowerCase();
+        if (sLower.includes('gbi rock') || sLower.includes('juanda') || sLower.includes('ingelin')) {
+          return;
+        }
+      }
+
       let seenId = '';
       try {
         seenId = sessionStorage.getItem('cms_last_seen_chat_id') || lastDismissedChatId;
@@ -373,6 +385,10 @@ export default function App() {
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
+    if (user.tenant_id && user.tenant_id !== 'ALL') {
+      StorageManager.setActiveTenantId(user.tenant_id);
+      setActiveTenantId(user.tenant_id);
+    }
     setIsLoginPageOpen(false);
     if (user.role === 'JEMAAT') {
       setActiveTab('jemaat_portal');
