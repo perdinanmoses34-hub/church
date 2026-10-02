@@ -477,43 +477,67 @@ export default function App() {
 
   return (
     <div id="app-container" className={`min-h-screen ${theme.rootBg} flex flex-col selection:bg-teal-500/30 selection:text-teal-900 relative transition-colors duration-200`}>
-      {/* 1. Top Window Bar (Teks Berjalan / Marquee) */}
-      {settings.show_topbar !== false && (
-        <div className="h-7 sm:h-8 bg-teal-950 text-white/90 text-xs px-3 sm:px-4 flex items-center overflow-hidden font-medium select-none shrink-0 z-40 border-b border-teal-900/60 shadow-xs">
-          <div className="flex items-center gap-2 shrink-0 pr-2.5 sm:pr-3 z-10 bg-teal-950">
-            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0" />
-            <span className="font-bold uppercase tracking-wider text-[10px] sm:text-[11px] text-teal-300 shrink-0">
-              CMS GEREJA
-            </span>
-            <span className="text-teal-700/80 select-none hidden xs:inline">|</span>
-          </div>
+      {/* 1. Top Window Bar (Teks Berjalan / Marquee Berkesinambungan) */}
+      {settings.show_topbar !== false && (() => {
+        const topbarTextContent = settings.topbar_text && settings.topbar_text.trim()
+          ? settings.topbar_text.trim()
+          : `${settings.nama_gereja || 'Jesus Kingdom Christ'} — ${settings.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`;
 
-          <div className="flex-1 overflow-hidden relative flex items-center min-w-0">
-            {settings.topbar_marquee_enabled !== false ? (
-              <div
-                className={`text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap cursor-default ${
-                  settings.topbar_speed === 'slow'
-                    ? 'animate-marquee-slow'
-                    : settings.topbar_speed === 'fast'
-                    ? 'animate-marquee-fast'
-                    : 'animate-marquee-normal'
-                }`}
-                title="Sentuh atau arahkan kursor untuk menjeda teks berjalan"
-              >
-                {settings.topbar_text && settings.topbar_text.trim()
-                  ? settings.topbar_text.trim()
-                  : `${settings.nama_gereja || 'Jesus Kingdom Christ'} — ${settings.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
-              </div>
-            ) : (
-              <span className="font-semibold tracking-wide truncate text-[11px] sm:text-xs text-white/95">
-                {settings.topbar_text && settings.topbar_text.trim()
-                  ? settings.topbar_text.trim()
-                  : `${settings.nama_gereja || 'Jesus Kingdom Christ'} — ${settings.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+        return (
+          <div className="h-7 sm:h-8 bg-teal-950 text-white/90 text-xs px-3 sm:px-4 flex items-center overflow-hidden font-medium select-none shrink-0 z-40 border-b border-teal-900/60 shadow-xs">
+            <div className="flex items-center gap-2 shrink-0 pr-2.5 sm:pr-3 z-10 bg-teal-950">
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0" />
+              <span className="font-bold uppercase tracking-wider text-[10px] sm:text-[11px] text-teal-300 shrink-0">
+                CMS GEREJA
               </span>
-            )}
+              <span className="text-teal-700/80 select-none hidden xs:inline">|</span>
+            </div>
+
+            <div className="flex-1 overflow-hidden relative flex items-center min-w-0">
+              {settings.topbar_marquee_enabled !== false ? (
+                <div
+                  className={`flex w-max shrink-0 cursor-default select-none ${
+                    settings.topbar_speed === 'slow'
+                      ? 'animate-marquee-slow'
+                      : settings.topbar_speed === 'fast'
+                      ? 'animate-marquee-fast'
+                      : 'animate-marquee-normal'
+                  }`}
+                  title="Sentuh atau arahkan kursor untuk menjeda teks berjalan"
+                >
+                  {/* Segment 1 */}
+                  <div className="flex items-center shrink-0">
+                    <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                      {topbarTextContent}
+                    </span>
+                    <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                    <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                      {topbarTextContent}
+                    </span>
+                    <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                  </div>
+
+                  {/* Segment 2 (Clone untuk loop berkesinambungan tanpa jeda kosong) */}
+                  <div className="flex items-center shrink-0" aria-hidden="true">
+                    <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                      {topbarTextContent}
+                    </span>
+                    <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                    <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                      {topbarTextContent}
+                    </span>
+                    <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                  </div>
+                </div>
+              ) : (
+                <span className="font-semibold tracking-wide truncate text-[11px] sm:text-xs text-white/95">
+                  {topbarTextContent}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* 2. Main Top Header (NavbarHeader) */}
       <NavbarHeader

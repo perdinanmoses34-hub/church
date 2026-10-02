@@ -108,34 +108,34 @@ body {
   color: #f8fafc;
 }
 
-/* Running Text (Marquee Ticker) Animations */
-@keyframes marquee-scroll {
+/* Running Text (Marquee Ticker) Seamless Continuous Loop */
+@keyframes marquee-continuous {
   0% {
-    transform: translateX(100%);
+    transform: translateX(0%);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
 .animate-marquee-slow {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee-scroll 36s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: marquee-continuous 42s linear infinite;
   will-change: transform;
 }
 
 .animate-marquee-normal {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee-scroll 22s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: marquee-continuous 26s linear infinite;
   will-change: transform;
 }
 
 .animate-marquee-fast {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee-scroll 14s linear infinite;
+  display: flex;
+  width: max-content;
+  animation: marquee-continuous 16s linear infinite;
   will-change: transform;
 }
 

@@ -1349,7 +1349,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <div className="flex-1 overflow-hidden relative flex items-center min-w-0">
                     {metaForm.topbar_marquee_enabled !== false ? (
                       <div
-                        className={`text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap ${
+                        className={`flex w-max shrink-0 cursor-default select-none ${
                           metaForm.topbar_speed === 'slow'
                             ? 'animate-marquee-slow'
                             : metaForm.topbar_speed === 'fast'
@@ -1357,9 +1357,37 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                             : 'animate-marquee-normal'
                         }`}
                       >
-                        {metaForm.topbar_text && metaForm.topbar_text.trim()
-                          ? metaForm.topbar_text.trim()
-                          : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                        {/* Segment 1 */}
+                        <div className="flex items-center shrink-0">
+                          <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                            {metaForm.topbar_text && metaForm.topbar_text.trim()
+                              ? metaForm.topbar_text.trim()
+                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                          </span>
+                          <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                          <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                            {metaForm.topbar_text && metaForm.topbar_text.trim()
+                              ? metaForm.topbar_text.trim()
+                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                          </span>
+                          <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                        </div>
+
+                        {/* Segment 2 */}
+                        <div className="flex items-center shrink-0" aria-hidden="true">
+                          <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                            {metaForm.topbar_text && metaForm.topbar_text.trim()
+                              ? metaForm.topbar_text.trim()
+                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                          </span>
+                          <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                          <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
+                            {metaForm.topbar_text && metaForm.topbar_text.trim()
+                              ? metaForm.topbar_text.trim()
+                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                          </span>
+                          <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
+                        </div>
                       </div>
                     ) : (
                       <span className="font-semibold tracking-wide truncate text-[11px] sm:text-xs text-white/95">
