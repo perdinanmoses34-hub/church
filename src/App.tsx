@@ -671,7 +671,14 @@ export default function App() {
 
           {activeTab === 'jemaat_portal' && <JemaatPortalView key={`${activeTenantId}_portal`} currentUser={effectiveUser} settings={settings} />}
 
-          {activeTab === 'chat' && <ChatView key={`${activeTenantId}_${effectiveUser.user_id || 'guest'}_chat`} currentUser={effectiveUser} settings={settings} />}
+          {activeTab === 'chat' && (
+            <ChatView
+              key={`${activeTenantId}_${effectiveUser.user_id || 'guest'}_chat`}
+              currentUser={effectiveUser}
+              settings={settings}
+              onOpenLogin={() => setIsLoginPageOpen(true)}
+            />
+          )}
 
           {activeTab === 'pustaka' && (
             <PustakaRohaniView

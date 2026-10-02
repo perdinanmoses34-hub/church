@@ -39,6 +39,7 @@ import {
 interface ChatViewProps {
   currentUser: User;
   settings?: AppSettings;
+  onOpenLogin?: () => void;
 }
 
 interface ChatContact {
@@ -103,7 +104,7 @@ const QUICK_BLESSINGS = [
   '⛪ Salam Kasih'
 ];
 
-export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => {
+export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings, onOpenLogin }) => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const list = StorageManager.getChatMessages();
     if (list && list.length > 0) return list;
@@ -199,17 +200,19 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     };
   }, [soundEnabled]);
 
-  // Build Contact List from registered Users & Jemaat of the church
-  // STRICTLY EXCLUDES ACCOUNTS FROM OTHER CHURCHES (specifically: GBI ROCK Juanda, ingelin, GKII)
+  // Build Contact List ONLY from registered active users in Management User (StorageManager.getUsers())
+  // STRICTLY EXCLUDES accounts from other churches (GBI ROCK Juanda, ingelin, GKII) and platform SuperAdmin
   const contactsList = useMemo<ChatContact[]>(() => {
     const users = StorageManager.getUsers();
-    const rawJemaat = StorageManager.getJemaat();
-    const churchJemaat = rawJemaat && rawJemaat.length > 0 ? rawJemaat : initialJemaat;
     const contactsMap = new Map<string, ChatContact>();
 
-    // 1. Add registered users (admins, pastors, staff, jemaat accounts)
+    // ONLY add registered accounts from Management User
     users.forEach((u) => {
       if (!u) return;
+      // Skip inactive accounts
+      if (u.status === 'Nonaktif') return;
+
+      // Skip current logged in user
       if (u.user_id === activeUserId || u.username === currentUser.username) return;
 
       // NEVER show platform SuperAdmin in local church private chat
@@ -262,65 +265,39 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
         username: u.username,
         role: u.role,
         avatar: u.foto,
-        wilayah: 'Pengurus / Pelayan Gereja'
+        wilayah: u.role === 'ADMIN' ? 'Pengurus / Admin Gereja' : 'Jemaat Terdaftar (Manajemen User)'
       });
     });
 
-    // 2. Add all jemaat members of this church
-    churchJemaat.forEach((j) => {
-      if (!j) return;
-      if (j.jemaat_id === activeUserId || j.jemaat_id === currentUser.jemaat_id) return;
-      if (j.nama_lengkap.toLowerCase().trim() === activeUserName.toLowerCase().trim()) return;
+    const myId = activeUserId.toLowerCase();
+    const myUsername = (currentUser.username || '').toLowerCase();
 
-      const jName = (j.nama_lengkap || '').toLowerCase();
-      // Guard against any demo data cross-talk from other churches
-      if (
-        jName.includes('gbi') ||
-        jName.includes('rock') ||
-        jName.includes('juanda') ||
-        jName.includes('ingelin') ||
-        jName.includes('gkii')
-      ) {
-        return;
-      }
-
-      if (!contactsMap.has(j.jemaat_id)) {
-        contactsMap.set(j.jemaat_id, {
-          id: j.jemaat_id,
-          name: j.nama_lengkap,
-          role: 'JEMAAT',
-          avatar: j.foto,
-          wilayah: j.wilayah || 'Jemaat Gereja'
-        });
-      } else {
-        const existing = contactsMap.get(j.jemaat_id)!;
-        existing.wilayah = j.wilayah || existing.wilayah;
-        if (!existing.avatar && j.foto) existing.avatar = j.foto;
-      }
-    });
-
-    // 3. AIRTIGHT PRIVACY: Calculate last private message & unread count strictly for activeUserId
+    // Calculate last private message & unread count strictly for activeUserId
     const result = Array.from(contactsMap.values()).map((contact) => {
-      const expectedConvId = [activeUserId, contact.id].sort().join('___');
+      const cId = contact.id.toLowerCase();
+      const cUser = (contact.username || '').toLowerCase();
 
-      // Strictly isolated: only messages that belong to the exact pair (activeUserId and contact.id)
+      // Find all private messages exchanged between active user and this contact
       const relatedPrivate = messages.filter((m) => {
         if (!m.is_private) return false;
-        if (m.conversation_id) {
-          return m.conversation_id === expectedConvId;
-        }
-        if (!m.sender_id || !m.recipient_id) return false;
-        return (
-          (m.sender_id === activeUserId && m.recipient_id === contact.id) ||
-          (m.sender_id === contact.id && m.recipient_id === activeUserId)
-        );
+        const sId = (m.sender_id || '').toLowerCase();
+        const rId = (m.recipient_id || '').toLowerCase();
+
+        const isSenderMe = sId === myId || sId === myUsername;
+        const isRecipientMe = rId === myId || rId === myUsername;
+        const isSenderContact = sId === cId || sId === cUser;
+        const isRecipientContact = rId === cId || rId === cUser;
+
+        return (isSenderMe && isRecipientContact) || (isSenderContact && isRecipientMe);
       });
 
       const lastMsg = relatedPrivate[relatedPrivate.length - 1];
 
-      // Unread: messages where contact is sender and activeUserId is recipient
+      // Unread: messages where contact is sender and active user is recipient
       const unreadCount = relatedPrivate.filter((m) => {
-        return m.sender_id === contact.id && m.recipient_id === activeUserId;
+        const sId = (m.sender_id || '').toLowerCase();
+        const rId = (m.recipient_id || '').toLowerCase();
+        return (sId === cId || sId === cUser) && (rId === myId || rId === myUsername);
       }).length;
 
       return {
@@ -339,15 +316,21 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
       if (b.lastTime) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [messages, activeUserId, currentUser, activeUserName]);
+  }, [messages, activeUserId, currentUser]);
 
   // Total unread private messages strictly addressed to activeUserId
   const totalUnreadPrivateCount = useMemo(() => {
+    const myId = activeUserId.toLowerCase();
+    const myUsername = (currentUser.username || '').toLowerCase();
     return messages.filter((m) => {
       if (!m.is_private) return false;
-      return m.recipient_id === activeUserId && m.sender_id !== activeUserId;
+      const rId = (m.recipient_id || '').toLowerCase();
+      const sId = (m.sender_id || '').toLowerCase();
+      const isRecipientMe = rId === myId || rId === myUsername;
+      const isSenderMe = sId === myId || sId === myUsername;
+      return isRecipientMe && !isSenderMe;
     }).length;
-  }, [messages, activeUserId]);
+  }, [messages, activeUserId, currentUser.username]);
 
   // Filtered contacts based on search & role
   const filteredContacts = useMemo(() => {
@@ -410,10 +393,15 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     const trimmed = inputMessage.trim();
     if (!trimmed) return;
 
+    if (isGuest) {
+      alert('Silakan Masuk / Login dengan akun yang terdaftar pada Manajemen User untuk mengirim pesan.');
+      if (onOpenLogin) onOpenLogin();
+      return;
+    }
+
     let senderRole: 'SUPER_ADMIN' | 'ADMIN' | 'JEMAAT' | 'TAMU' = 'JEMAAT';
     if (currentUser.role === 'SUPER_ADMIN') senderRole = 'SUPER_ADMIN';
     else if (currentUser.role === 'ADMIN') senderRole = 'ADMIN';
-    else if (isGuest) senderRole = 'TAMU';
 
     const isPrivate = chatMode === 'PRIVATE' && !!selectedContact;
 
@@ -522,23 +510,48 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     setShowClearConfirm(false);
   };
 
+  // Set of all registered users in Management User
+  const validUserSet = useMemo(() => {
+    const set = new Set<string>();
+    const allUsers = StorageManager.getUsers();
+    allUsers.forEach((u) => {
+      if (u.user_id) set.add(u.user_id.toLowerCase());
+      if (u.username) set.add(u.username.toLowerCase());
+      if (u.nama) set.add(u.nama.toLowerCase().trim());
+    });
+    return set;
+  }, [messages]);
+
   // AIRTIGHT ISOLATION: Strict conversation filter
+  // ONLY messages from accounts in Management User are displayed
   const currentFeedMessages = useMemo(() => {
+    const myId = activeUserId.toLowerCase();
+    const myUsername = (currentUser.username || '').toLowerCase();
+
     if (chatMode === 'PRIVATE') {
       if (!selectedContact) return [];
-      const expectedConvId = [activeUserId, selectedContact.id].sort().join('___');
+      const cId = selectedContact.id.toLowerCase();
+      const cUser = (selectedContact.username || '').toLowerCase();
 
-      // STRICT ISOLATION: A private message is ONLY shown if it explicitly belongs to this exact pair
       return messages.filter((msg) => {
         if (!msg.is_private) return false;
-        if (msg.conversation_id) {
-          return msg.conversation_id === expectedConvId;
-        }
-        if (!msg.sender_id || !msg.recipient_id) return false;
-        return (
-          (msg.sender_id === activeUserId && msg.recipient_id === selectedContact.id) ||
-          (msg.sender_id === selectedContact.id && msg.recipient_id === activeUserId)
-        );
+
+        const sId = (msg.sender_id || '').toLowerCase();
+        const sName = (msg.sender_name || '').toLowerCase().trim();
+        const rId = (msg.recipient_id || '').toLowerCase();
+        const rName = (msg.recipient_name || '').toLowerCase().trim();
+
+        // Both sender & recipient MUST be in Management User
+        const isSenderValid = validUserSet.has(sId) || validUserSet.has(sName) || sId === myId || sId === myUsername;
+        const isRecipientValid = validUserSet.has(rId) || validUserSet.has(rName) || rId === myId || rId === myUsername;
+        if (!isSenderValid || !isRecipientValid) return false;
+
+        const isSenderMe = sId === myId || sId === myUsername;
+        const isRecipientMe = rId === myId || rId === myUsername;
+        const isSenderContact = sId === cId || sId === cUser;
+        const isRecipientContact = rId === cId || rId === cUser;
+
+        return (isSenderMe && isRecipientContact) || (isSenderContact && isRecipientMe);
       });
     }
 
@@ -546,8 +559,15 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
     return messages.filter((msg) => {
       if (msg.is_private) return false;
 
+      // Sender MUST exist in Management User
+      const sId = (msg.sender_id || '').toLowerCase();
+      const sName = (msg.sender_name || '').toLowerCase().trim();
+      const isSenderValid = validUserSet.has(sId) || validUserSet.has(sName) || sId === myId || sId === myUsername;
+      if (!isSenderValid) {
+        return false;
+      }
+
       // Exclude messages from other churches (specifically GBI ROCK Juanda or ingelin)
-      const sName = (msg.sender_name || '').toLowerCase();
       if (sName.includes('gbi rock') || sName.includes('juanda') || sName.includes('ingelin')) {
         return false;
       }
@@ -567,7 +587,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
 
       return true;
     });
-  }, [messages, chatMode, selectedContact, filterTag, searchQuery, activeUserId]);
+  }, [messages, chatMode, selectedContact, filterTag, searchQuery, activeUserId, currentUser.username, validUserSet]);
 
   const pinnedMessages = useMemo(() => {
     return messages.filter((m) => m.is_pinned && !m.is_private);
@@ -1094,7 +1114,12 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
                     </div>
 
                     <button
-                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-xs shrink-0 flex items-center gap-1.5 group-hover:scale-105 transition-transform"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStartPrivateChat(contact);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-xs shrink-0 flex items-center gap-1.5 group-hover:scale-105 transition-transform cursor-pointer"
                     >
                       <Lock className="w-3.5 h-3.5" />
                       <span>Chat Pribadi</span>
@@ -1443,84 +1468,110 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings }) => 
               </div>
             )}
 
-            {/* Input Form Box */}
-            <form
-              onSubmit={handleSendMessage}
-              className={`p-2.5 sm:p-3 border-t flex items-center gap-2 ${
-                isLight ? 'bg-white border-slate-200' : 'bg-slate-900/95 border-slate-800'
-              }`}
-            >
-              {/* Quick Blessings & Tag Toggles */}
-              <div className="flex items-center gap-1">
+            {/* Input Form Box or Guest Notice */}
+            {isGuest ? (
+              <div
+                className={`p-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs ${
+                  isLight ? 'bg-teal-50/90 border-teal-200 text-slate-800' : 'bg-slate-900 border-slate-800 text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2 text-teal-900 dark:text-teal-200 min-w-0">
+                  <Lock className="w-4 h-4 text-teal-600 shrink-0" />
+                  <span className="font-medium text-xs">
+                    Ruang Chat Komunitas &amp; Pesan Pribadi hanya dapat digunakan oleh akun yang terdaftar pada <strong>Manajemen User</strong>.
+                  </span>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setShowQuickBlessings(!showQuickBlessings)}
-                  title="Pintasan Doa & Berkat"
-                  className={`p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    showQuickBlessings
-                      ? 'bg-amber-500 text-slate-950 font-black border-amber-300'
-                      : isLight
-                      ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
-                  }`}
+                  onClick={() => {
+                    if (onOpenLogin) onOpenLogin();
+                    else window.dispatchEvent(new CustomEvent('open_login_modal'));
+                  }}
+                  style={{ backgroundColor: themeHex }}
+                  className="px-4 py-2 rounded-xl text-white font-bold text-xs shrink-0 shadow-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  Masuk / Login Akun
                 </button>
-
-                {chatMode === 'COMMUNITY' && (
-                  <select
-                    value={selectedTag}
-                    onChange={(e) => setSelectedTag(e.target.value as ChatTag)}
-                    className={`px-2 py-2 rounded-xl border text-xs font-bold focus:outline-none cursor-pointer ${
-                      isLight
-                        ? 'bg-slate-50 border-slate-200 text-slate-800'
-                        : 'bg-slate-800 border-slate-700 text-slate-200'
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSendMessage}
+                className={`p-2.5 sm:p-3 border-t flex items-center gap-2 ${
+                  isLight ? 'bg-white border-slate-200' : 'bg-slate-900/95 border-slate-800'
+                }`}
+              >
+                {/* Quick Blessings & Tag Toggles */}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowQuickBlessings(!showQuickBlessings)}
+                    title="Pintasan Doa & Berkat"
+                    className={`p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      showQuickBlessings
+                        ? 'bg-amber-500 text-slate-950 font-black border-amber-300'
+                        : isLight
+                        ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
                     }`}
                   >
-                    <option value="UMUM">💬 Umum</option>
-                    <option value="DOA">🙏 Doa</option>
-                    <option value="AYAT">✝️ Ayat</option>
-                    <option value="SALAM">🕊️ Salam</option>
-                    <option value="INFO">📢 Info</option>
-                  </select>
-                )}
-              </div>
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                  </button>
 
-              {/* Text Input */}
-              <div className="relative flex-1">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder={
-                    chatMode === 'PRIVATE' && selectedContact
-                      ? `Ketik pesan pribadi untuk ${selectedContact.name} (rahasia 1-on-1)...`
-                      : 'Ketik pesan firman, doa, atau sapaan jemaat...'
-                  }
-                  className={`w-full px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium focus:outline-none transition-all ${
-                    chatMode === 'PRIVATE'
-                      ? 'focus:ring-2 focus:ring-emerald-500/30'
-                      : 'focus:ring-2 focus:ring-emerald-500/30'
-                  } ${
-                    isLight
-                      ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
-                      : 'bg-slate-800/90 border-slate-700 text-white focus:bg-slate-800'
-                  }`}
-                />
-              </div>
+                  {chatMode === 'COMMUNITY' && (
+                    <select
+                      value={selectedTag}
+                      onChange={(e) => setSelectedTag(e.target.value as ChatTag)}
+                      className={`px-2 py-2 rounded-xl border text-xs font-bold focus:outline-none cursor-pointer ${
+                        isLight
+                          ? 'bg-slate-50 border-slate-200 text-slate-800'
+                          : 'bg-slate-800 border-slate-700 text-slate-200'
+                      }`}
+                    >
+                      <option value="UMUM">💬 Umum</option>
+                      <option value="DOA">🙏 Doa</option>
+                      <option value="AYAT">✝️ Ayat</option>
+                      <option value="SALAM">🕊️ Salam</option>
+                      <option value="INFO">📢 Info</option>
+                    </select>
+                  )}
+                </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={!inputMessage.trim()}
-                style={{ backgroundColor: themeHex }}
-                className="px-4 sm:px-5 py-2.5 rounded-2xl text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 active:scale-95 shrink-0"
-              >
-                {chatMode === 'PRIVATE' ? <Lock className="w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
-                <span className="hidden sm:inline">Kirim</span>
-              </button>
-            </form>
+                {/* Text Input */}
+                <div className="relative flex-1">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    placeholder={
+                      chatMode === 'PRIVATE' && selectedContact
+                        ? `Ketik pesan pribadi untuk ${selectedContact.name} (rahasia 1-on-1)...`
+                        : 'Ketik pesan firman, doa, atau sapaan jemaat...'
+                    }
+                    className={`w-full px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium focus:outline-none transition-all ${
+                      chatMode === 'PRIVATE'
+                        ? 'focus:ring-2 focus:ring-emerald-500/30'
+                        : 'focus:ring-2 focus:ring-emerald-500/30'
+                    } ${
+                      isLight
+                        ? 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
+                        : 'bg-slate-800/90 border-slate-700 text-white focus:bg-slate-800'
+                    }`}
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={!inputMessage.trim()}
+                  style={{ backgroundColor: themeHex }}
+                  className="px-4 sm:px-5 py-2.5 rounded-2xl text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 active:scale-95 shrink-0"
+                >
+                  {chatMode === 'PRIVATE' ? <Lock className="w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">Kirim</span>
+                </button>
+              </form>
+            )}
           </div>
         )}
       </div>

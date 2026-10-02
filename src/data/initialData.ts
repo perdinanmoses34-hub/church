@@ -862,8 +862,8 @@ export const initialPrayerRequests: PrayerRequest[] = [
 export const initialChatMessages: ChatMessage[] = [
   {
     id: 'CHAT-001',
-    sender_name: 'Dkn. Maria Melani (Sekretariat)',
-    sender_id: 'adminsekretariat',
+    sender_name: 'Admin Monapa Puriala',
+    sender_id: 'USR-MONAPA',
     sender_role: 'ADMIN',
     message: 'Syalom Bapak/Ibu dan Saudara sekalian! Selamat datang di Ruang Chat Komunitas Jemaat Gereja. Di sini kita dapat saling bertukar sapa, berbagi pokok doa, dan saling menguatkan di dalam kasih Kristus. 🙏🕊️',
     created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
@@ -872,21 +872,21 @@ export const initialChatMessages: ChatMessage[] = [
   },
   {
     id: 'CHAT-002',
-    sender_name: 'Pdt. Timotius Susanto',
-    sender_id: 'pdt_timotius',
-    sender_role: 'ADMIN',
-    message: 'Syalom jemaat yang terkasih. "Sebab di mana dua atau tiga orang berkumpul dalam Nama-Ku, di situ Aku ada di tengah-tengah mereka." (Matius 18:20). Kiranya damai sejahtera Kristus senantiasa menaungi kita semua.',
+    sender_name: 'Bpk. Yohanes Pratama',
+    sender_id: 'USR-003',
+    sender_role: 'JEMAAT',
+    message: 'Syalom semuanya! Puji Tuhan terima kasih atas dukungan doa jemaat untuk keluarga kami. Tuhan Yesus memberkati pelayanan kita bersama.',
     created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-    tag: 'AYAT'
+    tag: 'SALAM'
   },
   {
     id: 'CHAT-003',
-    sender_name: 'Bpk. Yohanes Pratama',
-    sender_id: 'yohanes_p',
+    sender_name: 'Ibu Ruth Wijaya',
+    sender_id: 'USR-004',
     sender_role: 'JEMAAT',
-    message: 'Syalom semuanya! Puji Tuhan terima kasih atas dukungan doa jemaat untuk keluarga kami. Tuhan Yesus memberkati pelayanan kita bersama.',
+    message: '"Sebab di mana dua atau tiga orang berkumpul dalam Nama-Ku, di situ Aku ada di tengah-tengah mereka." (Matius 18:20). Damai sejahtera Kristus bagi kita semua.',
     created_at: new Date(Date.now() - 3600000).toISOString(),
-    tag: 'SALAM'
+    tag: 'AYAT'
   }
 ];
 
