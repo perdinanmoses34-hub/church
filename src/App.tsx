@@ -385,20 +385,36 @@ export default function App() {
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
-    if (user.tenant_id && user.tenant_id !== 'ALL') {
-      StorageManager.setActiveTenantId(user.tenant_id);
-      setActiveTenantId(user.tenant_id);
-    }
+    const targetTenant = (user.tenant_id && user.tenant_id !== 'ALL') ? user.tenant_id : 'CHURCH-001';
+    StorageManager.setActiveTenantId(targetTenant);
+    setActiveTenantId(targetTenant);
+
+    // Refresh settings and tenant status in state immediately so UI updates synchronously
+    const freshSettings = StorageManager.getSettings();
+    setSettings(freshSettings);
+    setTenantStatus(StorageManager.checkTenantStatus());
+
     setIsLoginPageOpen(false);
-    if (user.role === 'JEMAAT') {
-      setActiveTab('jemaat_portal');
-    } else {
-      setActiveTab('dashboard');
+
+    // CRITICAL: Always direct user directly to the primary Dashboard (Dashboard Admin or Dashboard Jemaat)
+    // Never force Jemaat into personal biodata view (jemaat_portal) where dashboard customization is missing!
+    setActiveTab('dashboard');
+    try {
+      sessionStorage.setItem('cms_active_tab', 'dashboard');
+    } catch (e) {}
+
+    // Dispatch sync events so all child components update immediately
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'user_login', user, tenantId: targetTenant } }));
     }
   };
 
   const handleCloseLoginPage = () => {
     setIsLoginPageOpen(false);
+    const currentTenantId = StorageManager.getActiveTenantId();
+    setActiveTenantId(currentTenantId);
+    setSettings(StorageManager.getSettings());
+    setTenantStatus(StorageManager.checkTenantStatus());
     // Set active tab back to main church dashboard (Mode Publik)
     setActiveTab('dashboard');
     try {
@@ -422,7 +438,11 @@ export default function App() {
       StorageManager.logActivity(currentUser.username, 'Logout dari sistem CMS Pro', 'Auth');
     }
     StorageManager.clearCurrentUser();
+    StorageManager.setActiveTenantId('CHURCH-001');
+    setActiveTenantId('CHURCH-001');
     setCurrentUser(null);
+    setSettings(StorageManager.getSettings());
+    setTenantStatus(StorageManager.checkTenantStatus());
     setIsLogoutConfirmOpen(false);
     setActiveTab('dashboard');
     try {
@@ -621,7 +641,7 @@ export default function App() {
 
           {activeTab === 'dashboard' && (
             <DashboardView
-              key={`${activeTenantId}_dashboard`}
+              key={`${activeTenantId}_${effectiveUser.user_id || 'guest'}_dashboard`}
               currentUser={effectiveUser}
               settings={settings}
               onNavigate={handleSelectTab}

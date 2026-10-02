@@ -200,15 +200,19 @@ function getItem<T>(key: string, fallback: T): T {
           const tenantId = normalizeTenantId(parts[2] || 'CHURCH-001');
           const tenants = getItem<ChurchTenant[]>(KEYS.TENANTS, initialTenants);
           const matchedTenant = tenants.find((t) => t.tenant_id === tenantId);
+          const churchName = matchedTenant?.nama_gereja && matchedTenant.nama_gereja.trim() !== ''
+            ? matchedTenant.nama_gereja
+            : 'Jesus Kingdom Christ';
           return {
             ...initialSettings,
-            nama_gereja: matchedTenant?.nama_gereja || 'Gereja Baru',
+            nama_gereja: churchName,
+            header_title: churchName,
             email: matchedTenant?.admin_email || '',
             telepon: matchedTenant?.admin_wa || '',
             alamat: matchedTenant?.alamat || '',
             rekening_bank_nama: '',
             rekening_bank_nomor: '',
-            rekening_bank_atas_nama: matchedTenant?.nama_gereja || '',
+            rekening_bank_atas_nama: churchName,
             qris_image_url: '',
             apk_download_url: matchedTenant?.apk_download_url || ''
           } as unknown as T;
@@ -287,14 +291,15 @@ function sanitizeTenantDataIsolation(): void {
 
     // 2. Sanitize ACTIVE_TENANT key
     const rawActive = localStorage.getItem(KEYS.ACTIVE_TENANT);
-    if (rawActive) {
-      const cleanActive = normalizeTenantId(rawActive);
-      localStorage.setItem(KEYS.ACTIVE_TENANT, JSON.stringify(cleanActive));
-    }
-
     const rawTenants = localStorage.getItem(KEYS.TENANTS);
+    const tenants: ChurchTenant[] = rawTenants ? JSON.parse(rawTenants) : initialTenants;
+    let cleanActive = normalizeTenantId(rawActive);
+    if (cleanActive !== 'CHURCH-001' && cleanActive !== 'ALL' && !tenants.some((t) => t.tenant_id === cleanActive)) {
+      cleanActive = 'CHURCH-001';
+    }
+    localStorage.setItem(KEYS.ACTIVE_TENANT, JSON.stringify(cleanActive));
+
     if (!rawTenants) return;
-    const tenants: ChurchTenant[] = JSON.parse(rawTenants);
 
     // 3. Sanitize USERS: Ensure every user in cms_pro_users has a tenant_id
     const rawUsers = localStorage.getItem(KEYS.USERS);
@@ -616,7 +621,12 @@ export const StorageManager = {
 
   getActiveTenantId: (): string => {
     const raw = getItem<string>(KEYS.ACTIVE_TENANT, 'CHURCH-001');
-    return normalizeTenantId(raw);
+    const clean = normalizeTenantId(raw);
+    const tenants = getItem<ChurchTenant[]>(KEYS.TENANTS, initialTenants);
+    if (clean !== 'CHURCH-001' && clean !== 'ALL' && !tenants.some((t) => t.tenant_id === clean)) {
+      return 'CHURCH-001';
+    }
+    return clean;
   },
   setActiveTenantId: (tenantId: string): void => {
     const cleanId = normalizeTenantId(tenantId);
@@ -629,7 +639,7 @@ export const StorageManager = {
   getActiveTenant: (): ChurchTenant | null => {
     const activeId = StorageManager.getActiveTenantId();
     const tenants = StorageManager.getTenants();
-    return tenants.find((t) => t.tenant_id === activeId) || tenants[0] || null;
+    return tenants.find((t) => t.tenant_id === activeId) || tenants.find((t) => t.tenant_id === 'CHURCH-001') || tenants[0] || null;
   },
   createChurchTenant: (tenant: ChurchTenant, adminAccount?: User): void => {
     const currentTenants = StorageManager.getTenants();
@@ -841,6 +851,14 @@ export const StorageManager = {
     if (settings.video_url && settings.video_url.includes('5qap5aO4i9A')) {
       settings.video_url = 'https://www.youtube.com/watch?v=wX2S6AebnI8';
     }
+    // Auto sanitize any accidental "Gereja Baru" placeholder church name
+    if (settings.nama_gereja === 'Gereja Baru' || !settings.nama_gereja) {
+      const activeTenant = StorageManager.getActiveTenant();
+      settings.nama_gereja = activeTenant?.nama_gereja || 'Jesus Kingdom Christ';
+    }
+    if (settings.header_title === 'Gereja Baru' || !settings.header_title) {
+      settings.header_title = settings.nama_gereja;
+    }
 
     const activeTenantId = StorageManager.getActiveTenantId();
     if (activeTenantId === 'CHURCH-001') {
@@ -901,6 +919,7 @@ export const StorageManager = {
 
   getUsers: (): User[] => {
     let list = getItem<User[]>(KEYS.USERS, initialUsers);
+    let usersNeedResave = false;
 
     // Actively remove any legacy tenant-scoped user keys from localStorage so deleted accounts cannot resurrect
     if (typeof localStorage !== 'undefined') {
@@ -921,6 +940,26 @@ export const StorageManager = {
     const hasSuperAdmin = list.some((u) => u && (u.role === 'SUPER_ADMIN' || u.username?.toLowerCase() === 'superadmin'));
     if (!hasSuperAdmin) {
       list = [initialUsers[0], ...list];
+    } else {
+      list = list.map((u) => {
+        if (u && (u.username?.toLowerCase() === 'superadmin' || u.role === 'SUPER_ADMIN')) {
+          return {
+            ...u,
+            nama: 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
+            email: u.email || 'perdinan.moses34@guru.smp.belajar.id',
+            no_hp: u.no_hp || '0881036358650',
+            jemaat_id: u.jemaat_id || 'JMT-000'
+          };
+        }
+        return u;
+      });
+    }
+
+    // Ensure ferdinan jemaat account is available
+    const ferdinanIndex = list.findIndex((u) => u && u.username && u.username.toLowerCase().trim() === 'ferdinan');
+    if (ferdinanIndex === -1) {
+      list.push(initialUsers[1]); // USR-FERDINAN-JMT
+      usersNeedResave = true;
     }
 
     // Ensure core Admin Monapa Puriala account always exists with active credentials
@@ -1001,7 +1040,6 @@ export const StorageManager = {
 
     // CRITICAL MULTI-TENANT USER ISOLATION:
     // Every single user account MUST have a valid tenant_id.
-    let usersNeedResave = false;
     list = list.map((u) => {
       if (!u) return u;
       if (!u.tenant_id || u.tenant_id.trim() === '') {
@@ -1263,6 +1301,17 @@ export const StorageManager = {
     
     // Auto heal missing accounts for Jemaat records in memory
     const users = getItem<User[]>(KEYS.USERS, initialUsers);
+
+    // Ensure Pdt. Ferdinan Moses Timbu, S.Th, M.PdK profile always exists for CHURCH-001
+    const activeTenantId = StorageManager.getActiveTenantId();
+    if (activeTenantId === 'CHURCH-001') {
+      const hasFerdinan = list.some(
+        (j) => j && (j.jemaat_id === 'JMT-000' || (j.nama_lengkap && j.nama_lengkap.toLowerCase().includes('ferdinan moses')))
+      );
+      if (!hasFerdinan) {
+        list = [initialJemaat[0], ...list];
+      }
+    }
 
     // Ensure every Jemaat record is synchronized with users
     list = list.map((j) => {

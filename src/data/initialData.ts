@@ -97,10 +97,10 @@ export const initialTenants: ChurchTenant[] = [
 ];
 
 export const initialSuperAdminContact: SuperAdminContact = {
-  nama: 'Pdt. Ferdinan Moses Timbu, S.Th',
+  nama: 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
   wa: '0881036358650',
-  email: 'tn.timbu@gmail.com',
-  pesan_default: 'Halo SuperAdmin SaaS (Pdt. Ferdinan Moses Timbu, S.Th), saya dari %NAMA_GEREJA% ingin konfirmasi pembayaran lisensi aplikasi & pengaktifan kembali akun gereja kami.'
+  email: 'perdinan.moses34@guru.smp.belajar.id',
+  pesan_default: 'Halo SuperAdmin SaaS (Pdt. Ferdinan Moses Timbu, S.Th, M.PdK), saya dari %NAMA_GEREJA% ingin konfirmasi pembayaran lisensi aplikasi & pengaktifan kembali akun gereja kami.'
 };
 
 export const DEFAULT_CHURCH_LOGO = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%234f46e5"/><stop offset="100%" stop-color="%237c3aed"/></linearGradient></defs><rect width="200" height="200" rx="48" fill="url(%23g)"/><path d="M100 35 v130 M55 80 h90" stroke="%23ffffff" stroke-width="22" stroke-linecap="round"/><circle cx="100" cy="80" r="10" fill="%23f59e0b"/></svg>`;
@@ -229,14 +229,29 @@ export const initialUsers: User[] = [
     user_id: 'USR-001',
     username: 'superadmin',
     password_hash: 'admin123',
-    nama: 'Pdt. Ferdinan Moses Timbu, S.Th (SuperAdmin SaaS)',
+    nama: 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
     role: 'SUPER_ADMIN',
-    email: 'tn.timbu@gmail.com',
+    email: 'perdinan.moses34@guru.smp.belajar.id',
     no_hp: '0881036358650',
     status: 'Aktif',
     created_at: '2025-01-01 08:00',
     last_login: '2026-07-28 22:15',
-    tenant_id: 'ALL'
+    tenant_id: 'ALL',
+    jemaat_id: 'JMT-000'
+  },
+  {
+    user_id: 'USR-FERDINAN-JMT',
+    username: 'ferdinan',
+    password_hash: 'jemaat123',
+    nama: 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
+    role: 'JEMAAT',
+    email: 'perdinan.moses34@guru.smp.belajar.id',
+    no_hp: '0881036358650',
+    status: 'Aktif',
+    created_at: '2025-01-01 08:00',
+    last_login: '2026-07-28 22:15',
+    tenant_id: 'CHURCH-001',
+    jemaat_id: 'JMT-000'
   },
   {
     user_id: 'USR-002',
@@ -321,6 +336,26 @@ export const initialUsers: User[] = [
 ];
 
 export const initialJemaat: Jemaat[] = [
+  {
+    jemaat_id: 'JMT-000',
+    nik: '7401011508800001',
+    no_kk: '7401011005120001',
+    nama_lengkap: 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
+    jenis_kelamin: 'Laki-laki',
+    tempat_lahir: 'Kendari',
+    tanggal_lahir: '1980-08-15',
+    alamat: 'Jl. Pemuda No. 77, Jakarta Pusat / Puriala',
+    wilayah: 'Wilayah I - Sunter',
+    komisi: 'Komisi Pria (Bapa)',
+    status_baptis: 'Sudah',
+    status_sidi: 'Sudah',
+    status_pernikahan: 'Menikah',
+    pekerjaan: 'Pendeta / Pengajar Rohani',
+    nomor_hp: '+62 881-0363-58650',
+    email: 'perdinan.moses34@guru.smp.belajar.id',
+    foto: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&auto=format&fit=crop&q=80',
+    status: 'Aktif'
+  },
   {
     jemaat_id: 'JMT-001',
     nik: '3171011508850001',
