@@ -92,6 +92,7 @@ html, body {
   background-color: var(--app-bg, #f8fafc);
   color: var(--app-text, #0f172a);
   min-height: 100vh;
+  overscroll-behavior-y: contain;
 }
 
 body {

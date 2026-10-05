@@ -12,7 +12,10 @@ import {
   FolderDown,
   RefreshCw,
   HelpCircle,
-  Link2
+  Link2,
+  Pin,
+  Check,
+  PlaySquare
 } from 'lucide-react';
 import { StorageManager } from '../utils/storage';
 import { AppSettings, User } from '../types';
@@ -20,6 +23,7 @@ import { AppSettings, User } from '../types';
 export const APK_DOWNLOAD_URL = 'https://drive.google.com/file/d/1MnWPNmsDjO1clGqbixCgSHjNRcMaqx2h/view?usp=sharing';
 export const OLD_APK_DOWNLOAD_URL = 'https://drive.google.com/file/d/1TlnvPxgIPWQ13CE_EJnj4gUMAipCWy1s/view?usp=sharing';
 export const WINDOWS_PACKAGE_URL = '/downloads/CMS_Gereja_Windows_Desktop.zip';
+export const WINDOWS_INSTALLER_CMD_URL = '/downloads/Pasang_Ke_Desktop_Dan_Taskbar.cmd';
 
 interface FloatingApkDownloadButtonProps {
   settings?: AppSettings;
@@ -37,10 +41,10 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGeneratingWindowsZip, setIsGeneratingWindowsZip] = useState(false);
   const [windowsInstallNotice, setWindowsInstallNotice] = useState<string | null>(null);
+  const [canPromptPwa, setCanPromptPwa] = useState(false);
 
   const [isHidden, setIsHidden] = useState<boolean>(() => {
     try {
-      // Clear legacy permanent hide so button is restored for all jemaat on handphone
       localStorage.removeItem('cms_apk_button_hidden');
       return sessionStorage.getItem('cms_apk_button_hidden_session') === 'true';
     } catch {
@@ -54,6 +58,21 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
     } catch {
       // ignore
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).deferredPrompt) {
+      setCanPromptPwa(true);
+    }
+    const handlePwaReady = () => setCanPromptPwa(true);
+    const handlePwaInstalled = () => setCanPromptPwa(false);
+
+    window.addEventListener('cms_pwa_prompt_ready', handlePwaReady);
+    window.addEventListener('cms_pwa_installed', handlePwaInstalled);
+    return () => {
+      window.removeEventListener('cms_pwa_prompt_ready', handlePwaReady);
+      window.removeEventListener('cms_pwa_installed', handlePwaInstalled);
+    };
   }, []);
 
   useEffect(() => {
@@ -128,6 +147,20 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
     }
   };
 
+  // Handle Download Direct Installer .CMD for Windows Desktop & Taskbar
+  const handleDownloadInstallerCmd = () => {
+    const link = document.createElement('a');
+    link.href = WINDOWS_INSTALLER_CMD_URL;
+    link.download = 'Pasang_Ke_Desktop_Dan_Taskbar.cmd';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setWindowsInstallNotice(
+      '📥 File "Pasang_Ke_Desktop_Dan_Taskbar.cmd" berhasil diunduh! Klik ganda file tersebut di komputer Anda untuk langsung membuat icon di Layar Desktop & Taskbar Windows.'
+    );
+  };
+
   // Handle Download Windows Desktop Package (.ZIP)
   const handleDownloadWindowsZip = async () => {
     if (customWindowsUrl) {
@@ -147,125 +180,92 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
       const cleanName = churchName.replace(/[^a-zA-Z0-9_\-]/g, '_');
       const targetUrl = 'https://perdinanmoses34-hub.github.io/church/';
 
-      const batContent = `@echo off
-title ${churchName} - Windows Desktop
-cls
-echo ======================================================================
-echo           APLIKASI SISTEM INFORMASI MANAJEMEN GEREJA (CMS PRO)
-echo                    ${churchName} - WINDOWS DESKTOP
-echo ======================================================================
-echo.
-echo Sedang membuka aplikasi dalam mode layar penuh (Native Desktop Window)...
-echo.
-
-:: 1. Buka dengan Microsoft Edge dalam mode aplikasi desktop
-start msedge --app="${targetUrl}" --start-maximized --window-size=1366,768
-if %errorlevel% equ 0 goto selesai
-
-:: 2. Buka dengan Google Chrome jika Edge tidak tersedia
-start chrome --app="${targetUrl}" --start-maximized --window-size=1366,768
-if %errorlevel% equ 0 goto selesai
-
-:: 3. Fallback buka dengan browser default Windows
-start "" "${targetUrl}"
-
-:selesai
-exit
-`;
-
       const cmdContent = `@echo off
-title Pasang Shortcut ${churchName} Desktop
+title Memasang ${churchName} di Desktop & Taskbar Windows
 cls
 echo ======================================================================
-echo          PEMASANGAN SHORTCUT DESKTOP WINDOWS - ${churchName}
+echo    MEMASANG APLIKASI ${churchName} DI DESKTOP & TASKBAR WINDOWS
 echo ======================================================================
 echo.
-echo Sedang membuat shortcut di Layar Desktop Windows...
+echo Sedang membuat shortcut di Layar Utama (Desktop) dan Menu Windows...
 echo.
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$desktop = [System.IO.Path]::Combine([System.Environment]::GetFolderPath('Desktop'), '${churchName} Desktop.lnk');" ^
-  "$ws = New-Object -ComObject WScript.Shell;" ^
-  "$s = $ws.CreateShortcut($desktop);" ^
-  "$s.TargetPath = 'msedge.exe';" ^
-  "$s.Arguments = '--app=${targetUrl} --start-maximized';" ^
-  "$s.Description = 'Aplikasi Sistem Informasi ${churchName}';" ^
-  "$s.Save();" ^
-  "Write-Host 'Shortcut berhasil dibuat di Desktop Anda!' -ForegroundColor Green;"
+  "$churchName = '${churchName}'; " ^
+  "$appUrl = '${targetUrl}'; " ^
+  "$desktop = [System.IO.Path]::Combine([System.Environment]::GetFolderPath('Desktop'), ($churchName + '.lnk')); " ^
+  "$startMenu = [System.IO.Path]::Combine([System.Environment]::GetFolderPath('StartMenu'), 'Programs', ($churchName + '.lnk')); " ^
+  "$ws = New-Object -ComObject WScript.Shell; " ^
+  "function CreateLnk($path) { " ^
+  "  $s = $ws.CreateShortcut($path); " ^
+  "  $s.TargetPath = 'msedge.exe'; " ^
+  "  $s.Arguments = ('--app=' + $appUrl + ' --start-maximized'); " ^
+  "  $s.Description = 'Aplikasi Resmi ${churchName}'; " ^
+  "  $s.WindowStyle = 3; " ^
+  "  $s.Save(); " ^
+  "} " ^
+  "CreateLnk $desktop; " ^
+  "CreateLnk $startMenu; " ^
+  "Write-Host '1. Shortcut berhasil dipasang di Halaman Utama Desktop!' -ForegroundColor Green; " ^
+  "Write-Host '2. Shortcut berhasil dipasang di Start Menu Windows!' -ForegroundColor Green; "
+
+echo.
+echo Sedang membuka Aplikasi Gereja di Layar dan Taskbar...
+start msedge --app="${targetUrl}" --start-maximized
+if %errorlevel% neq 0 (
+  start chrome --app="${targetUrl}" --start-maximized
+)
 
 echo.
 echo ======================================================================
-echo  SUKSES! Icon '${churchName} Desktop' telah terpasang di Desktop Windows.
-echo  Klik ganda icon tersebut kapan saja untuk membuka aplikasi langsung!
+echo  SUKSES! Aplikasi Gereja telah terpasang di:
+echo   - Layar Utama Desktop Komputer/Laptop
+echo   - Start Menu Windows
+echo   - Taskbar Windows
 echo ======================================================================
 echo.
-pause
+timeout /t 5
 exit
 `;
 
-      const offlineHtml = `<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>${churchName} - Windows Desktop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-    .card { background: #1e293b; border: 2px solid #0d9488; border-radius: 24px; padding: 32px; max-width: 520px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-    h1 { color: #5eead4; margin-top: 0; font-size: 22px; }
-    p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
-    a.btn { display: inline-block; margin-top: 16px; padding: 14px 28px; background: linear-gradient(135deg, #0d9488, #10b981); color: white; text-decoration: none; border-radius: 14px; font-weight: bold; font-size: 15px; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>${churchName} Desktop</h1>
-    <p>Aplikasi resmi sistem manajemen jemaat, persembahan, warta ibadah, dan administrasi gereja.</p>
-    <a class="btn" href="${targetUrl}" target="_blank">Buka Aplikasi Online</a>
-  </div>
-</body>
-</html>
+      const batContent = `@echo off
+title ${churchName} - Windows Desktop
+cls
+echo Sedang membuka aplikasi dalam mode layar penuh (Native Desktop Window)...
+start msedge --app="${targetUrl}" --start-maximized --window-size=1366,768
+if %errorlevel% neq 0 (
+  start chrome --app="${targetUrl}" --start-maximized --window-size=1366,768
+)
+exit
 `;
 
       const readmeContent = `======================================================================
-     PETUNJUK INSTALASI APLIKASI ${churchName} UNTUK WINDOWS
+  CARA MEMASANG APLIKASI ${churchName} DI DESKTOP & TASKBAR WINDOWS
 ======================================================================
 
-Selamat datang! Ini adalah paket resmi Aplikasi Gereja untuk sistem
-operasi Windows 10, Windows 11, dan Windows 8.
-
-LANGKAH PENGGUNAAN:
-----------------------------------------------------------------------
-1. EKSTRAK FILE ZIP INI:
-   - Klik kanan pada file ZIP ini, pilih "Extract All..." (Ekstrak Semua).
-
-2. CARA MEMBUKA LANGSUNG:
+1. CARA PASANG OTOMATIS KE DESKTOP & TASKBAR:
    - Klik ganda file:
-     "1_Buka_Aplikasi_${cleanName}_Windows.bat"
-   - Aplikasi akan otomatis terbuka dalam jendela aplikasi Windows mandiri
-     (tanpa bilah URL / address bar), layar penuh dan nyaman digunakan.
+     "Pasang_Ke_Desktop_Dan_Taskbar.cmd"
+   - Script akan otomatis membuat icon shortcut di:
+     * Layar Utama Desktop komputer/laptop Anda
+     * Start Menu Windows
+     * Membuka aplikasi langsung di Taskbar Windows.
 
-3. CARA MEMBUAT SHORTCUT DI DESKTOP:
-   - Klik ganda file:
-     "2_Pasang_Shortcut_Desktop.cmd"
-   - Shortcut "${churchName} Desktop" akan otomatis muncul di layar utama (Desktop)
-     komputer Anda.
+2. UNTUK MENYEMATKAN TETAP DI TASKBAR:
+   - Saat aplikasi terbuka di layar, klik kanan pada icon aplikasi
+     di Taskbar bawah layar Windows, lalu pilih:
+     "Pin to taskbar" (Sematkan ke taskbar).
 
-KEUNGGULAN VERSI WINDOWS:
-----------------------------------------------------------------------
-* Tampilan layar penuh khusus kasir/sekretariat & administrasi gereja
-* Mendukung cetak langsung struk persembahan & slip kartu jemaat
-* Mendukung ekspor laporan ke Excel (XLSX) dan PDF
-* Pembukuan kas keuangan transparan & akurat
+3. JIKA INGIN MEMBUKA LANGSUNG:
+   - Klik ganda "Buka_Aplikasi_Gereja.bat" atau icon shortcut di Desktop.
 
 Sekretariat Gereja & Tim Pengembang
 ======================================================================
 `;
 
-      zip.file(`1_Buka_Aplikasi_${cleanName}_Windows.bat`, batContent);
-      zip.file(`2_Pasang_Shortcut_Desktop.cmd`, cmdContent);
-      zip.file(`3_Aplikasi_Offline_Cadangan.html`, offlineHtml);
-      zip.file(`PETUNJUK_INSTALASI_WINDOWS.txt`, readmeContent);
+      zip.file('Pasang_Ke_Desktop_Dan_Taskbar.cmd', cmdContent);
+      zip.file(`Buka_Aplikasi_${cleanName}.bat`, batContent);
+      zip.file('PETUNJUK_INSTALASI_DESKTOP_TASKBAR.txt', readmeContent);
 
       const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
       const url = URL.createObjectURL(blob);
@@ -290,19 +290,27 @@ Sekretariat Gereja & Tim Pengembang
   };
 
   // Handle Install via Windows PWA Prompt (Direct Desktop Install in Edge/Chrome)
-  const handleInstallPwaWindows = () => {
+  const handleInstallPwaWindows = async () => {
     const promptEvent = (window as any).deferredPrompt;
     if (promptEvent) {
-      promptEvent.prompt();
-      promptEvent.userChoice.then(() => {
-        (window as any).deferredPrompt = null;
-        setWindowsInstallNotice('Permintaan instalasi dikirim ke Windows.');
-      });
-    } else {
-      setWindowsInstallNotice(
-        'Untuk memasang langsung: Klik ikon instalasi (+) di bilah alamat (address bar) browser Anda, atau unduh Paket ZIP Windows di atas.'
-      );
+      try {
+        await promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          (window as any).deferredPrompt = null;
+          setCanPromptPwa(false);
+          setWindowsInstallNotice(
+            '✅ Sukses! Aplikasi sedang dipasang ke Windows. Pada jendela yang muncul di layar, pastikan mencentang "Sematkan ke taskbar" dan "Buat pintasan desktop", lalu klik Izinkan.'
+          );
+          return;
+        }
+      } catch (err) {
+        console.warn('PWA prompt execution note:', err);
+      }
     }
+
+    // Jika prompt browser belum siap atau diblokir iframe, jalankan installer otomatis .CMD
+    handleDownloadInstallerCmd();
   };
 
   const handleHideFromDashboard = (e: React.MouseEvent) => {
@@ -370,7 +378,7 @@ Sekretariat Gereja & Tim Pengembang
       {isModalOpen && (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm overflow-y-auto">
           <div
-            className="w-full max-w-xl bg-white rounded-3xl p-5 sm:p-7 shadow-2xl border-2 border-teal-500/30 text-slate-800 space-y-5 relative my-auto animate-scale-up"
+            className="w-full max-w-2xl bg-white rounded-3xl p-5 sm:p-7 shadow-2xl border-2 border-teal-500/30 text-slate-800 space-y-5 relative my-auto animate-scale-up"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Modal */}
@@ -378,13 +386,13 @@ Sekretariat Gereja & Tim Pengembang
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-[10px] font-black uppercase tracking-wider">
                   <Sparkles className="w-3 h-3 text-amber-500" />
-                  <span>Unduh Aplikasi Resmi</span>
+                  <span>Unduh &amp; Pasang Aplikasi Resmi</span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   Pilih Versi Aplikasi Gereja
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  {appSettings.nama_gereja} – Tersedia untuk smartphone Android &amp; komputer Windows.
+                  {appSettings.nama_gereja} – Tersedia untuk smartphone Android &amp; komputer/laptop Windows.
                 </p>
               </div>
 
@@ -447,90 +455,112 @@ Sekretariat Gereja & Tim Pengembang
                 </div>
               </div>
 
-              {/* OPSI 2: APLIKASI WINDOWS (.EXE / DESKTOP PACKAGE) */}
-              <div className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-cyan-50/80 to-blue-50/60 border-2 border-cyan-300 shadow-sm hover:border-cyan-500 hover:shadow-md transition-all space-y-4">
-                <div className="space-y-3">
+              {/* OPSI 2: APLIKASI WINDOWS (DESKTOP & TASKBAR) */}
+              <div className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-cyan-50/80 to-blue-50/60 border-2 border-cyan-400 shadow-sm hover:border-cyan-600 hover:shadow-md transition-all space-y-3.5">
+                <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <div className="p-3 rounded-2xl bg-cyan-700 text-white shadow-md shadow-cyan-700/30">
+                    <div className="p-2.5 rounded-2xl bg-cyan-700 text-white shadow-md shadow-cyan-700/30">
                       <Monitor className="w-6 h-6" />
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-200/80 text-cyan-900 font-bold text-[10px]">
+                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-200/90 text-cyan-900 font-black text-[10px] tracking-wide">
                       Windows 10 &amp; 11
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="text-base font-black text-slate-900">
-                      Aplikasi Windows Desktop
+                    <h4 className="text-base font-black text-slate-900 flex items-center gap-1.5">
+                      <span>Aplikasi Windows</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold border border-amber-300">Desktop &amp; Taskbar</span>
                     </h4>
                     <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
-                      Untuk laptop &amp; komputer PC. Layar penuh, shortcut desktop, &amp; siap cetak.
+                      Langsung terpasang di <strong>Layar Utama Desktop</strong> dan <strong>Taskbar</strong> laptop / PC Anda.
                     </p>
                   </div>
 
-                  <ul className="space-y-1.5 text-xs text-slate-700">
+                  <ul className="space-y-1 text-xs text-slate-700">
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-cyan-700 shrink-0" />
-                      <span>Jendela mandiri tanpa address bar browser</span>
+                      <span>Icon shortcut otomatis di Layar Desktop &amp; Start Menu</span>
                     </li>
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-cyan-700 shrink-0" />
-                      <span>Shortcut otomatis di Desktop &amp; Taskbar</span>
+                      <span>Siap disematkan ke Taskbar (Pin to taskbar)</span>
                     </li>
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-cyan-700 shrink-0" />
-                      <span>Cetak struk persembahan &amp; ekspor Excel</span>
+                      <span>Layar penuh mandiri tanpa address bar peramban</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="pt-2 space-y-2">
+                <div className="pt-1 space-y-2">
+                  {/* Tombol Utama: Pasang Langsung PWA (Browser Edge/Chrome) */}
+                  <button
+                    onClick={handleInstallPwaWindows}
+                    className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-extrabold text-xs shadow-md shadow-cyan-700/25 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
+                  >
+                    <Laptop className="w-4 h-4" />
+                    <span>Pasang Langsung ke Windows (PWA)</span>
+                  </button>
+
+                  {/* Tombol Cadangan Pasti: Installer Otomatis CMD Sekali Klik */}
+                  <button
+                    onClick={handleDownloadInstallerCmd}
+                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                    title="Sekali klik otomatis pasang shortcut di Desktop dan Taskbar"
+                  >
+                    <Pin className="w-4 h-4" />
+                    <span>Pasang Otomatis Desktop &amp; Taskbar (.cmd)</span>
+                  </button>
+
+                  {/* Tombol Download Paket ZIP Komplit */}
                   <button
                     onClick={handleDownloadWindowsZip}
                     disabled={isGeneratingWindowsZip}
-                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-700 via-blue-600 to-indigo-700 hover:from-cyan-600 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-700/30 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-60"
+                    className="w-full py-2 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-60"
                   >
                     {isGeneratingWindowsZip ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Menyiapkan Paket Windows...</span>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-600" />
+                        <span>Menyiapkan ZIP...</span>
                       </>
                     ) : (
                       <>
-                        <FolderDown className="w-4 h-4" />
-                        <span>Unduh Paket Windows (.ZIP)</span>
+                        <FolderDown className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Unduh Paket Arsip Lengkap (.ZIP)</span>
                       </>
                     )}
-                  </button>
-
-                  <button
-                    onClick={handleInstallPwaWindows}
-                    className="w-full py-2 px-3 rounded-xl bg-white hover:bg-cyan-50 text-cyan-800 border border-cyan-300 hover:border-cyan-500 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                  >
-                    <Laptop className="w-3.5 h-3.5 text-cyan-700" />
-                    <span>Pasang Langsung ke Desktop (PWA)</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Notification Notice jika ada petunjuk Windows */}
+            {/* Notification Notice jika ada status instalasi */}
             {windowsInstallNotice && (
-              <div className="p-3 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-900 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-                <HelpCircle className="w-4 h-4 text-cyan-700 shrink-0" />
-                <p>{windowsInstallNotice}</p>
+              <div className="p-3 rounded-2xl bg-cyan-50 border-2 border-cyan-300 text-cyan-950 text-xs font-semibold flex items-start gap-2.5 animate-fade-in shadow-xs">
+                <HelpCircle className="w-4 h-4 text-cyan-700 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p>{windowsInstallNotice}</p>
+                </div>
               </div>
             )}
 
-            {/* Petunjuk Penggunaan & Keamanan */}
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 text-xs space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Keamanan &amp; Integritas Terjamin</span>
+            {/* Petunjuk Praktis Pemasangan ke Taskbar */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-xs space-y-2">
+              <div className="flex items-center gap-1.5 font-bold text-slate-900">
+                <Pin className="w-4 h-4 text-cyan-700" />
+                <span>Petunjuk Mudah: Pasang di Layar Utama Desktop &amp; Taskbar Windows</span>
               </div>
-              <p className="text-[11px] leading-relaxed">
-                Paket instalasi resmi diverifikasi bebas virus. Untuk Windows, ekstrak file <strong>.ZIP</strong> lalu klik ganda <em>"1_Buka_Aplikasi_Windows.bat"</em> atau pasang shortcut melalui <em>"2_Pasang_Shortcut_Desktop.cmd"</em>.
-              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
+                <div className="p-2 rounded-xl bg-white border border-slate-200/80 space-y-0.5">
+                  <p className="font-bold text-slate-800">1. Lewat File Pasang Otomatis (.cmd)</p>
+                  <p>Klik tombol hijau <strong>"Pasang Otomatis (.cmd)"</strong> di atas, lalu klik file tersebut. Icon aplikasi langsung muncul di Desktop &amp; Taskbar Anda.</p>
+                </div>
+                <div className="p-2 rounded-xl bg-white border border-slate-200/80 space-y-0.5">
+                  <p className="font-bold text-slate-800">2. Menyematkan ke Taskbar (Pin)</p>
+                  <p>Saat aplikasi terbuka di layar, klik kanan ikon aplikasi di Taskbar (bilah bawah laptop), lalu pilih <strong>"Pin to taskbar"</strong>.</p>
+                </div>
+              </div>
             </div>
 
             {/* Opsi Pengaturan Admin */}

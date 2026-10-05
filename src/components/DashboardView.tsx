@@ -1995,13 +1995,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 ) : null}
 
                 <a
-                  href="/downloads/CMS_Gereja_Windows_Desktop.zip"
-                  download={`${(settings.nama_gereja || 'Gereja').replace(/\s+/g, '_')}_Windows_Desktop.zip`}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-700 via-blue-600 to-indigo-700 hover:from-cyan-600 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-700/30 border border-cyan-400/40 flex items-center justify-center gap-2 transition-all active:scale-95 text-center"
-                  title="Unduh paket aplikasi desktop Windows"
+                  href="/downloads/Pasang_Ke_Desktop_Dan_Taskbar.cmd"
+                  download="Pasang_Ke_Desktop_Dan_Taskbar.cmd"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-700 to-cyan-700 hover:from-teal-600 hover:to-cyan-600 text-white font-extrabold text-xs shadow-lg shadow-cyan-700/30 border border-cyan-400/40 flex items-center justify-center gap-2 transition-all active:scale-95 text-center"
+                  title="Pasang langsung icon aplikasi di Layar Utama Desktop dan Taskbar Windows"
                 >
                   <Monitor className="w-4 h-4 shrink-0" />
-                  <span>Aplikasi Windows (.ZIP)</span>
+                  <span>Pasang Desktop &amp; Taskbar (.cmd)</span>
+                </a>
+
+                <a
+                  href="/downloads/CMS_Gereja_Windows_Desktop.zip"
+                  download={`${(settings.nama_gereja || 'Gereja').replace(/\s+/g, '_')}_Windows_Desktop.zip`}
+                  className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 text-center"
+                  title="Unduh paket arsip aplikasi Windows lengkap (.ZIP)"
+                >
+                  <span>Paket (.ZIP)</span>
                 </a>
 
                 {isAdmin && (

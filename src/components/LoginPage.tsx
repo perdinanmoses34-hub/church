@@ -48,17 +48,52 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
 
-  // Prevent horizontal overflow while allowing smooth inner scroll on mobile screens
+  // Prevent pull-to-refresh, rubber-banding reload, and nested scroll issues on mobile
   useEffect(() => {
+    const origBodyOverscroll = document.body.style.overscrollBehaviorY;
+    const origHtmlOverscroll = document.documentElement.style.overscrollBehaviorY;
     const origBodyOverflowX = document.body.style.overflowX;
     const origHtmlOverflowX = document.documentElement.style.overflowX;
 
+    document.body.style.overscrollBehaviorY = 'contain';
+    document.documentElement.style.overscrollBehaviorY = 'contain';
     document.body.style.overflowX = 'hidden';
     document.documentElement.style.overflowX = 'hidden';
 
+    const container = document.getElementById('login-page-container');
+    let startY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches && e.touches.length > 0) {
+        startY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!container || !e.touches || e.touches.length === 0) return;
+      const currentY = e.touches[0].clientY;
+      // If at top of scroll container and user tries to pull further down, block browser pull-to-refresh
+      if (container.scrollTop <= 0 && currentY > startY) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    if (container) {
+      container.addEventListener('touchstart', handleTouchStart, { passive: true });
+      container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    }
+
     return () => {
+      document.body.style.overscrollBehaviorY = origBodyOverscroll;
+      document.documentElement.style.overscrollBehaviorY = origHtmlOverscroll;
       document.body.style.overflowX = origBodyOverflowX;
       document.documentElement.style.overflowX = origHtmlOverflowX;
+      if (container) {
+        container.removeEventListener('touchstart', handleTouchStart);
+        container.removeEventListener('touchmove', handleTouchMove);
+      }
     };
   }, []);
 
@@ -175,8 +210,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   return (
     <div
-      id="app-container"
-      className="fixed inset-0 w-screen h-[100dvh] flex flex-col justify-between items-center bg-gradient-to-br from-slate-50 via-teal-50/50 to-emerald-50/30 p-2 sm:p-4 md:p-6 text-slate-800 overflow-y-auto select-none"
+      id="login-page-container"
+      className="fixed inset-0 z-50 w-full h-[100dvh] bg-gradient-to-br from-slate-50 via-teal-50/50 to-emerald-50/30 text-slate-800 overflow-y-auto overscroll-contain"
+      style={{
+        overscrollBehavior: 'contain',
+        overscrollBehaviorY: 'contain',
+        WebkitOverflowScrolling: 'touch'
+      }}
     >
       {/* Background Soft Teal Ambient Lights */}
       <div className="fixed top-1/4 left-1/4 w-80 h-80 sm:w-96 sm:h-96 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
@@ -191,33 +231,34 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         }}
       />
 
-      {/* Top Header Bar with Back Button & Church Status */}
-      <header className="w-full max-w-4xl flex items-center justify-between py-1.5 sm:py-2 shrink-0 relative z-20 px-1 sm:px-0">
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            style={{ touchAction: 'manipulation' }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white border border-slate-200 hover:border-teal-300 text-slate-700 hover:text-teal-800 text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
-          >
-            <ArrowLeft className="w-4 h-4 text-teal-600" />
-            <span>Kembali ke Halaman</span>
-          </button>
-        )}
-        <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-100/70 border border-teal-200/80 text-teal-900 text-xs font-bold">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Sistem Informasi Gereja</span>
-        </div>
-      </header>
+      <div className="min-h-full w-full flex flex-col justify-between items-center p-2.5 sm:p-4 md:p-6 relative z-10">
+        {/* Top Header Bar with Back Button & Church Status */}
+        <header className="w-full max-w-4xl flex items-center justify-between py-1.5 sm:py-2 shrink-0 relative z-20 px-1 sm:px-0 mb-1.5">
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              style={{ touchAction: 'manipulation' }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white border border-slate-200 hover:border-teal-300 text-slate-700 hover:text-teal-800 text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
+            >
+              <ArrowLeft className="w-4 h-4 text-teal-600" />
+              <span>Kembali ke Halaman</span>
+            </button>
+          )}
+          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-100/70 border border-teal-200/80 text-teal-900 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Sistem Informasi Gereja</span>
+          </div>
+        </header>
 
-      {/* Main Glassmorphism Login Container (Fills Full Height on Mobile) */}
-      <main className="w-full max-w-4xl flex-1 flex flex-col justify-center items-center relative z-10 px-0 sm:px-1 my-1 sm:my-auto min-h-0">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          className="w-full h-full sm:h-auto flex-1 sm:flex-initial flex flex-col md:grid md:grid-cols-12 rounded-2xl sm:rounded-3xl bg-white border border-teal-100/90 shadow-xl shadow-teal-950/10 overflow-hidden"
-        >
+        {/* Main Glassmorphism Login Container */}
+        <main className="w-full max-w-4xl my-auto relative z-10 px-0 sm:px-1">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25 }}
+            className="w-full flex flex-col md:grid md:grid-cols-12 rounded-2xl sm:rounded-3xl bg-white border border-teal-100/90 shadow-xl shadow-teal-950/10 overflow-hidden"
+          >
           {/* Left Column: Church Identity, Daily Scripture & Worship Schedule (Desktop & Tablet) */}
           <div className="hidden md:flex md:col-span-5 p-6 lg:p-7 bg-gradient-to-br from-teal-900 via-teal-800 to-emerald-900 text-white flex-col justify-between space-y-4 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
@@ -350,7 +391,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </div>
 
           {/* Form Column: Clean White, Spacious, Enlarged Inputs & Comprehensive App Information */}
-          <div className="md:col-span-7 p-4 sm:p-6 lg:p-7 flex-1 flex flex-col justify-start space-y-4 bg-white overflow-y-auto">
+          <div className="md:col-span-7 p-4 sm:p-6 lg:p-7 flex flex-col justify-start space-y-4 bg-white">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 Masuk ke Akun
@@ -538,9 +579,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       </main>
 
       {/* Footer copyright (Compact) */}
-      <footer className="w-full max-w-4xl py-1 text-center text-[10px] sm:text-[11px] text-slate-500 shrink-0 relative z-10">
+      <footer className="w-full max-w-4xl py-2 mt-2 text-center text-[10px] sm:text-[11px] text-slate-500 shrink-0 relative z-10">
         {settings.nama_gereja} &copy; 2026. Hak Cipta Dilindungi Undang-Undang.
       </footer>
+    </div>
 
       {/* Forgot Password Modal (Teal & White) */}
       <AnimatePresence>
