@@ -1003,64 +1003,7 @@ export const StorageManager = {
     const hasSuperAdmin = list.some((u) => u && (u.role === 'SUPER_ADMIN' || u.username?.toLowerCase() === 'superadmin'));
     if (!hasSuperAdmin) {
       list = [initialUsers[0], ...list];
-    } else {
-      list = list.map((u) => {
-        if (u && (u.username?.toLowerCase() === 'superadmin' || u.role === 'SUPER_ADMIN')) {
-          return {
-            ...u,
-            nama: 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
-            email: u.email || 'perdinan.moses34@guru.smp.belajar.id',
-            no_hp: u.no_hp || '0881036358650',
-            jemaat_id: u.jemaat_id || 'JMT-000'
-          };
-        }
-        return u;
-      });
-    }
-
-    // Ensure ferdinan jemaat account is available
-    const ferdinanIndex = list.findIndex((u) => u && u.username && u.username.toLowerCase().trim() === 'ferdinan');
-    if (ferdinanIndex === -1) {
-      list.push(initialUsers[1]); // USR-FERDINAN-JMT
       usersNeedResave = true;
-    }
-
-    // Ensure core Admin Monapa Puriala account always exists with active credentials
-    const monapaIndex = list.findIndex((u) => u && u.username && u.username.toLowerCase().trim() === 'admin_monapa');
-    if (monapaIndex === -1) {
-      const monapaAccount: User = {
-        user_id: 'USR-MONAPA',
-        username: 'admin_monapa',
-        password_hash: 'admin123',
-        nama: 'Admin Monapa Puriala',
-        role: 'ADMIN',
-        email: 'admin_monapa@puriala.org',
-        no_hp: '+62 881-0363-58650',
-        status: 'Aktif',
-        created_at: '2025-01-01 08:00',
-        last_login: '2026-07-28 20:45',
-        tenant_id: 'CHURCH-001'
-      };
-      list.push(monapaAccount);
-      setItem(KEYS.USERS, list);
-    } else {
-      const monapa = list[monapaIndex];
-      let updated = false;
-      if (monapa.tenant_id !== 'CHURCH-001') {
-        monapa.tenant_id = 'CHURCH-001';
-        updated = true;
-      }
-      if (!monapa.password_hash) {
-        monapa.password_hash = 'admin123';
-        updated = true;
-      }
-      if (monapa.status !== 'Aktif') {
-        monapa.status = 'Aktif';
-        updated = true;
-      }
-      if (updated) {
-        setItem(KEYS.USERS, list);
-      }
     }
 
     // Auto-link users with role JEMAAT to their matching Jemaat profiles in memory (only populate missing fields, never overwrite user data)
@@ -1261,13 +1204,10 @@ export const StorageManager = {
   },
   deleteUser: (userId: string, username?: string, jemaatId?: string, nama?: string): void => {
     const cleanUsername = (username || '').toLowerCase().trim();
-    if (cleanUsername === 'superadmin' || cleanUsername === 'admin_monapa') {
-      return;
-    }
     const currentUsers = StorageManager.getUsers();
     const updatedUsers = currentUsers.filter((u) => {
-      if (u.user_id === userId) return false;
-      if (username && u.username && u.username.toLowerCase().trim() === cleanUsername) return false;
+      if (userId && u.user_id === userId) return false;
+      if (cleanUsername && u.username && u.username.toLowerCase().trim() === cleanUsername) return false;
       return true;
     });
 
@@ -1369,17 +1309,6 @@ export const StorageManager = {
     
     // Auto heal missing accounts for Jemaat records in memory
     const users = getItem<User[]>(KEYS.USERS, initialUsers);
-
-    // Ensure Pdt. Ferdinan Moses Timbu, S.Th, M.PdK profile always exists for CHURCH-001
-    const activeTenantId = StorageManager.getActiveTenantId();
-    if (activeTenantId === 'CHURCH-001') {
-      const hasFerdinan = list.some(
-        (j) => j && (j.jemaat_id === 'JMT-000' || (j.nama_lengkap && j.nama_lengkap.toLowerCase().includes('ferdinan moses')))
-      );
-      if (!hasFerdinan) {
-        list = [initialJemaat[0], ...list];
-      }
-    }
 
     // Ensure every Jemaat record is synchronized with users
     list = list.map((j) => {

@@ -487,8 +487,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
     setUserError('');
     setUserSuccess('');
 
-    if (currentUser.role !== 'SUPER_ADMIN' && userForm.role === 'SUPER_ADMIN') {
-      setUserError('Hak Akses Terbatas: Hanya SuperAdmin yang berhak membuat akun SuperAdmin baru.');
+    if (currentUser.role !== 'SUPER_ADMIN' && userForm.role !== 'JEMAAT') {
+      setUserError('Hak Akses Terbatas: Akun Admin hanya dapat dibuat atau diatur oleh SuperAdmin.');
       return;
     }
 
@@ -584,8 +584,11 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
   };
 
   const handleOpenEditUser = (u: User) => {
-    if (u.role === 'SUPER_ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
-      alert('Akses Terbatas: Hanya SuperAdmin yang berhak mengedit akun SuperAdmin.');
+    const isSelf = u.user_id === currentUser.user_id || u.username.toLowerCase() === currentUser.username.toLowerCase();
+    
+    // Akun Admin & SuperAdmin hanya bisa diatur oleh SuperAdmin (kecuali akun sendiri)
+    if (currentUser.role !== 'SUPER_ADMIN' && (u.role === 'ADMIN' || u.role === 'SUPER_ADMIN') && !isSelf) {
+      alert('Akses Terbatas: Akun Admin hanya dapat diatur atau diedit oleh SuperAdmin.');
       return;
     }
 
@@ -611,8 +614,21 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
     if (!editingUser) return;
 
+    const isSelf = editingUser.user_id === currentUser.user_id || editingUser.username.toLowerCase() === currentUser.username.toLowerCase();
+
+    // Akun Admin & SuperAdmin hanya dapat diatur oleh SuperAdmin
+    if (currentUser.role !== 'SUPER_ADMIN' && (editingUser.role === 'ADMIN' || editingUser.role === 'SUPER_ADMIN') && !isSelf) {
+      setUserError('Hak Akses Terbatas: Akun Admin hanya dapat diatur oleh SuperAdmin.');
+      return;
+    }
+
     if (currentUser.role !== 'SUPER_ADMIN' && editUserForm.role === 'SUPER_ADMIN') {
       setUserError('Hak Akses Terbatas: Hanya SuperAdmin yang berhak menetapkan role SuperAdmin.');
+      return;
+    }
+
+    if (currentUser.role !== 'SUPER_ADMIN' && editUserForm.role === 'ADMIN' && editingUser.role !== 'ADMIN') {
+      setUserError('Hak Akses Terbatas: Hanya SuperAdmin yang berhak menetapkan role Admin.');
       return;
     }
 
@@ -624,7 +640,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
     const globalUsers = StorageManager.getUsers();
 
-    // Check duplicate username in global users
+    // Check duplicate username in global users excluding current editing user
     const isDuplicate = globalUsers.some(
       (u) => u.user_id !== editingUser.user_id && u.username.toLowerCase() === trimmedUsername
     );
@@ -649,6 +665,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
     const activeAdminTenantId = currentUser.tenant_id || StorageManager.getActiveTenantId() || 'CHURCH-001';
 
+    // Update in-place by user_id
     const updatedGlobal = globalUsers.map((u) => {
       if (u.user_id === editingUser.user_id) {
         return {
@@ -669,9 +686,26 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
     StorageManager.saveUsers(updatedGlobal);
     setUsersList(StorageManager.getUsers());
 
+    // Also synchronize corresponding Jemaat record if any so profile names match
+    if (editingUser.jemaat_id) {
+      const allJemaat = StorageManager.getJemaat();
+      const updatedJemaat = allJemaat.map((j) => {
+        if (j.jemaat_id === editingUser.jemaat_id) {
+          return {
+            ...j,
+            nama_lengkap: editUserForm.nama.trim(),
+            email: editUserForm.email.trim() || j.email,
+            nomor_hp: editUserForm.no_hp.trim() || j.nomor_hp
+          };
+        }
+        return j;
+      });
+      StorageManager.saveJemaat(updatedJemaat);
+    }
+
     // If edited account is current logged in user, update current user session
-    if (editingUser.username.toLowerCase() === currentUser.username.toLowerCase()) {
-      const updatedSelf = updatedGlobal.find((u) => u.username.toLowerCase() === currentUser.username.toLowerCase());
+    if (isSelf || editingUser.username.toLowerCase() === currentUser.username.toLowerCase()) {
+      const updatedSelf = updatedGlobal.find((u) => u.user_id === editingUser.user_id);
       if (updatedSelf) {
         StorageManager.saveCurrentUser(updatedSelf);
       }
@@ -730,19 +764,26 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
   };
 
   const handleDeleteUser = async (u: User) => {
-    if (u.user_id === currentUser.user_id) {
+    // 1. Yang tidak bisa dihapus adalah akun admin sendiri
+    const isSelf = u.user_id === currentUser.user_id || u.username.toLowerCase() === currentUser.username.toLowerCase();
+    if (isSelf) {
       alert('Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.');
       return;
     }
 
-    if (u.username === 'superadmin' || u.role === 'SUPER_ADMIN') {
-      alert('Akun Super Admin tidak boleh dihapus.');
+    // 2. Akun Admin hanya bisa diatur / dihapus oleh SuperAdmin
+    if ((u.role === 'ADMIN' || u.role === 'SUPER_ADMIN') && currentUser.role !== 'SUPER_ADMIN') {
+      alert('Akses Ditolak: Akun Admin hanya dapat diatur atau dihapus oleh SuperAdmin.');
       return;
     }
 
-    if (u.username.toLowerCase() === 'admin_monapa') {
-      alert('Akun Admin Monapa Puriala adalah akun sistem utama dan tidak dapat dihapus.');
-      return;
+    // 3. SuperAdmin account safety: pastikan tidak menghapus SuperAdmin terakhir
+    if (u.role === 'SUPER_ADMIN') {
+      const allSuperAdmins = StorageManager.getUsers().filter((usr) => usr.role === 'SUPER_ADMIN');
+      if (allSuperAdmins.length <= 1) {
+        alert('Tidak dapat menghapus akun SuperAdmin terakhir. Sistem memerlukan setidaknya satu SuperAdmin aktif.');
+        return;
+      }
     }
 
     if (currentUser.role !== 'SUPER_ADMIN') {
@@ -755,7 +796,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
 
     const ok = await confirmDialog({
       title: 'Hapus Permanen Akun',
-      message: `Hapus permanen akun "${u.username}" (${u.nama}) dari sistem?`,
+      message: `Hapus permanen akun "${u.username}" (${u.nama}) dari sistem? Akun yang dihapus tidak akan dapat dipulihkan kembali.`,
       confirmText: 'Ya, Hapus',
       cancelText: 'Batal',
       isDanger: true,
@@ -5211,77 +5252,100 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           </td>
 
                           <td className="p-3.5 text-center">
-                            {u.role === 'SUPER_ADMIN' && currentUser.role !== 'SUPER_ADMIN' ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
-                                <Lock className="w-3 h-3 text-amber-400" />
-                                <span>Terkunci (SuperAdmin)</span>
-                              </span>
-                            ) : (
-                              <div className="flex items-center justify-center gap-1.5">
-                                {/* Edit Username & Password Button */}
-                                <button
-                                  onClick={() => handleOpenEditUser(u)}
-                                  className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                                    isLight ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 shadow-2xs' : 'bg-indigo-900/40 hover:bg-indigo-800/80 text-indigo-300 border border-indigo-700/50'
-                                  }`}
-                                  title="Ubah Username & Password / Edit Profile"
-                                >
-                                  <Edit className="w-3.5 h-3.5" />
-                                </button>
+                            {(() => {
+                              const isSelf = u.user_id === currentUser.user_id || u.username.toLowerCase() === currentUser.username.toLowerCase();
+                              const isAdminOrSuper = u.role === 'ADMIN' || u.role === 'SUPER_ADMIN';
+                              const isProtectedFromRegularAdmin = currentUser.role !== 'SUPER_ADMIN' && isAdminOrSuper && !isSelf;
 
-                                {/* Reset Quick Password */}
-                                <button
-                                  onClick={() => handleQuickResetPassword(u)}
-                                  className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                                    isLight ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300 shadow-2xs' : 'bg-amber-900/40 hover:bg-amber-800/80 text-amber-300 border border-amber-700/50'
-                                  }`}
-                                  title="Reset Password Acak"
-                                >
-                                  <KeyRound className="w-3.5 h-3.5" />
-                                </button>
+                              if (isProtectedFromRegularAdmin) {
+                                return (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[10px] font-bold" title="Akun Admin hanya dapat diatur atau dihapus oleh SuperAdmin">
+                                    <Lock className="w-3 h-3 text-amber-400" />
+                                    <span>Khusus SuperAdmin</span>
+                                  </span>
+                                );
+                              }
 
-                                {/* Toggle Status */}
-                                <button
-                                  onClick={() => handleToggleUserStatus(u.user_id)}
-                                  className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
-                                    u.status === 'Aktif'
-                                      ? (isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700')
-                                      : (isLight ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-emerald-900/40 hover:bg-emerald-800 text-emerald-300 border border-emerald-700/50')
-                                  }`}
-                                >
-                                  {u.status === 'Aktif' ? 'Nonaktifkan' : 'Aktifkan'}
-                                </button>
+                              const canDeleteThisUser = !isSelf && (currentUser.role === 'SUPER_ADMIN' || !isAdminOrSuper);
 
-                                {/* Delete User */}
-                                {u.username !== 'superadmin' && u.role !== 'SUPER_ADMIN' && u.user_id !== currentUser.user_id && (
+                              return (
+                                <div className="flex items-center justify-center gap-1.5">
+                                  {/* Edit Username & Password Button */}
                                   <button
-                                    onClick={() => handleDeleteUser(u)}
+                                    onClick={() => handleOpenEditUser(u)}
                                     className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                                      isLight ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200 shadow-2xs' : 'bg-rose-900/30 hover:bg-rose-800/80 text-rose-300 border border-rose-800/50'
+                                      isLight ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 shadow-2xs' : 'bg-indigo-900/40 hover:bg-indigo-800/80 text-indigo-300 border border-indigo-700/50'
                                     }`}
-                                    title="Hapus User"
+                                    title="Ubah Username & Password / Edit Profile"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Edit className="w-3.5 h-3.5" />
                                   </button>
-                                )}
 
-                                {/* SuperAdmin Direct Warning Action */}
-                                {currentUser.role === 'SUPER_ADMIN' && u.user_id !== currentUser.user_id && (
+                                  {/* Reset Quick Password */}
                                   <button
-                                    onClick={() => {
-                                      setTargetedSecurityAlertUserId(u.user_id);
-                                      setIsSecurityAlertModalOpen(true);
-                                    }}
+                                    onClick={() => handleQuickResetPassword(u)}
                                     className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                                      isLight ? 'bg-rose-100 hover:bg-rose-200 text-rose-800 border-rose-300' : 'bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 border border-rose-500/40'
+                                      isLight ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300 shadow-2xs' : 'bg-amber-900/40 hover:bg-amber-800/80 text-amber-300 border border-amber-700/50'
                                     }`}
-                                    title={`Kirim Peringatan Keamanan Merah ke ${u.username}`}
+                                    title="Reset Password Acak"
                                   >
-                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    <KeyRound className="w-3.5 h-3.5" />
                                   </button>
-                                )}
-                              </div>
-                            )}
+
+                                  {/* Toggle Status (disabled for self to prevent locking self out) */}
+                                  {!isSelf && (
+                                    <button
+                                      onClick={() => handleToggleUserStatus(u.user_id)}
+                                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
+                                        u.status === 'Aktif'
+                                          ? (isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700')
+                                          : (isLight ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-emerald-900/40 hover:bg-emerald-800 text-emerald-300 border border-emerald-700/50')
+                                      }`}
+                                    >
+                                      {u.status === 'Aktif' ? 'Nonaktifkan' : 'Aktifkan'}
+                                    </button>
+                                  )}
+
+                                  {/* Delete User Button */}
+                                  {canDeleteThisUser ? (
+                                    <button
+                                      onClick={() => handleDeleteUser(u)}
+                                      className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                        isLight ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200 shadow-2xs' : 'bg-rose-900/30 hover:bg-rose-800/80 text-rose-300 border border-rose-800/50'
+                                      }`}
+                                      title="Hapus User"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  ) : isSelf ? (
+                                    <span
+                                      className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${
+                                        isLight ? 'bg-slate-100 text-slate-500 border-slate-200' : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+                                      }`}
+                                      title="Akun Anda yang sedang aktif tidak dapat dihapus"
+                                    >
+                                      Akun Anda
+                                    </span>
+                                  ) : null}
+
+                                  {/* SuperAdmin Direct Warning Action */}
+                                  {currentUser.role === 'SUPER_ADMIN' && !isSelf && (
+                                    <button
+                                      onClick={() => {
+                                        setTargetedSecurityAlertUserId(u.user_id);
+                                        setIsSecurityAlertModalOpen(true);
+                                      }}
+                                      className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                        isLight ? 'bg-rose-100 hover:bg-rose-200 text-rose-800 border-rose-300' : 'bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 border border-rose-500/40'
+                                      }`}
+                                      title={`Kirim Peringatan Keamanan Merah ke ${u.username}`}
+                                    >
+                                      <AlertTriangle className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </td>
                         </tr>
                       );
@@ -5474,11 +5538,15 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     onChange={(e) => setUserForm({ ...userForm, role: e.target.value as any })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-semibold"
                   >
-                    <option value="ADMIN">ADMIN (Kelola Data & Sekretariat Gereja)</option>
-                    {currentUser.role === 'SUPER_ADMIN' && (
-                      <option value="SUPER_ADMIN">SUPER_ADMIN (Akses Penuh System)</option>
+                    {currentUser.role === 'SUPER_ADMIN' ? (
+                      <>
+                        <option value="ADMIN">ADMIN (Kelola Data & Sekretariat Gereja)</option>
+                        <option value="SUPER_ADMIN">SUPER_ADMIN (Akses Penuh System)</option>
+                        <option value="JEMAAT">JEMAAT (Portal Anggota Mandiri)</option>
+                      </>
+                    ) : (
+                      <option value="JEMAAT">JEMAAT (Portal Anggota Mandiri)</option>
                     )}
-                    <option value="JEMAAT">JEMAAT (Portal Anggota Mandiri)</option>
                   </select>
                 </div>
 
@@ -5657,11 +5725,20 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     onChange={(e) => setEditUserForm({ ...editUserForm, role: e.target.value as any })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-semibold"
                   >
-                    <option value="ADMIN">ADMIN (Kelola Data & Sekretariat Gereja)</option>
-                    {currentUser.role === 'SUPER_ADMIN' && (
-                      <option value="SUPER_ADMIN">SUPER_ADMIN (Akses Penuh System)</option>
+                    {currentUser.role === 'SUPER_ADMIN' ? (
+                      <>
+                        <option value="ADMIN">ADMIN (Kelola Data & Sekretariat Gereja)</option>
+                        <option value="SUPER_ADMIN">SUPER_ADMIN (Akses Penuh System)</option>
+                        <option value="JEMAAT">JEMAAT (Portal Anggota Mandiri)</option>
+                      </>
+                    ) : (
+                      <>
+                        {editUserForm.role === 'ADMIN' && (
+                          <option value="ADMIN">ADMIN (Kelola Data & Sekretariat Gereja)</option>
+                        )}
+                        <option value="JEMAAT">JEMAAT (Portal Anggota Mandiri)</option>
+                      </>
                     )}
-                    <option value="JEMAAT">JEMAAT (Portal Anggota Mandiri)</option>
                   </select>
                 </div>
 
