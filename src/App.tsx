@@ -137,7 +137,15 @@ export default function App() {
       document.body.style.backgroundColor = '#f4fbf9';
       document.documentElement.style.backgroundColor = '#f4fbf9';
     }
-  }, [settings?.warna_tema, settings?.theme_preset]);
+
+    if (settings?.nama_gereja && typeof document !== 'undefined') {
+      document.title = `${settings.nama_gereja} - Portal & Sistem Manajemen Gereja`;
+      const metaOgTitle = document.querySelector('meta[property="og:title"]');
+      if (metaOgTitle) metaOgTitle.setAttribute('content', `${settings.nama_gereja} - Portal & Sistem Manajemen Gereja`);
+      const metaTwitterTitle = document.querySelector('meta[name="twitter:title"]');
+      if (metaTwitterTitle) metaTwitterTitle.setAttribute('content', `${settings.nama_gereja} - Portal & Sistem Manajemen Gereja`);
+    }
+  }, [settings?.warna_tema, settings?.theme_preset, settings?.nama_gereja]);
 
   useEffect(() => {
     // Inisialisasi OneSignal Push Notification jika disetel & aktif
