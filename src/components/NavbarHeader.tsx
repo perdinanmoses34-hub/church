@@ -76,7 +76,8 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   onOpenAndroidStudioModal
 }) => {
   const [timeStr, setTimeStr] = useState('');
-  const [mobileTimeStr, setMobileTimeStr] = useState('');
+  const [timeHourMinute, setTimeHourMinute] = useState('');
+  const [timeSeconds, setTimeSeconds] = useState('');
   const [dateStr, setDateStr] = useState('');
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
@@ -127,7 +128,8 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
-      setMobileTimeStr(`${hours}:${minutes}:${seconds}`);
+      setTimeHourMinute(`${hours}:${minutes}`);
+      setTimeSeconds(`${seconds} WIB`);
       setTimeStr(`${hours}:${minutes}:${seconds} WIB`);
       setDateStr(
         now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
@@ -341,19 +343,12 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                 {isAdmin ? 'Panel Admin' : 'Portal Jemaat'}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 min-w-0 mt-0.5">
-              <p
-                className={`text-[10px] sm:text-[11px] font-medium leading-tight truncate ${theme.navbar.subtextClass}`}
-                style={theme.navbar.subtextStyle}
-              >
-                Sistem Informasi Manajemen Gereja
-              </p>
-              {/* Jam Digital Kecil Proporsional Handphone / Mobile (Menggantikan tulisan Portal) */}
-              <span className="sm:hidden inline-flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-black/20 dark:bg-white/10 text-emerald-300 dark:text-emerald-400 border border-emerald-400/30 shrink-0 whitespace-nowrap shadow-2xs leading-none">
-                <Clock className="w-2.5 h-2.5 text-emerald-300 shrink-0" />
-                <span>{mobileTimeStr}</span>
-              </span>
-            </div>
+            <p
+              className={`text-[10px] sm:text-[11px] font-medium leading-tight truncate mt-0.5 ${theme.navbar.subtextClass}`}
+              style={theme.navbar.subtextStyle}
+            >
+              Sistem Informasi Manajemen Gereja
+            </p>
           </div>
         </div>
       </div>
@@ -377,8 +372,24 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
         </div>
       </div>
 
-      {/* Right section: Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      {/* Right section: Mobile Digital Clock Box, Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        {/* Kotak Jam Digital Khusus Mobile Handphone (Bentuk Kotak Kompak, Sangat Jelas & Kontras Tinggi) */}
+        <div
+          className="sm:hidden flex flex-col items-center justify-center min-w-[48px] h-9 px-1.5 py-0.5 rounded-xl bg-slate-900 border border-slate-700/80 shadow-md shrink-0 text-center select-none"
+          title="Waktu Real-time Saat Ini"
+        >
+          <span className="text-[11px] font-black font-mono text-white tracking-wider leading-none">
+            {timeHourMinute}
+          </span>
+          <div className="flex items-center justify-center gap-1 mt-0.5 leading-none">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span className="text-[8px] font-extrabold font-mono text-emerald-300 tracking-tight leading-none">
+              {timeSeconds}
+            </span>
+          </div>
+        </div>
+
         {/* 1. Firebase Live Pill */}
         <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shadow-2xs ${theme.navbar.pillClass}`}>
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
