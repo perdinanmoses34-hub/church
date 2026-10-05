@@ -286,9 +286,10 @@ export interface AppSettings {
   rekening_bank_nomor?: string;
   rekening_bank_atas_nama?: string;
   qris_image_url?: string;
-  // Floating APK Download Control (Admin / SuperAdmin)
+  // Floating APK & Windows Download Control (Admin / SuperAdmin)
   show_apk_download_button?: boolean;
   apk_download_url?: string;
+  windows_download_url?: string;
   // Dashboard Visual Customization
   header_title?: string;
   header_subtitle?: string;

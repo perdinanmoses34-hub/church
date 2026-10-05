@@ -1943,11 +1943,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </button>
                   </div>
                   <h4 className="font-extrabold text-sm sm:text-base text-white leading-snug">
-                    Download Aplikasi Mobile Android (.APK)
+                    Download Aplikasi Gereja (Android &amp; Windows Desktop)
                   </h4>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     {churchApkUrl
-                      ? `Instal aplikasi resmi ${settings.nama_gereja} di ponsel Android untuk akses cepat renungan, warta & notifikasi ibadah.`
+                      ? `Instal aplikasi resmi ${settings.nama_gereja} di ponsel Android (.APK) atau komputer Windows (.ZIP/Desktop) untuk akses cepat dan pencetakan struk.`
                       : 'Admin gereja dapat menempelkan link Google Drive APK di menu pengaturan agar jemaat dapat langsung mengunduhnya.'}
                   </p>
                 </div>
@@ -1977,8 +1977,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/30 border border-emerald-400/40 flex items-center justify-center gap-2 transition-all active:scale-95 text-center"
                   >
-                    <Download className="w-4 h-4 animate-pulse shrink-0" />
-                    <span>Unduh File .APK</span>
+                    <Smartphone className="w-4 h-4 shrink-0" />
+                    <span>Unduh APK Android</span>
                   </a>
                 ) : isAdmin ? (
                   <button
@@ -1993,6 +1993,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <span>Tempelkan Link APK Drive</span>
                   </button>
                 ) : null}
+
+                <a
+                  href="/downloads/CMS_Gereja_Windows_Desktop.zip"
+                  download={`${(settings.nama_gereja || 'Gereja').replace(/\s+/g, '_')}_Windows_Desktop.zip`}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-700 via-blue-600 to-indigo-700 hover:from-cyan-600 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-700/30 border border-cyan-400/40 flex items-center justify-center gap-2 transition-all active:scale-95 text-center"
+                  title="Unduh paket aplikasi desktop Windows"
+                >
+                  <Monitor className="w-4 h-4 shrink-0" />
+                  <span>Aplikasi Windows (.ZIP)</span>
+                </a>
 
                 {isAdmin && (
                   <button
