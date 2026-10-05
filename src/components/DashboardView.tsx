@@ -380,7 +380,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       event_id: 'EVT-2026-001',
       nama: 'Ibadah Raya & Kehadiran Jemaat',
       tanggal: 'Setiap Minggu',
-      jam: '07.00 & 10.00 WIB',
+      jam: '07.00 & 10.00 WITA',
       lokasi: 'Gereja Utama',
       kategori: 'Ibadah',
       pembicara: 'Gembala Sidang',
@@ -2245,7 +2245,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className={`space-y-1.5 text-xs ${isLightSystem ? 'text-slate-700 bg-slate-50 border border-slate-200/80 shadow-2xs' : 'text-slate-300 bg-white/5 border-white/5'} p-3 rounded-2xl`}>
                         <div className="flex items-center gap-2">
                           <Clock className={`w-3.5 h-3.5 ${isLightSystem ? 'text-amber-600' : 'text-amber-400'}`} />
-                          <span className="font-medium">Pukul {latestEvent.jam} WIB</span>
+                          <span className="font-medium">Pukul {latestEvent.jam ? (latestEvent.jam.includes('WITA') || latestEvent.jam.includes('WIB') ? latestEvent.jam.replace('WIB', 'WITA') : `${latestEvent.jam} WITA`) : '09:00 WITA'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className={`w-3.5 h-3.5 ${isLightSystem ? 'text-teal-600' : 'text-indigo-400'}`} />
@@ -3210,7 +3210,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           <div className={`text-[10px] font-extrabold ${isLightSystem ? 'text-slate-700' : 'text-red-300'} uppercase tracking-wider`}>
                             Jadwal Live Stream
                           </div>
-                          <p className={`text-xs font-bold ${isLightSystem ? 'text-slate-900' : 'text-white'} truncate`}>Ibadah Minggu 07.00 &amp; 10.00 WIB</p>
+                          <p className={`text-xs font-bold ${isLightSystem ? 'text-slate-900' : 'text-white'} truncate`}>Ibadah Minggu 07.00 &amp; 10.00 WITA</p>
                         </div>
                       </div>
                     )}
@@ -4021,7 +4021,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="px-3 py-1 rounded-xl bg-teal-500/20 text-teal-200 border border-teal-500/30 text-[10px] font-mono font-bold">
-                              10:30:15 WIB
+                              10:30:15 WITA
                             </span>
                           </div>
                         </div>
@@ -4034,7 +4034,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                               <div className="flex items-center gap-2">
                                 <Megaphone className="w-4 h-4 text-amber-400 animate-pulse" />
                                 <span className="font-bold text-amber-300">WARTA GEREJA:</span>
-                                <span className="text-slate-200 truncate">{customForm.jemaat_announcement_text || 'Ibadah Raya Minggu ini diadakan pukul 09:00 WIB di Gedung Utama.'}</span>
+                                <span className="text-slate-200 truncate">{customForm.jemaat_announcement_text || 'Ibadah Raya Minggu ini diadakan pukul 09:00 WITA di Gedung Utama.'}</span>
                               </div>
                               <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 font-bold">Toa Banner</span>
                             </div>
@@ -4054,7 +4054,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             </div>
                             <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
                               <p className="text-[10px] text-slate-400 font-bold uppercase">Jadwal Minggu</p>
-                              <p className="text-lg font-black text-amber-300">09.00 WIB</p>
+                              <p className="text-lg font-black text-amber-300">09.00 WITA</p>
                               <p className="text-[10px] text-slate-400 font-medium">Gedung Utama</p>
                             </div>
                             <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
@@ -4115,7 +4115,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           {customForm.show_pinned_notif_banner !== false && (
                             <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[9px] text-amber-200 flex items-center gap-1.5">
                               <Megaphone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              <span className="truncate font-semibold">{customForm.jemaat_announcement_text || 'Ibadah Raya Minggu ini diadakan pukul 09:00 WIB di Gedung Utama.'}</span>
+                              <span className="truncate font-semibold">{customForm.jemaat_announcement_text || 'Ibadah Raya Minggu ini diadakan pukul 09:00 WITA di Gedung Utama.'}</span>
                             </div>
                           )}
 

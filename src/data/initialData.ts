@@ -162,7 +162,7 @@ export const initialSettings: AppSettings = {
   jemaat_banner_bg: 'GRADIENT_EMERALD',
   jemaat_cards_bg: 'DEFAULT_GLASS',
   jemaat_card_width: 'CONTAINED',
-  jemaat_announcement_text: 'Ibadah Raya Minggu ini diadakan pukul 09:00 WIB. Mari hadir bertatap muka atau saksikan tayangan streaming online.',
+  jemaat_announcement_text: 'Ibadah Raya Minggu ini diadakan pukul 09:00 WITA. Mari hadir bertatap muka atau saksikan tayangan streaming online.',
   show_jemaat_announcement_banner: true,
   show_jemaat_offering_history: true,
   show_jemaat_sacraments_card: true,
@@ -203,7 +203,7 @@ export const initialSettings: AppSettings = {
   onesignal_rest_api_key: '',
   onesignal_google_project_number: '250034601366',
   onesignal_auto_push_announcement: true,
-  timezone: 'Asia/Jakarta (WIB)',
+  timezone: 'Asia/Makassar (WITA)',
   bahasa: 'Bahasa Indonesia'
 };
 
@@ -501,14 +501,14 @@ export const initialPelayanan: Pelayanan[] = [
     nama: 'Praise & Worship Team (Pemusik & Singers)',
     kategori: 'Musik & Ibadah',
     penanggung_jawab: 'Ev. Joshua Tan',
-    jadwal: 'Sabtu, 18.00 WIB (Latihan)'
+    jadwal: 'Sabtu, 18.00 WITA (Latihan)'
   },
   {
     pelayanan_id: 'PLY-002',
     nama: 'Multimedia & Broadcast Live Streaming',
     kategori: 'Media & IT',
     penanggung_jawab: 'Daniel Pratama',
-    jadwal: 'Minggu, 06.30 WIB & 09.30 WIB'
+    jadwal: 'Minggu, 06.30 WITA & 09.30 WITA'
   },
   {
     pelayanan_id: 'PLY-003',
@@ -522,7 +522,7 @@ export const initialPelayanan: Pelayanan[] = [
     nama: 'Guru Sekolah Minggu (Kids Church)',
     kategori: 'Anak & Sekolah Minggu',
     penanggung_jawab: 'Ibu Ruth Wijaya',
-    jadwal: 'Minggu, 08.00 WIB & 10.30 WIB'
+    jadwal: 'Minggu, 08.00 WITA & 10.30 WITA'
   }
 ];
 
@@ -661,7 +661,7 @@ export const initialPengumuman: Pengumuman[] = [
   {
     pengumuman_id: 'PGM-002',
     judul: 'Jadwal Kelas Katekisasi & Persiapan Baptisan Raya',
-    isi: 'Kelas Katekisasi Baptisan dan Sidi gelombang II akan dimulai pada hari Sabtu, 8 Agustus 2026 pukul 16.00 WIB di Ruang Rapat Lt 2.',
+    isi: 'Kelas Katekisasi Baptisan dan Sidi gelombang II akan dimulai pada hari Sabtu, 8 Agustus 2026 pukul 16.00 WITA di Ruang Rapat Lt 2.',
     tanggal: '2026-07-25',
     status: 'Aktif',
     kategori: 'Pengajaran'
@@ -701,7 +701,7 @@ export const initialEvents: EventSchedule[] = [
     nama: 'KKR Kebangunan Rohani & Doa Kesembuhan Massal 2026',
     lokasi: 'Gedung Utama Gereja Monapa Puriala',
     tanggal: '2026-08-15',
-    jam: '18.00 - 21.00 WIB',
+    jam: '18.00 - 21.00 WITA',
     kategori: 'Upcoming Special Event',
     pembicara: 'Pdt. Dr. Herman Setyawan, M.Th',
     keterangan: 'Kebaktian KKR Spesial dengan Doa Kesembuhan & Pembagian Berkat Rohani. Kuota tempat terbatas.',
@@ -712,7 +712,7 @@ export const initialEvents: EventSchedule[] = [
     nama: 'Retret Kebangunan Keluarga & Pasutri Bahagia',
     lokasi: 'Grand Convention Hall Lt. 2',
     tanggal: '2026-08-28',
-    jam: '09.00 - 17.00 WIB',
+    jam: '09.00 - 17.00 WITA',
     kategori: 'Upcoming Special Event',
     pembicara: 'Pdt. Markus & Ev. Ruth Iskandar',
     keterangan: 'Seminar & retret pemulihan mezbah keluarga jemaat. Dapatkan kursi reservasi Anda sekarang.',
@@ -723,7 +723,7 @@ export const initialEvents: EventSchedule[] = [
     nama: 'Ibadah Raya I (Umum & Pemuda)',
     lokasi: 'Sanctuary Main Hall Lt. 3',
     tanggal: '2026-08-02',
-    jam: '07.00 - 09.00 WIB',
+    jam: '07.00 - 09.00 WITA',
     kategori: 'Ibadah Utama',
     pembicara: 'Pdt. Dr. Herman Setyawan, M.Th'
   },
@@ -732,7 +732,7 @@ export const initialEvents: EventSchedule[] = [
     nama: 'Ibadah Raya II (Bilingual & Family)',
     lokasi: 'Sanctuary Main Hall Lt. 3',
     tanggal: '2026-08-02',
-    jam: '10.00 - 12.00 WIB',
+    jam: '10.00 - 12.00 WITA',
     kategori: 'Ibadah Utama',
     pembicara: 'Pdt. Markus Iskandar, S.Th'
   },
@@ -741,7 +741,7 @@ export const initialEvents: EventSchedule[] = [
     nama: 'Ibadah Youth & Teen Impact',
     lokasi: 'Chapel Lt. 2',
     tanggal: '2026-08-01',
-    jam: '17.00 - 19.00 WIB',
+    jam: '17.00 - 19.00 WITA',
     kategori: 'Youth',
     pembicara: 'Ev. Joshua Tan'
   },
@@ -750,7 +750,7 @@ export const initialEvents: EventSchedule[] = [
     nama: 'Persekutuan Doa Malam & Deliverance',
     lokasi: 'Ruang Doa Efrata',
     tanggal: '2026-07-31',
-    jam: '19.00 - 21.00 WIB',
+    jam: '19.00 - 21.00 WITA',
     kategori: 'Doa',
     pembicara: 'Tim Doa Syafaat'
   }
@@ -785,7 +785,7 @@ export const initialNotifications: NotificationItem[] = [
     notif_id: 'NTF-001',
     user_id: 'ALL',
     judul: 'Jadwal Ibadah Minggu Ini',
-    pesan: 'Jangan lupa hadir tepat waktu pada Ibadah Raya I (07.00 WIB) & II (10.00 WIB). Perjamuan Kudus akan dilayani minggu ini.',
+    pesan: 'Jangan lupa hadir tepat waktu pada Ibadah Raya I (07.00 WITA) & II (10.00 WITA). Perjamuan Kudus akan dilayani minggu ini.',
     status_baca: 'Belum',
     tanggal: '2026-07-28 10:00'
   },

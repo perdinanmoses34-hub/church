@@ -912,6 +912,10 @@ export const StorageManager = {
       settings.jemaat_banner_subtitle = 'Portal Layanan Jemaat Resmi & Sistem Informasi Terpadu';
     }
 
+    if (!settings.timezone || settings.timezone.includes('WIB') || settings.timezone.includes('Asia/Jakarta')) {
+      settings.timezone = 'Asia/Makassar (WITA)';
+    }
+
     // Ensure navbar custom background uses admin configured color (default #0c400d) if white or missing
     if (!settings.navbar_custom_bg || settings.navbar_custom_bg === '#ffffff') {
       settings.navbar_custom_bg = '#0c400d';

@@ -84,8 +84,8 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
     nama: '',
     kategori: 'Upcoming Special Event',
     tanggal: new Date().toISOString().slice(0, 10),
-    jam: '09:00 - 12:00 WIB',
-    lokasi: 'Sanctuary Main Hall GKFC Pro',
+    jam: '09:00 - 12:00 WITA',
+    lokasi: 'Sanctuary Main Hall Monapa Puriala',
     pembicara: 'Pdt. Dr. Herman Setyawan, M.Th',
     keterangan: 'Kebaktian KKR & Persekutuan Spesial',
     kuota_kursi: 150
@@ -134,8 +134,8 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
       nama: '',
       kategori: 'Upcoming Special Event',
       tanggal: new Date().toISOString().slice(0, 10),
-      jam: '09:00 - 12:00 WIB',
-      lokasi: 'Sanctuary Main Hall GKFC Pro',
+      jam: '09:00 - 12:00 WITA',
+      lokasi: 'Sanctuary Main Hall Monapa Puriala',
       pembicara: 'Pdt. Dr. Herman Setyawan, M.Th',
       keterangan: 'Kebaktian KKR & Persekutuan Spesial',
       kuota_kursi: 150
@@ -589,8 +589,8 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
                     nama: '',
                     kategori: 'Ibadah Raya',
                     tanggal: new Date().toISOString().slice(0, 10),
-                    jam: '09:00 - 11:30 WIB',
-                    lokasi: 'Sanctuary GKFC Pro',
+                    jam: '09:00 - 11:30 WITA',
+                    lokasi: 'Sanctuary Monapa Puriala',
                     pembicara: 'Pdt. Dr. Herman Setyawan, M.Th',
                     keterangan: 'Ibadah Raya Mingguan',
                     kuota_kursi: 150
@@ -691,8 +691,8 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
                       nama: '',
                       kategori: 'Upcoming Event Spesial',
                       tanggal: new Date().toISOString().slice(0, 10),
-                      jam: '18:00 - 21:00 WIB',
-                      lokasi: 'Sanctuary GKFC Pro',
+                      jam: '18:00 - 21:00 WITA',
+                      lokasi: 'Sanctuary Monapa Puriala',
                       pembicara: '',
                       keterangan: 'Kebaktian & Persekutuan Spesial',
                       kuota_kursi: 150
@@ -1434,7 +1434,7 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
                     required
                     value={eventForm.jam}
                     onChange={(e) => setEventForm({ ...eventForm, jam: e.target.value })}
-                    placeholder="09:00 - 11:30 WIB"
+                    placeholder="09:00 - 11:30 WITA"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
                   />
                 </div>
