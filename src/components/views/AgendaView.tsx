@@ -86,7 +86,10 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
     tanggal: new Date().toISOString().slice(0, 10),
     jam: '09:00 - 12:00 WITA',
     lokasi: 'Sanctuary Main Hall Monapa Puriala',
-    pembicara: 'Pdt. Dr. Herman Setyawan, M.Th',
+    pelayan_firman: 'Pdt. Ferdinan Moses Timbu, S.Th',
+    pembicara: 'Pdt. Ferdinan Moses Timbu, S.Th',
+    pelayan_liturgi: '',
+    majelis_bertugas: '',
     keterangan: 'Kebaktian KKR & Persekutuan Spesial',
     kuota_kursi: 150
   });
@@ -136,7 +139,10 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
       tanggal: new Date().toISOString().slice(0, 10),
       jam: '09:00 - 12:00 WITA',
       lokasi: 'Sanctuary Main Hall Monapa Puriala',
-      pembicara: 'Pdt. Dr. Herman Setyawan, M.Th',
+      pelayan_firman: 'Pdt. Ferdinan Moses Timbu, S.Th',
+      pembicara: 'Pdt. Ferdinan Moses Timbu, S.Th',
+      pelayan_liturgi: '',
+      majelis_bertugas: '',
       keterangan: 'Kebaktian KKR & Persekutuan Spesial',
       kuota_kursi: 150
     });
@@ -151,7 +157,10 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
       tanggal: e.tanggal,
       jam: e.jam,
       lokasi: e.lokasi,
-      pembicara: e.pembicara || '',
+      pelayan_firman: e.pelayan_firman || e.pembicara || '',
+      pembicara: e.pelayan_firman || e.pembicara || '',
+      pelayan_liturgi: e.pelayan_liturgi || '',
+      majelis_bertugas: e.majelis_bertugas || '',
       keterangan: e.keterangan || '',
       kuota_kursi: e.kuota_kursi || 150
     });
@@ -176,7 +185,10 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
               tanggal: eventForm.tanggal,
               jam: eventForm.jam,
               lokasi: eventForm.lokasi,
-              pembicara: eventForm.pembicara,
+              pelayan_firman: eventForm.pelayan_firman || eventForm.pembicara,
+              pembicara: eventForm.pelayan_firman || eventForm.pembicara,
+              pelayan_liturgi: eventForm.pelayan_liturgi,
+              majelis_bertugas: eventForm.majelis_bertugas,
               keterangan: eventForm.keterangan,
               kuota_kursi: Number(eventForm.kuota_kursi) || 150
             }
@@ -194,7 +206,10 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
         tanggal: eventForm.tanggal,
         jam: eventForm.jam,
         lokasi: eventForm.lokasi,
-        pembicara: eventForm.pembicara,
+        pelayan_firman: eventForm.pelayan_firman || eventForm.pembicara,
+        pembicara: eventForm.pelayan_firman || eventForm.pembicara,
+        pelayan_liturgi: eventForm.pelayan_liturgi,
+        majelis_bertugas: eventForm.majelis_bertugas,
         keterangan: eventForm.keterangan,
         kuota_kursi: Number(eventForm.kuota_kursi) || 150
       };
@@ -651,11 +666,26 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
                     <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                     <span>{e.lokasi}</span>
                   </p>
-                  {e.pembicara && (
-                    <p className={`text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-400'} pt-1 border-t ${isLightSystem ? 'border-slate-100' : 'border-slate-800'}`}>
-                      Pelayan Firman / Musisi: <strong className={isLightSystem ? 'text-slate-900' : 'text-slate-200'}>{e.pembicara}</strong>
-                    </p>
-                  )}
+                  <div className={`pt-2 mt-2 border-t ${isLightSystem ? 'border-slate-100' : 'border-slate-800'} space-y-1 text-xs`}>
+                    {(e.pelayan_firman || e.pembicara) && (
+                      <p className={isLightSystem ? 'text-slate-700' : 'text-slate-300'}>
+                        <span className="font-semibold text-teal-600 dark:text-teal-400">📖 Pelayan Firman:</span>{' '}
+                        <strong className={isLightSystem ? 'text-slate-900' : 'text-white'}>{e.pelayan_firman || e.pembicara}</strong>
+                      </p>
+                    )}
+                    {e.pelayan_liturgi && (
+                      <p className={isLightSystem ? 'text-slate-700' : 'text-slate-300'}>
+                        <span className="font-semibold text-indigo-600 dark:text-indigo-400">🕊️ Pelayan Liturgi:</span>{' '}
+                        <strong className={isLightSystem ? 'text-slate-900' : 'text-white'}>{e.pelayan_liturgi}</strong>
+                      </p>
+                    )}
+                    {e.majelis_bertugas && (
+                      <p className={isLightSystem ? 'text-slate-700' : 'text-slate-300'}>
+                        <span className="font-semibold text-amber-600 dark:text-amber-400">⛪ Majelis Bertugas:</span>{' '}
+                        <strong className={isLightSystem ? 'text-slate-900' : 'text-white'}>{e.majelis_bertugas}</strong>
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className={`text-[11px] ${isLightSystem ? 'text-slate-600 bg-slate-50 border-slate-200' : 'text-slate-400 bg-slate-950/60 border-slate-800'} p-2.5 rounded-xl border`}>
@@ -766,11 +796,26 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
                         <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
                         <span>{e.lokasi}</span>
                       </p>
-                      {e.pembicara && (
-                        <p className={isLightSystem ? 'text-slate-600 font-medium' : 'text-slate-300 font-medium'}>
-                          Pembicara: <strong className={isLightSystem ? 'text-slate-900' : 'text-white'}>{e.pembicara}</strong>
-                        </p>
-                      )}
+                      <div className="pt-1.5 space-y-1 border-t border-slate-700/50">
+                        {(e.pelayan_firman || e.pembicara) && (
+                          <p className={isLightSystem ? 'text-slate-700' : 'text-slate-300'}>
+                            <span className="font-semibold text-teal-600 dark:text-teal-400">📖 Pelayan Firman:</span>{' '}
+                            <strong className={isLightSystem ? 'text-slate-900' : 'text-white'}>{e.pelayan_firman || e.pembicara}</strong>
+                          </p>
+                        )}
+                        {e.pelayan_liturgi && (
+                          <p className={isLightSystem ? 'text-slate-700' : 'text-slate-300'}>
+                            <span className="font-semibold text-indigo-600 dark:text-indigo-400">🕊️ Pelayan Liturgi:</span>{' '}
+                            <strong className={isLightSystem ? 'text-slate-900' : 'text-white'}>{e.pelayan_liturgi}</strong>
+                          </p>
+                        )}
+                        {e.majelis_bertugas && (
+                          <p className={isLightSystem ? 'text-slate-700' : 'text-slate-300'}>
+                            <span className="font-semibold text-amber-600 dark:text-amber-400">⛪ Majelis Bertugas:</span>{' '}
+                            <strong className={isLightSystem ? 'text-slate-900' : 'text-white'}>{e.majelis_bertugas}</strong>
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <p className={`text-xs ${isLightSystem ? 'text-slate-600 bg-slate-50 border-slate-200' : 'text-slate-300 bg-slate-950/80 border-slate-800'} p-3 rounded-2xl border`}>
@@ -1452,11 +1497,34 @@ export const AgendaView: React.FC<AgendaViewProps> = ({ currentUser, mode = 'BOT
               </div>
 
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Pembicara / Pengkhotbah:</label>
+                <label className="block text-slate-300 font-semibold mb-1">📖 Pelayan Firman (Pengkhotbah):</label>
                 <input
                   type="text"
-                  value={eventForm.pembicara}
-                  onChange={(e) => setEventForm({ ...eventForm, pembicara: e.target.value })}
+                  placeholder="Contoh: Pdt. Ferdinan Moses Timbu, S.Th"
+                  value={eventForm.pelayan_firman}
+                  onChange={(e) => setEventForm({ ...eventForm, pelayan_firman: e.target.value, pembicara: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">🕊️ Pelayan Liturgi (Liturgos):</label>
+                <input
+                  type="text"
+                  placeholder="Contoh: Pnt. Markus / Dkn. Maria Melani"
+                  value={eventForm.pelayan_liturgi}
+                  onChange={(e) => setEventForm({ ...eventForm, pelayan_liturgi: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">⛪ Majelis yang Bertugas:</label>
+                <input
+                  type="text"
+                  placeholder="Contoh: Majelis Jemaat Kolom 1 - 3"
+                  value={eventForm.majelis_bertugas}
+                  onChange={(e) => setEventForm({ ...eventForm, majelis_bertugas: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white"
                 />
               </div>

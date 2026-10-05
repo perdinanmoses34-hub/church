@@ -192,7 +192,10 @@ export interface EventSchedule {
   tanggal: string;
   jam: string;
   kategori?: string;
+  pelayan_firman?: string;
   pembicara?: string;
+  pelayan_liturgi?: string;
+  majelis_bertugas?: string;
   keterangan?: string;
   kuota_kursi?: number;
 }

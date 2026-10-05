@@ -703,7 +703,10 @@ export const initialEvents: EventSchedule[] = [
     tanggal: '2026-08-15',
     jam: '18.00 - 21.00 WITA',
     kategori: 'Upcoming Special Event',
-    pembicara: 'Pdt. Dr. Herman Setyawan, M.Th',
+    pelayan_firman: 'Pdt. Ferdinan Moses Timbu, S.Th',
+    pembicara: 'Pdt. Ferdinan Moses Timbu, S.Th',
+    pelayan_liturgi: 'Pnt. Markus Iskandar',
+    majelis_bertugas: 'Majelis Jemaat Sektor I & II',
     keterangan: 'Kebaktian KKR Spesial dengan Doa Kesembuhan & Pembagian Berkat Rohani. Kuota tempat terbatas.',
     kuota_kursi: 200
   },
@@ -714,7 +717,10 @@ export const initialEvents: EventSchedule[] = [
     tanggal: '2026-08-28',
     jam: '09.00 - 17.00 WITA',
     kategori: 'Upcoming Special Event',
+    pelayan_firman: 'Pdt. Markus & Ev. Ruth Iskandar',
     pembicara: 'Pdt. Markus & Ev. Ruth Iskandar',
+    pelayan_liturgi: 'Dkn. Maria Melani',
+    majelis_bertugas: 'Majelis Seksi Kemitraan Keluarga',
     keterangan: 'Seminar & retret pemulihan mezbah keluarga jemaat. Dapatkan kursi reservasi Anda sekarang.',
     kuota_kursi: 120
   },
@@ -725,7 +731,10 @@ export const initialEvents: EventSchedule[] = [
     tanggal: '2026-08-02',
     jam: '07.00 - 09.00 WITA',
     kategori: 'Ibadah Utama',
-    pembicara: 'Pdt. Dr. Herman Setyawan, M.Th'
+    pelayan_firman: 'Pdt. Ferdinan Moses Timbu, S.Th',
+    pembicara: 'Pdt. Ferdinan Moses Timbu, S.Th',
+    pelayan_liturgi: 'Pnt. Daniel Pratama',
+    majelis_bertugas: 'Majelis Jemaat Kolom 1 - 3'
   },
   {
     event_id: 'EVT-002',
@@ -734,7 +743,10 @@ export const initialEvents: EventSchedule[] = [
     tanggal: '2026-08-02',
     jam: '10.00 - 12.00 WITA',
     kategori: 'Ibadah Utama',
-    pembicara: 'Pdt. Markus Iskandar, S.Th'
+    pelayan_firman: 'Pdt. Markus Iskandar, S.Th',
+    pembicara: 'Pdt. Markus Iskandar, S.Th',
+    pelayan_liturgi: 'Dkn. Sarah Anggraini',
+    majelis_bertugas: 'Majelis Jemaat Kolom 4 - 6'
   },
   {
     event_id: 'EVT-003',
@@ -743,7 +755,10 @@ export const initialEvents: EventSchedule[] = [
     tanggal: '2026-08-01',
     jam: '17.00 - 19.00 WITA',
     kategori: 'Youth',
-    pembicara: 'Ev. Joshua Tan'
+    pelayan_firman: 'Ev. Joshua Tan',
+    pembicara: 'Ev. Joshua Tan',
+    pelayan_liturgi: 'Sdr. Kevin Jonathan',
+    majelis_bertugas: 'Pengurus Komisi Pemuda'
   },
   {
     event_id: 'EVT-004',
@@ -752,7 +767,10 @@ export const initialEvents: EventSchedule[] = [
     tanggal: '2026-07-31',
     jam: '19.00 - 21.00 WITA',
     kategori: 'Doa',
-    pembicara: 'Tim Doa Syafaat'
+    pelayan_firman: 'Tim Doa Syafaat',
+    pembicara: 'Tim Doa Syafaat',
+    pelayan_liturgi: 'Pnt. Timotius',
+    majelis_bertugas: 'Majelis Tim Doa & Pelayanan'
   }
 ];
 

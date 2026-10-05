@@ -2251,9 +2251,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           <MapPin className={`w-3.5 h-3.5 ${isLightSystem ? 'text-teal-600' : 'text-indigo-400'}`} />
                           <span>{latestEvent.lokasi}</span>
                         </div>
-                        {latestEvent.pembicara && (
-                          <div className={`flex items-center gap-2 ${isLightSystem ? 'text-slate-600' : 'text-slate-400'}`}>
-                            <span>Pembicara: {latestEvent.pembicara}</span>
+                        {(latestEvent.pelayan_firman || latestEvent.pembicara) && (
+                          <div className={`flex items-center gap-1.5 pt-1 border-t ${isLightSystem ? 'border-slate-200/80 text-slate-800' : 'border-white/10 text-slate-200'}`}>
+                            <span className="font-semibold text-teal-600 dark:text-teal-400">📖 Pelayan Firman:</span>
+                            <strong className="font-bold">{latestEvent.pelayan_firman || latestEvent.pembicara}</strong>
+                          </div>
+                        )}
+                        {latestEvent.pelayan_liturgi && (
+                          <div className={`flex items-center gap-1.5 ${isLightSystem ? 'text-slate-700' : 'text-slate-300'}`}>
+                            <span className="font-semibold text-indigo-600 dark:text-indigo-400">🕊️ Pelayan Liturgi:</span>
+                            <strong className="font-bold">{latestEvent.pelayan_liturgi}</strong>
+                          </div>
+                        )}
+                        {latestEvent.majelis_bertugas && (
+                          <div className={`flex items-center gap-1.5 ${isLightSystem ? 'text-slate-700' : 'text-slate-300'}`}>
+                            <span className="font-semibold text-amber-600 dark:text-amber-400">⛪ Majelis Bertugas:</span>
+                            <strong className="font-bold">{latestEvent.majelis_bertugas}</strong>
                           </div>
                         )}
                       </div>
@@ -3639,7 +3652,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             <span className={`${isLightSystem ? 'text-slate-500' : 'text-slate-400'} text-[11px]`}>{evt.jam}</span>
                           </div>
                           <h4 className={`font-bold ${isLightSystem ? 'text-slate-900' : 'text-slate-100'} text-sm mt-1`}>{evt.nama}</h4>
-                          <p className={`${isLightSystem ? 'text-slate-600' : 'text-slate-400'} mt-0.5`}>{evt.lokasi} &bull; Pembicara: {evt.pembicara || '-'}</p>
+                          <div className={`${isLightSystem ? 'text-slate-600' : 'text-slate-400'} mt-0.5 space-y-0.5`}>
+                            <p>📍 {evt.lokasi}</p>
+                            <div className="flex flex-wrap items-center gap-x-2 text-[11px]">
+                              {(evt.pelayan_firman || evt.pembicara) && (
+                                <span>📖 Pelayan Firman: <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.pelayan_firman || evt.pembicara}</strong></span>
+                              )}
+                              {evt.pelayan_liturgi && (
+                                <span>&bull; 🕊️ Liturgi: <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.pelayan_liturgi}</strong></span>
+                              )}
+                              {evt.majelis_bertugas && (
+                                <span>&bull; ⛪ Majelis: <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.majelis_bertugas}</strong></span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                         <span className={`text-[11px] font-semibold ${isLightSystem ? 'text-slate-700 bg-white border-slate-200' : 'text-slate-300 bg-white/5 border-white/10'} border px-2.5 py-1 rounded-lg shrink-0`}>
                           {evt.tanggal}
