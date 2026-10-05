@@ -314,10 +314,17 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
 
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-1.5 shadow-xs shrink-0"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-1 shadow-xs shrink-0 overflow-hidden bg-white/10 border border-white/20"
             style={theme.navbar.menuBtnStyle}
           >
-            <Building2 className="w-5 h-5" />
+            <img
+              src={settings?.logo || DEFAULT_CHURCH_LOGO}
+              alt={settings?.nama_gereja || 'Logo Gereja'}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
+              }}
+              className="w-full h-full object-cover rounded-lg"
+            />
           </div>
           <div className="flex flex-col min-w-0 justify-center">
             <div className="flex items-center gap-2 min-w-0">
