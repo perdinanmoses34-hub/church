@@ -43,7 +43,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ settings, onFinish }
   const displayedChurchName =
     settings?.nama_gereja && !settings.nama_gereja.includes('Kemenangan Faith')
       ? settings.nama_gereja
-      : 'Jesus Kingdom Christ';
+      : 'Monapa Puriala';
 
   return (
     <div className="fixed inset-0 z-[9999] bg-[#f0f5f2] flex flex-col items-center justify-center p-6 text-slate-800 font-sans overflow-hidden">

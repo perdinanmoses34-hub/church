@@ -374,18 +374,15 @@ export default function App() {
     window.open(downloadUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const handleLoginSuccess = async (user: User) => {
-    setCurrentUser(user);
-    const targetTenant = (user.tenant_id && user.tenant_id !== 'ALL') ? user.tenant_id : 'CHURCH-001';
+  const handleLoginSuccess = (user: User) => {
+    const rawTenant = (user.tenant_id && user.tenant_id !== 'ALL') ? user.tenant_id : 'CHURCH-001';
+    const targetTenant = rawTenant === 'CHURCH-004' ? 'CHURCH-001' : rawTenant;
+    user.tenant_id = targetTenant;
+
     StorageManager.setActiveTenantId(targetTenant);
     setActiveTenantId(targetTenant);
 
-    // Pull latest data specifically for this tenant & account immediately from cloud
-    try {
-      await pullAllFromCloud();
-    } catch (e) {}
-
-    // Refresh settings and tenant status in state immediately so UI updates synchronously
+    // Refresh settings and tenant status in state IMMEDIATELY (synchronously) before awaiting cloud sync!
     const freshSettings = StorageManager.getSettings();
     setSettings(freshSettings);
     setTenantStatus(StorageManager.checkTenantStatus());
@@ -398,10 +395,10 @@ export default function App() {
       document.documentElement.style.setProperty('--theme-custom-bg-alpha', `${customHex}18`);
     }
 
+    setCurrentUser(user);
     setIsLoginPageOpen(false);
 
-    // CRITICAL: Always direct user directly to the primary Dashboard (Dashboard Admin or Dashboard Jemaat)
-    // Never force Jemaat into personal biodata view (jemaat_portal) where dashboard customization is missing!
+    // Direct user to the primary Dashboard
     setActiveTab('dashboard');
     try {
       sessionStorage.setItem('cms_active_tab', 'dashboard');
@@ -409,8 +406,21 @@ export default function App() {
 
     // Dispatch sync events so all child components update immediately
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'user_login', user, tenantId: targetTenant, settings: freshSettings } }));
+      window.dispatchEvent(
+        new CustomEvent('cms_data_changed', {
+          detail: { action: 'user_login', user, tenantId: targetTenant, settings: freshSettings }
+        })
+      );
     }
+
+    // Pull in background to update any newer deltas without blocking the initial UI transition
+    pullAllFromCloud()
+      .then(() => {
+        const updatedSettings = StorageManager.getSettings();
+        setSettings(updatedSettings);
+        setTenantStatus(StorageManager.checkTenantStatus());
+      })
+      .catch(() => {});
   };
 
   const handleCloseLoginPage = () => {
@@ -505,7 +515,7 @@ export default function App() {
       {settings.show_topbar !== false && (() => {
         const topbarTextContent = settings.topbar_text && settings.topbar_text.trim()
           ? settings.topbar_text.trim()
-          : `${settings.nama_gereja || 'Jesus Kingdom Christ'} — ${settings.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`;
+          : `${settings.nama_gereja || 'Monapa Puriala'} — ${settings.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`;
 
         return (
           <div className="h-7 sm:h-8 bg-teal-950 text-white/90 text-xs px-3 sm:px-4 flex items-center overflow-hidden font-medium select-none shrink-0 z-40 border-b border-teal-900/60 shadow-xs">

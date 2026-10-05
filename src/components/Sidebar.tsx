@@ -190,13 +190,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   ];
 
-  const churchName = settings?.nama_gereja || 'Jesus Kingdom Christ';
+  const churchName = settings?.nama_gereja || 'Monapa Puriala';
   const shortCode = churchName
     .split(' ')
     .map((w) => w[0])
     .join('')
     .substring(0, 4)
-    .toUpperCase() || 'JKC';
+    .toUpperCase() || 'GMP';
 
   const sidebarContent = (
     <div className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200/90 dark:border-slate-800 flex flex-col justify-between h-full text-slate-800 dark:text-slate-100 select-none overflow-hidden">

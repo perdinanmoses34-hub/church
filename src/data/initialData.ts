@@ -28,33 +28,33 @@ import {
 export const initialTenants: ChurchTenant[] = [
   {
     tenant_id: 'CHURCH-001',
-    nama_gereja: 'Jesus Kingdom Christ',
-    kode_unik: 'JKC-01',
-    admin_username: 'adminsekretariat',
-    admin_nama: 'Dkn. Maria Melani',
-    admin_email: 'admin@jesuskingdomchrist.org',
-    admin_wa: '081298765432',
-    alamat: 'Jl. Pemuda No. 77, Jakarta Pusat, DKI Jakarta',
+    nama_gereja: 'Monapa Puriala',
+    kode_unik: 'GMP-01',
+    admin_username: 'admin_monapa',
+    admin_nama: 'Admin Monapa Puriala',
+    admin_email: 'admin_monapa@puriala.org',
+    admin_wa: '0881036358650',
+    alamat: 'Puriala, Sulawesi Tenggara',
     status: 'AKTIF',
     tanggal_pendaftaran: '2025-01-01',
     tanggal_kadaluarsa: '2028-12-31',
     paket_langganan: 'PRO_SAAS_ANNUAL',
     harga_sewa: 'Rp 2.500.000 / Tahun',
-    catatan_admin: 'Lisensi Gereja Utama (SaaS Pro Plan)',
+    catatan_admin: 'Lisensi Gereja Utama (Monapa Puriala)',
     apk_download_url: 'https://drive.google.com/file/d/1MnWPNmsDjO1clGqbixCgSHjNRcMaqx2h/view?usp=sharing'
   },
   {
     tenant_id: 'CHURCH-002',
-    nama_gereja: 'Gereja Bethel Indonesia Grace Community',
-    kode_unik: 'GBI-GC02',
-    admin_username: 'admin_gbi',
-    admin_nama: 'Admin GBI',
-    admin_email: 'admin@gbigrace.org',
+    nama_gereja: 'GBI ROCK Juanda',
+    kode_unik: 'GBI-01',
+    admin_username: 'admin_gbirockjuanda',
+    admin_nama: 'Admin ROCK Juanda',
+    admin_email: 'brielletimbu@gmail.com',
     admin_wa: '081311223344',
-    alamat: 'Jl. Boulevard Raya M3 No. 12, Kelapa Gading',
+    alamat: 'permata juanda',
     status: 'AKTIF',
-    tanggal_pendaftaran: '2026-03-15',
-    tanggal_kadaluarsa: '2027-03-15',
+    tanggal_pendaftaran: '2026-09-24',
+    tanggal_kadaluarsa: '2027-09-24',
     paket_langganan: 'PRO_SAAS_ANNUAL',
     harga_sewa: 'Rp 3.000.000 / Tahun',
     catatan_admin: 'Mitra Pembeli Paket SaaS Pro',
@@ -75,23 +75,6 @@ export const initialTenants: ChurchTenant[] = [
     paket_langganan: 'BASIC_MONTHLY',
     harga_sewa: 'Rp 250.000 / Bulan',
     catatan_admin: 'Masa berlaku lisensi telah habis. Diperlukan pembayaran untuk mengaktifkan kembali.',
-    apk_download_url: ''
-  },
-  {
-    tenant_id: 'CHURCH-004',
-    nama_gereja: 'Gereja Monapa Puriala',
-    kode_unik: 'GMP-04',
-    admin_username: 'admin_monapa',
-    admin_nama: 'Admin Monapa Puriala',
-    admin_email: 'admin_monapa@puriala.org',
-    admin_wa: '0881036358650',
-    alamat: 'Puriala, Sulawesi Tenggara',
-    status: 'AKTIF',
-    tanggal_pendaftaran: '2025-01-01',
-    tanggal_kadaluarsa: '2028-12-31',
-    paket_langganan: 'PRO_SAAS_ANNUAL',
-    harga_sewa: 'Rp 2.500.000 / Tahun',
-    catatan_admin: 'Akun Lisensi Resmi Gereja Monapa Puriala',
     apk_download_url: ''
   }
 ];
@@ -129,16 +112,16 @@ export const initialFeaturedVideos: FeaturedVideo[] = [
 ];
 
 export const initialSettings: AppSettings = {
-  nama_gereja: 'Jesus Kingdom Christ',
-  logo: DEFAULT_CHURCH_LOGO,
-  alamat: 'Jl. Pemuda No. 77, Jakarta Pusat, DKI Jakarta 10110',
-  email: 'info@jesuskingdomchrist.org',
-  telepon: '+62 21 555-9876',
+  nama_gereja: 'Monapa Puriala',
+  logo: 'https://cdn-icons-png.flaticon.com/128/6043/6043638.png',
+  alamat: 'Puriala, Sulawesi Tenggara',
+  email: 'admin_monapa@puriala.org',
+  telepon: '+62 881-0363-58650',
   warna_tema: '#0d9488',
   // Rekening Bank & QRIS Transfer Persembahan Digital
   rekening_bank_nama: 'Bank BCA',
   rekening_bank_nomor: '527-089-1122',
-  rekening_bank_atas_nama: 'Jesus Kingdom Christ',
+  rekening_bank_atas_nama: 'Monapa Puriala',
   qris_image_url: 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?w=400&auto=format&fit=crop&q=80',
   // Video & Visual Customization Defaults
   video_url: 'https://www.youtube.com/watch?v=wX2S6AebnI8',
@@ -147,7 +130,7 @@ export const initialSettings: AppSettings = {
   video_enabled: true,
   show_apk_download_button: true,
   apk_download_url: 'https://drive.google.com/file/d/1MnWPNmsDjO1clGqbixCgSHjNRcMaqx2h/view?usp=sharing',
-  header_title: 'Jesus Kingdom Christ',
+  header_title: 'Monapa Puriala',
   header_subtitle: 'Sistem Informasi Management & Portal Layanan Jemaat',
   topbar_marquee_enabled: true,
   topbar_text: '',
@@ -158,9 +141,9 @@ export const initialSettings: AppSettings = {
   card_style: 'GLASS',
   card_size: 'NORMAL',
   // Navbar Visual Customization
-  navbar_theme_preset: 'CLEAN_LIGHT',
-  navbar_custom_bg: '#ffffff',
-  navbar_custom_text: 'DARK',
+  navbar_theme_preset: 'CUSTOM_HEX',
+  navbar_custom_bg: '#0c400d',
+  navbar_custom_text: 'WHITE',
   navbar_style: 'GLASS',
   navbar_border_accent: 'THEME_COLOR',
   // Footer & Bottom Nav Visual Customization
@@ -277,7 +260,7 @@ export const initialUsers: User[] = [
     status: 'Aktif',
     created_at: '2025-01-01 08:00',
     last_login: '2026-07-28 20:45',
-    tenant_id: 'CHURCH-004'
+    tenant_id: 'CHURCH-001'
   },
   {
     user_id: 'USR-002B',

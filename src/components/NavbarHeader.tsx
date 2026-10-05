@@ -283,13 +283,13 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
 
   const theme = getThemeClasses(settings);
 
-  const churchName = settings?.nama_gereja || 'Jesus Kingdom Christ';
+  const churchName = settings?.nama_gereja || 'Monapa Puriala';
   const shortCode = churchName
     .split(' ')
     .map((w) => w[0])
     .join('')
     .substring(0, 4)
-    .toUpperCase() || 'JKC';
+    .toUpperCase() || 'GMP';
 
   return (
     <header
@@ -324,7 +324,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                 className={`text-xs sm:text-base font-black tracking-tight truncate leading-snug ${theme.navbar.titleClass}`}
                 style={theme.navbar.titleStyle}
               >
-                {settings?.nama_gereja || 'Jesus Kingdom Christ'}
+                {settings?.nama_gereja || 'Monapa Puriala'}
               </h1>
               <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 border whitespace-nowrap ${theme.navbar.pillClass}`}>
                 Portal Jemaat

@@ -98,7 +98,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         StorageManager.logActivity(found.username, 'Login ke sistem CMS Pro', 'Auth');
 
         // Switch active tenant to target church
-        const targetTenantId = (found.tenant_id && found.tenant_id !== 'ALL') ? found.tenant_id : 'CHURCH-001';
+        const rawTenant = (found.tenant_id && found.tenant_id !== 'ALL') ? found.tenant_id : 'CHURCH-001';
+        const targetTenantId = rawTenant === 'CHURCH-004' ? 'CHURCH-001' : rawTenant;
+        found.tenant_id = targetTenantId;
         StorageManager.setActiveTenantId(targetTenantId);
 
         // Ensure user has jemaat_id linked from the correct church
@@ -229,7 +231,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   </div>
                   <div className="min-w-0">
                     <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug truncate">
-                      {(settings.nama_gereja && settings.nama_gereja !== 'Gereja Baru') ? settings.nama_gereja : 'Jesus Kingdom Christ'}
+                      {(settings.nama_gereja && settings.nama_gereja !== 'Gereja Baru') ? settings.nama_gereja : 'Monapa Puriala'}
                     </h1>
                     <p className="text-[10px] uppercase tracking-wider text-teal-200 font-bold mt-0.5">
                       Sistem Informasi Gereja

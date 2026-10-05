@@ -255,7 +255,7 @@ export const LainnyaView: React.FC<LainnyaViewProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5">
-              {settings.nama_gereja || 'Jesus Kingdom Christ'} — Pilih menu untuk membuka modul pelayanan
+              {settings.nama_gereja || 'Monapa Puriala'} — Pilih menu untuk membuka modul pelayanan
             </p>
           </div>
         </div>
