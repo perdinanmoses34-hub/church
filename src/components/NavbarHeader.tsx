@@ -370,19 +370,49 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
       </div>
 
       {/* Middle section: Real-time Live Clock (Menggantikan Cari Cepat) */}
-      <div className="hidden sm:flex items-center gap-2.5 px-3 sm:px-4 py-1.5 rounded-full bg-black/20 dark:bg-white/10 border border-white/20 dark:border-white/15 shadow-inner backdrop-blur-md">
+      <div
+        className={`hidden sm:flex items-center gap-2.5 px-3 sm:px-4 py-1.5 rounded-full border shadow-inner backdrop-blur-md transition-all ${
+          theme.navbar.isLight
+            ? 'bg-slate-900/5 hover:bg-slate-900/10 border-slate-300/80 shadow-xs'
+            : 'bg-black/25 hover:bg-black/35 border-white/20'
+        }`}
+      >
         <div className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            <span
+              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                theme.navbar.isLight ? 'bg-emerald-600' : 'bg-emerald-400'
+              }`}
+            />
+            <span
+              className={`relative inline-flex rounded-full h-2 w-2 ${
+                theme.navbar.isLight ? 'bg-emerald-600' : 'bg-emerald-400'
+              }`}
+            />
           </span>
-          <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300 shrink-0" />
+          <Clock
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+              theme.navbar.isLight ? 'text-emerald-700' : 'text-emerald-300'
+            }`}
+          />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm font-black font-mono tracking-wider text-white">
+          <span
+            className={`text-xs sm:text-sm font-black font-mono tracking-wider ${
+              theme.navbar.isLight ? 'text-slate-900' : 'text-white'
+            }`}
+            style={theme.navbar.titleStyle}
+          >
             {timeStr}
           </span>
-          <span className="hidden lg:inline text-[11px] text-white/80 font-medium border-l border-white/25 pl-2">
+          <span
+            className={`hidden lg:inline text-[11px] font-medium border-l pl-2 ${
+              theme.navbar.isLight
+                ? 'text-slate-600 border-slate-300/80'
+                : 'text-white/80 border-white/25'
+            }`}
+            style={theme.navbar.subtextStyle}
+          >
             {dateStr}
           </span>
         </div>
@@ -390,17 +420,34 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
 
       {/* Right section: Mobile Digital Clock Box, Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        {/* Kotak Jam Digital Khusus Mobile Handphone (Bentuk Kotak Kompak, Sangat Jelas & Kontras Tinggi) */}
+        {/* Kotak Jam Digital Khusus Mobile Handphone (Bentuk Kotak Kompak, Sangat Jelas & Otomatis Adaptif) */}
         <div
-          className="sm:hidden flex flex-col items-center justify-center min-w-[48px] h-9 px-1.5 py-0.5 rounded-xl bg-slate-900 border border-slate-700/80 shadow-md shrink-0 text-center select-none"
+          className={`sm:hidden flex flex-col items-center justify-center min-w-[48px] h-9 px-1.5 py-0.5 rounded-xl border-2 shadow-md shrink-0 text-center select-none transition-colors ${
+            theme.navbar.isLight
+              ? 'bg-white/95 border-emerald-600/40 text-slate-900'
+              : 'bg-slate-900/95 border-emerald-400/50 text-white'
+          }`}
           title="Waktu Real-time Saat Ini"
         >
-          <span className="text-[11px] font-black font-mono text-white tracking-wider leading-none">
+          <span
+            className={`text-[11px] font-black font-mono tracking-wider leading-none ${
+              theme.navbar.isLight ? 'text-slate-900' : 'text-white'
+            }`}
+            style={theme.navbar.titleStyle}
+          >
             {timeHourMinute}
           </span>
           <div className="flex items-center justify-center gap-1 mt-0.5 leading-none">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            <span className="text-[8px] font-extrabold font-mono text-emerald-300 tracking-tight leading-none">
+            <span
+              className={`w-1.5 h-1.5 rounded-full animate-pulse shrink-0 ${
+                theme.navbar.isLight ? 'bg-emerald-600' : 'bg-emerald-400'
+              }`}
+            />
+            <span
+              className={`text-[8px] font-extrabold font-mono tracking-tight leading-none ${
+                theme.navbar.isLight ? 'text-emerald-700' : 'text-emerald-300'
+              }`}
+            >
               {timeSeconds}
             </span>
           </div>
