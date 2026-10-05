@@ -13,7 +13,15 @@ import {
   RefreshCw,
   ArrowLeft,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Calendar,
+  BookOpen,
+  Users,
+  Church,
+  Sparkles,
+  Info,
+  Music,
+  Heart
 } from 'lucide-react';
 
 interface LoginPageProps {
@@ -210,21 +218,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           transition={{ duration: 0.3 }}
           className="w-full h-full sm:h-auto flex-1 sm:flex-initial flex flex-col md:grid md:grid-cols-12 rounded-2xl sm:rounded-3xl bg-white border border-teal-100/90 shadow-xl shadow-teal-950/10 overflow-hidden"
         >
-          {/* Left Column: Church Identity in Rich Teal Gradient (Desktop & Tablet) */}
-          <div className="hidden md:flex md:col-span-5 p-6 lg:p-7 bg-gradient-to-br from-teal-800 via-teal-700 to-emerald-800 text-white flex-col justify-between space-y-4 relative overflow-hidden">
+          {/* Left Column: Church Identity, Daily Scripture & Worship Schedule (Desktop & Tablet) */}
+          <div className="hidden md:flex md:col-span-5 p-6 lg:p-7 bg-gradient-to-br from-teal-900 via-teal-800 to-emerald-900 text-white flex-col justify-between space-y-4 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
 
-            {/* Church Logo & Info */}
-            <div className="space-y-4 relative z-10">
+            {/* Church Logo, Name & Info */}
+            <div className="space-y-3.5 relative z-10">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-white p-1 shadow-md border border-teal-300/40 shrink-0">
+                <div className="w-13 h-13 rounded-2xl bg-white p-1 shadow-md border border-teal-300/40 shrink-0">
                   <img
                     src={settings.logo || DEFAULT_CHURCH_LOGO}
                     alt="Logo Gereja"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
                     }}
-                    className="w-full h-full object-cover rounded-[10px]"
+                    className="w-full h-full object-cover rounded-xl"
                   />
                 </div>
                 <div className="min-w-0">
@@ -237,62 +246,111 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </div>
               </div>
 
-              <p className="text-teal-100/90 text-xs leading-relaxed font-normal">
-                Sistem informasi terpadu pelayanan jemaat, warta ibadah, persembahan, dan administrasi gereja.
-              </p>
+              {/* Mutiara Iman / Ayat Alkitab Hari Ini */}
+              <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 space-y-1.5 shadow-xs">
+                <div className="flex items-center gap-1.5 text-amber-300 text-[10px] font-extrabold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Mutiara Iman Hari Ini</span>
+                </div>
+                <p className="text-xs text-white/95 italic leading-relaxed font-serif">
+                  "Marilah kepada-Ku, semua yang letih lesu dan berbeban berat, Aku akan memberi kelegaan kepadamu."
+                </p>
+                <p className="text-[10px] text-teal-200 font-bold text-right">
+                  — Matius 11:28
+                </p>
+              </div>
 
-              {/* Feature Highlights */}
-              <div className="space-y-2 pt-1 text-xs text-white/95">
+              {/* Jadwal Ibadah Gereja */}
+              <div className="space-y-1.5 pt-0.5">
+                <div className="flex items-center gap-1.5 text-teal-200 text-[11px] font-bold uppercase tracking-wider">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Jadwal Ibadah Mingguan</span>
+                </div>
+                <div className="space-y-1.5 text-xs text-white/90">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/10">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <Church className="w-3.5 h-3.5 text-teal-300" />
+                      <span>Ibadah Raya Minggu</span>
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-amber-300">09.00 WITA</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/10">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <Heart className="w-3.5 h-3.5 text-rose-300" />
+                      <span>Doa &amp; Puasa Syafaat</span>
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-amber-300">Rabu 18.30</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/10">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <Music className="w-3.5 h-3.5 text-cyan-300" />
+                      <span>Ibadah Pemuda &amp; Remaja</span>
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-amber-300">Sabtu 17.00</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Layanan Unggulan */}
+              <div className="space-y-1.5 pt-0.5 text-xs text-white/95">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-teal-300 shrink-0" />
-                  <span>Portal Jemaat Mandiri &amp; Warta Ibadah</span>
+                  <span>Portal Jemaat Mandiri &amp; KTA Digital</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-teal-300 shrink-0" />
-                  <span>Ruang Chat Komunitas &amp; Pesan Pribadi</span>
+                  <span>Alkitab 66 Kitab &amp; Pujian Berchord</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-teal-300 shrink-0" />
-                  <span>Laporan Keuangan Transparan &amp; Akurat</span>
+                  <span>Laporan Kas &amp; Keuangan Transparan</span>
                 </div>
               </div>
             </div>
 
             {/* Security Banner */}
-            <div className="p-3 rounded-xl bg-teal-900/60 border border-teal-400/30 text-teal-100 text-[11px] flex items-center gap-2 relative z-10 shadow-xs">
+            <div className="p-2.5 rounded-xl bg-teal-950/60 border border-teal-400/30 text-teal-100 text-[11px] flex items-center gap-2 relative z-10 shadow-xs">
               <ShieldCheck className="w-4 h-4 text-teal-300 shrink-0" />
-              <span>Koneksi aman terenkripsi &amp; terlindungi.</span>
+              <span>Koneksi aman terenkripsi &amp; terlindungi sistem gereja.</span>
             </div>
           </div>
 
           {/* Mobile Top Church Branding Banner (Expanded & High Impact) */}
-          <div className="md:hidden p-4 sm:p-5 bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-800 text-white flex items-center gap-3.5 relative overflow-hidden shrink-0">
+          <div className="md:hidden p-4 sm:p-5 bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-800 text-white flex flex-col gap-2.5 relative overflow-hidden shrink-0">
             <div className="absolute top-0 right-0 w-36 h-36 bg-teal-400/15 rounded-full blur-2xl pointer-events-none" />
-            <div className="w-13 h-13 rounded-2xl bg-white p-1 shadow-md border border-teal-300/40 shrink-0">
-              <img
-                src={settings.logo || DEFAULT_CHURCH_LOGO}
-                alt="Logo Gereja"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
-                }}
-                className="w-full h-full object-cover rounded-xl"
-              />
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-white p-1 shadow-md border border-teal-300/40 shrink-0">
+                <img
+                  src={settings.logo || DEFAULT_CHURCH_LOGO}
+                  alt="Logo Gereja"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = DEFAULT_CHURCH_LOGO;
+                  }}
+                  className="w-full h-full object-cover rounded-xl"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base font-black text-white tracking-tight leading-tight truncate">
+                  {(settings.nama_gereja && settings.nama_gereja !== 'Gereja Baru') ? settings.nama_gereja : 'Monapa Puriala'}
+                </h1>
+                <p className="text-[10px] uppercase tracking-wider text-teal-200 font-bold mt-0.5">
+                  Sistem Informasi Gereja
+                </p>
+                <p className="text-[10px] text-teal-100/90 truncate">
+                  Portal Resmi Pelayanan &amp; Warta Jemaat
+                </p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1 relative z-10">
-              <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-tight truncate">
-                {(settings.nama_gereja && settings.nama_gereja !== 'Gereja Baru') ? settings.nama_gereja : 'Monapa Puriala'}
-              </h1>
-              <p className="text-[11px] uppercase tracking-wider text-teal-200 font-bold mt-0.5">
-                Sistem Informasi Gereja
-              </p>
-              <p className="text-[10px] text-teal-100/90 truncate mt-0.5">
-                Portal Pelayanan &amp; Warta Jemaat
-              </p>
+
+            {/* Mobile Mutiara Iman Banner */}
+            <div className="p-2 rounded-xl bg-white/10 border border-white/15 text-[11px] text-white/95 italic flex items-center gap-2 relative z-10">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span className="truncate">"TUHAN adalah gembalaku, takkan kekurangan aku." — Mzm 23:1</span>
             </div>
           </div>
 
-          {/* Form Column: Clean White, Spacious, Enlarged Inputs & Buttons */}
-          <div className="md:col-span-7 p-4 sm:p-6 lg:p-7 flex-1 flex flex-col justify-center space-y-4 bg-white overflow-y-auto">
+          {/* Form Column: Clean White, Spacious, Enlarged Inputs & Comprehensive App Information */}
+          <div className="md:col-span-7 p-4 sm:p-6 lg:p-7 flex-1 flex flex-col justify-start space-y-4 bg-white overflow-y-auto">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 Masuk ke Akun
@@ -315,7 +373,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             )}
 
             {/* Form Input Fields with Comfortable Touch Height */}
-            <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3.5">
               {/* Username Input */}
               <div className="space-y-1.5">
                 <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700">
@@ -412,11 +470,67 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </button>
             </form>
 
-            {/* Mobile Bottom Security Pill */}
-            <div className="md:hidden pt-2">
-              <div className="p-2.5 rounded-xl bg-teal-50/70 border border-teal-200/80 text-teal-900 text-xs font-semibold flex items-center justify-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
-                <span>Koneksi aman &amp; terlindungi sistem gereja</span>
+            {/* Bagian Informasi & Petunjuk Relevan Aplikasi (Mengisi Ruang Kosong Secara Bermanfaat) */}
+            <div className="pt-3 border-t border-slate-100 space-y-3">
+              {/* Petunjuk Akses Pengguna */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="p-3 rounded-2xl bg-teal-50/70 border border-teal-100 space-y-1">
+                  <div className="flex items-center gap-1.5 text-teal-900 text-xs font-bold">
+                    <Users className="w-4 h-4 text-teal-600 shrink-0" />
+                    <span>Akses Anggota Jemaat</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed font-normal">
+                    Masuk untuk melihat KTA Digital, status sakramen, warta ibadah, pokok doa, dan riwayat persembahan.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-1">
+                  <div className="flex items-center gap-1.5 text-slate-800 text-xs font-bold">
+                    <Church className="w-4 h-4 text-slate-600 shrink-0" />
+                    <span>Sekretariat &amp; Majelis</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed font-normal">
+                    Kelola database jemaat, kartu keluarga, jadwal pelayanan ibadah, dan pembukuan kas keuangan gereja.
+                  </p>
+                </div>
+              </div>
+
+              {/* Layanan & Fitur Unggulan Sistem */}
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Layanan &amp; Fitur Terintegrasi
+                </p>
+                <div className="flex flex-wrap gap-1.5 text-[11px] font-bold text-slate-700">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-50 text-teal-800 border border-teal-200/80">
+                    <BookOpen className="w-3.5 h-3.5 text-teal-600" />
+                    Alkitab 66 Kitab
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200/80">
+                    <Music className="w-3.5 h-3.5 text-indigo-600" />
+                    Lagu Berchord &amp; KJ/PKJ
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200/80">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                    Renungan Audio Harian
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                    Jadwal Ibadah &amp; Agenda
+                  </span>
+                </div>
+              </div>
+
+              {/* Catatan Bantuan & Tamu */}
+              <div className="flex items-start gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600">
+                <Info className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-bold text-slate-800">
+                    Belum memiliki akun atau butuh bantuan?
+                  </p>
+                  <p>
+                    Silakan hubungi Sekretariat Gereja atau tekan tombol <strong className="text-teal-700">"Kembali ke Halaman"</strong> di pojok kiri atas untuk menjelajah informasi umum sebagai pengunjung.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

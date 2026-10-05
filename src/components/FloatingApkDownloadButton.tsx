@@ -22,11 +22,21 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
   const [isOpenTooltip, setIsOpenTooltip] = useState(false);
   const [isHidden, setIsHidden] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('cms_apk_button_hidden') === 'true';
+      // Clear legacy permanent hide so button is restored for all jemaat on handphone
+      localStorage.removeItem('cms_apk_button_hidden');
+      return sessionStorage.getItem('cms_apk_button_hidden_session') === 'true';
     } catch {
       return false;
     }
   });
+
+  useEffect(() => {
+    try {
+      localStorage.removeItem('cms_apk_button_hidden');
+    } catch {
+      // ignore
+    }
+  }, []);
 
   useEffect(() => {
     if (currentUser !== undefined) {
@@ -40,7 +50,7 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
         setIsHidden(Boolean(e.detail.hidden));
       } else {
         try {
-          setIsHidden(localStorage.getItem('cms_apk_button_hidden') === 'true');
+          setIsHidden(sessionStorage.getItem('cms_apk_button_hidden_session') === 'true');
         } catch {
           setIsHidden(false);
         }
@@ -69,55 +79,39 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
     };
   }, [settings]);
 
-  // Syarat Kritis: HANYA MUNCUL KETIKA SUDAH LOGIN KE GEREJA MASING-MASING
-  const isGuestOrUnauthenticated =
-    !loggedInUser ||
-    loggedInUser.role === 'GUEST' ||
-    loggedInUser.user_id === 'guest' ||
-    loggedInUser.username === 'guest';
-
-  if (isGuestOrUnauthenticated) {
-    return null;
-  }
-
-  // Hidden if disabled by Admin in Settings OR hidden by user clicking (x)
+  // Hidden only if explicitly disabled by Admin in Settings OR dismissed in current session
   if (appSettings.show_apk_download_button === false || isHidden) {
     return null;
   }
 
-  const activeTenantId = StorageManager.getActiveTenantId();
   const rawUrl = appSettings.apk_download_url?.trim();
-  let downloadUrl = (rawUrl && rawUrl !== OLD_APK_DOWNLOAD_URL) ? rawUrl : '';
-  if (!downloadUrl && activeTenantId === 'CHURCH-001') {
-    downloadUrl = APK_DOWNLOAD_URL;
-  }
+  // Always fallback to official universal APK download URL so it never disappears for jemaat
+  const downloadUrl = (rawUrl && rawUrl !== OLD_APK_DOWNLOAD_URL)
+    ? rawUrl
+    : APK_DOWNLOAD_URL;
 
-  const isAdmin = loggedInUser.role === 'ADMIN' || loggedInUser.role === 'SUPER_ADMIN';
-
-  // Jika jemaat gereja membuka tapi admin gereja ini belum menempelkan link Google Drive APK
-  if (!downloadUrl && !isAdmin) {
-    return null;
-  }
+  const isAdmin = loggedInUser?.role === 'ADMIN' || loggedInUser?.role === 'SUPER_ADMIN';
 
   const handleDownload = () => {
-    if (!downloadUrl) {
-      if (isAdmin) {
-        if (onOpenSettings) {
-          onOpenSettings();
-        } else {
-          window.dispatchEvent(new CustomEvent('cms_navigate_tab', { detail: { tab: 'settings' } }));
-        }
-      }
-      return;
+    try {
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.setAttribute('download', `${(appSettings.nama_gereja || 'Gereja').replace(/\s+/g, '_')}_Pro.apk`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      window.open(downloadUrl, '_blank', 'noopener,noreferrer');
     }
-    window.open(downloadUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleHideFromDashboard = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsHidden(true);
     try {
-      localStorage.setItem('cms_apk_button_hidden', 'true');
+      sessionStorage.setItem('cms_apk_button_hidden_session', 'true');
       window.dispatchEvent(new CustomEvent('cms_apk_hidden_changed', { detail: { hidden: true } }));
     } catch (err) {
       // ignore
@@ -127,7 +121,7 @@ export const FloatingApkDownloadButton: React.FC<FloatingApkDownloadButtonProps>
   return (
     <div
       id="floating-apk-container"
-      className="fixed bottom-20 sm:bottom-24 lg:bottom-8 right-3 sm:right-6 z-[95] flex flex-col items-end gap-2 pointer-events-auto"
+      className="fixed bottom-20 sm:bottom-24 lg:bottom-8 right-3 sm:right-6 z-[999] flex flex-col items-end gap-2 pointer-events-auto select-none"
     >
       {/* Tooltip / Popup Info (Hanya jika dibuka) */}
       {isOpenTooltip && (

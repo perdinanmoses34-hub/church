@@ -161,7 +161,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const rawApkUrl = settings.apk_download_url?.trim();
   const churchApkUrl = (rawApkUrl && rawApkUrl !== 'https://drive.google.com/file/d/1TlnvPxgIPWQ13CE_EJnj4gUMAipCWy1s/view?usp=sharing')
     ? rawApkUrl
-    : (activeTenantId === 'CHURCH-001' ? 'https://drive.google.com/file/d/1MnWPNmsDjO1clGqbixCgSHjNRcMaqx2h/view?usp=sharing' : '');
+    : 'https://drive.google.com/file/d/1MnWPNmsDjO1clGqbixCgSHjNRcMaqx2h/view?usp=sharing';
 
   // Refresh & Toast State
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -1906,8 +1906,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         )}
 
-          {/* Banner Download Aplikasi Mobile Android (.APK) Khusus HP Android (Hanya muncul jika sudah login ke gereja masing-masing) */}
-          {!isGuestMode && (churchApkUrl || isAdmin) && settings.show_apk_banner !== false && settings.show_apk_download_button !== false && !isApkBannerDismissed && (
+          {/* Banner Download Aplikasi Mobile Android (.APK) Khusus HP Android */}
+          {(churchApkUrl || isAdmin) && settings.show_apk_banner !== false && settings.show_apk_download_button !== false && !isApkBannerDismissed && (
             <div
               className="relative p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-950/90 via-slate-900/95 to-teal-950/90 border-0 shadow-xl backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 text-white animate-fade-in"
               style={{ border: 'none', outline: 'none', boxShadow: '0 0 0 1px rgba(0,0,0,0.22), 0 8px 24px rgba(0,0,0,0.32)' }}
@@ -5157,19 +5157,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         churchName={settings.nama_gereja}
       />
 
-      {/* Floating APK Download Button for Android (Hanya muncul ketika sudah login pada gereja masing-masing) */}
-      {!isGuestMode && (
-        <FloatingApkDownloadButton
-          settings={settings}
-          currentUser={currentUser}
-          onOpenSettings={() => {
-            if (isAdmin) {
-              setIsCustomizerOpen(true);
-              setCustomizerTab('media');
-            }
-          }}
-        />
-      )}
+      {/* Floating APK Download Button for Android (Selalu muncul di Dashboard Jemaat & Handphone) */}
+      <FloatingApkDownloadButton
+        settings={settings}
+        currentUser={currentUser}
+        onOpenSettings={() => {
+          if (isAdmin) {
+            setIsCustomizerOpen(true);
+            setCustomizerTab('media');
+          }
+        }}
+      />
 
       {/* Fullscreen Renungan Modal */}
       <RenunganFullscreenModal
