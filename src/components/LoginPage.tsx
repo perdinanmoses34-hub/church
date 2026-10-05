@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, AppSettings } from '../types';
 import { StorageManager } from '../utils/storage';
+import { pullAllFromCloud } from '../utils/firebaseSync';
 import { DEFAULT_CHURCH_LOGO } from '../data/initialData';
 import {
   Lock,
@@ -44,12 +45,24 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Silently pull all latest users & church configurations from cloud on mount
+  useEffect(() => {
+    pullAllFromCloud().catch(() => {});
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      // Pull latest accounts from cloud immediately before matching
+      await pullAllFromCloud();
+    } catch {
+      // offline fallback
+    }
+
+    setTimeout(async () => {
       const users = StorageManager.getUsers();
       const inputName = username.trim().toLowerCase();
       const inputPass = password.trim();
@@ -60,12 +73,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         const cleanUsername = u.username.trim().toLowerCase();
         const cleanEmail = (u.email && typeof u.email === 'string') ? u.email.trim().toLowerCase() : '';
         const cleanNama = (u.nama && typeof u.nama === 'string') ? u.nama.trim().toLowerCase() : '';
+
+        // Exact match on username, email, or exact full name
         const matchesName =
           cleanUsername === inputName ||
           (cleanEmail !== '' && cleanEmail === inputName) ||
-          cleanNama === inputName ||
-          (cleanNama !== '' && inputName.length >= 4 && cleanNama.includes(inputName)) ||
-          (inputName.includes('ferdinan') && (cleanUsername.includes('ferdinan') || cleanUsername === 'superadmin'));
+          (cleanNama !== '' && cleanNama === inputName);
 
         const rawPass = (u.password_hash !== undefined && u.password_hash !== null && String(u.password_hash).trim() !== '')
           ? String(u.password_hash).trim()
@@ -84,7 +97,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         const historyId = StorageManager.recordLogin(found.username);
         StorageManager.logActivity(found.username, 'Login ke sistem CMS Pro', 'Auth');
 
-        // Ensure user has jemaat_id linked
+        // Switch active tenant to target church
+        const targetTenantId = (found.tenant_id && found.tenant_id !== 'ALL') ? found.tenant_id : 'CHURCH-001';
+        StorageManager.setActiveTenantId(targetTenantId);
+
+        // Ensure user has jemaat_id linked from the correct church
         if (found.role === 'JEMAAT' && !found.jemaat_id) {
           const allJemaat = StorageManager.getJemaat();
           const match = allJemaat.find(
@@ -97,9 +114,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           }
         }
 
-        // Save logged in user state & switch active tenant to target church
-        const targetTenantId = (found.tenant_id && found.tenant_id !== 'ALL') ? found.tenant_id : 'CHURCH-001';
-        StorageManager.setActiveTenantId(targetTenantId);
+        // Save logged in user state
         StorageManager.saveCurrentUser(found);
         (window as any).__cms_history_id = historyId;
 
@@ -109,7 +124,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         setErrorMessage('Username/Email atau Password tidak cocok. Silakan periksa kembali.');
         setIsLoading(false);
       }
-    }, 600);
+    }, 250);
   };
 
   const handleResetPassword = (e: React.FormEvent) => {

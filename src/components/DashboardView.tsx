@@ -1585,8 +1585,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* MENU UTAMA & MODUL PELAYANAN (HANYA DITAMPILKAN UNTUK ADMIN DI DASHBOARD HOME, UNTUK JEMAAT DIALIKAN KE MENU LAINNYA) */}
       {isAdmin && settings.show_admin_quick_access !== false && (
-        <div className={`p-3.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl ${cardStyleClass} ${isLightSystem ? 'text-slate-800' : 'text-white'} space-y-2.5 sm:space-y-4`}>
-          <div className={`flex items-center justify-between pb-2.5 sm:pb-3 border-b ${isLightSystem ? 'border-slate-100' : 'border-white/10'}`}>
+        <div
+          className={`p-3.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl ${cardStyleClass} !border-2 ${
+            isLightSystem
+              ? 'bg-white !border-teal-500/50 shadow-lg shadow-teal-950/5 text-slate-800 ring-1 ring-teal-500/25'
+              : 'bg-slate-900/90 !border-teal-400/50 shadow-2xl text-white ring-1 ring-teal-400/25'
+          } space-y-2.5 sm:space-y-4 relative overflow-hidden`}
+        >
+          {/* Top colored accent line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-600" />
+
+          <div className={`flex items-center justify-between pb-2.5 sm:pb-3 border-b ${isLightSystem ? 'border-teal-100' : 'border-teal-500/20'}`}>
             <div className="flex items-center gap-2.5">
               <div className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-600 to-emerald-700 text-white shadow-md shadow-emerald-500/20">
                 <Grid className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1598,7 +1607,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <p className={`text-[11px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'}`}>Akses cepat manajemen sistem &amp; modul pelayanan</p>
               </div>
             </div>
-            <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full ${isLightSystem ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'} text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider`}>
+            <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full ${isLightSystem ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-teal-500/20 text-teal-300 border border-teal-500/30'} text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider`}>
               Admin Shortcuts
             </span>
           </div>

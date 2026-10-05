@@ -34,7 +34,10 @@ export function isLocalDeviceSessionKey(key: string): boolean {
     k === 'current_user' ||
     k.includes('current_user') ||
     k === 'cms_pro_fcm_tokens' ||
-    k.includes('fcm_token')
+    k.includes('fcm_token') ||
+    k === 'cms_pro_active_tenant_id' ||
+    k === 'active_tenant_id' ||
+    k.includes('active_tenant')
   );
 }
 
@@ -42,8 +45,6 @@ export function isLocalDeviceSessionKey(key: string): boolean {
 const DOC_MAPPING: Record<string, string> = {
   settings: 'settings',
   cms_pro_settings: 'settings',
-  cms_pro_active_tenant_id: 'active_tenant_id',
-  active_tenant_id: 'active_tenant_id',
   cms_pro_users: 'users',
   cms_pro_jemaat: 'jemaat',
   cms_pro_keluarga: 'keluarga',
@@ -626,20 +627,6 @@ export async function pullAllFromCloud(onDataReceived?: () => void): Promise<boo
             localStorage.setItem('cms_pro_settings', cloudPayloadStr);
           } else if (docId.startsWith('cms_pro_') && docId.endsWith('_settings')) {
             localStorage.setItem(docId, cloudPayloadStr);
-            try {
-              const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
-              const cleanTenant = rawTenant ? rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim() : 'CHURCH-001';
-              if (docId === `cms_pro_${cleanTenant}_settings`) {
-                localStorage.setItem('cms_pro_settings', cloudPayloadStr);
-              }
-            } catch (e) {}
-          } else if (docId === 'active_tenant_id' || storageKey === 'cms_pro_active_tenant_id') {
-            try {
-              const cleanTenant = cloudPayloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
-              if (cleanTenant) {
-                localStorage.setItem('cms_pro_active_tenant_id', JSON.stringify(cleanTenant));
-              }
-            } catch (e) {}
           }
           lastPushedPayloads.set(docId, cloudPayloadStr);
           hasChanges = true;
@@ -708,18 +695,6 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
                   localStorage.setItem('cms_pro_settings', payloadStr);
                 } else if (storageKey.startsWith('cms_pro_') && storageKey.endsWith('_settings')) {
                   localStorage.setItem(storageKey, payloadStr);
-                  try {
-                    const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
-                    const cleanTenant = rawTenant ? rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim() : 'CHURCH-001';
-                    if (storageKey === `cms_pro_${cleanTenant}_settings`) {
-                      localStorage.setItem('cms_pro_settings', payloadStr);
-                    }
-                  } catch (e) {}
-                } else if (storageKey === 'cms_pro_active_tenant_id' || storageKey === 'active_tenant_id') {
-                  const cleanTenant = payloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
-                  if (cleanTenant) {
-                    localStorage.setItem('cms_pro_active_tenant_id', JSON.stringify(cleanTenant));
-                  }
                 }
                 lastPushedPayloads.set(storageKey, payloadStr);
                 if (storageKey.includes('notification')) {
@@ -814,20 +789,6 @@ export function initRealtimeCloudSync(onDataReceived?: () => void): () => void {
                   localStorage.setItem('cms_pro_settings', payloadStr);
                 } else if (key.startsWith('cms_pro_') && key.endsWith('_settings')) {
                   localStorage.setItem(key, payloadStr);
-                  try {
-                    const rawTenant = localStorage.getItem('cms_pro_active_tenant_id');
-                    const cleanTenant = rawTenant ? rawTenant.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim() : 'CHURCH-001';
-                    if (key === `cms_pro_${cleanTenant}_settings`) {
-                      localStorage.setItem('cms_pro_settings', payloadStr);
-                    }
-                  } catch (e) {}
-                } else if (key === 'cms_pro_active_tenant_id' || key === 'active_tenant_id') {
-                  try {
-                    const cleanTenant = payloadStr.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
-                    if (cleanTenant) {
-                      localStorage.setItem('cms_pro_active_tenant_id', JSON.stringify(cleanTenant));
-                    }
-                  } catch (e) {}
                 }
                 lastPushedPayloads.set(key, payloadStr);
                 hasUpdated = true;

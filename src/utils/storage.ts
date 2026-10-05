@@ -1000,38 +1000,43 @@ export const StorageManager = {
       }
     }
 
-    // Auto-link users with role JEMAAT to their matching Jemaat profiles in memory
+    // Auto-link users with role JEMAAT to their matching Jemaat profiles in memory (only populate missing fields, never overwrite user data)
+    const activeTenantId = StorageManager.getActiveTenantId();
     const jemaatList = getItem<Jemaat[]>(KEYS.JEMAAT, initialJemaat);
     list = list.map((u) => {
       if (!u) return u;
       if (u.role === 'JEMAAT' || u.jemaat_id) {
-        if (!u.jemaat_id) {
-          const match = jemaatList.find(
-            (j) =>
-              (j.jemaat_id && u.username && j.jemaat_id.toLowerCase() === u.username.toLowerCase()) ||
-              (j.nama_lengkap && u.nama && j.nama_lengkap.toLowerCase().trim() === u.nama.toLowerCase().trim()) ||
-              (j.email && u.email && j.email.toLowerCase().trim() === u.email.toLowerCase().trim())
-          );
-          if (match) {
-            return {
-              ...u,
-              jemaat_id: match.jemaat_id,
-              nama: u.nama || match.nama_lengkap,
-              email: u.email || match.email,
-              no_hp: u.no_hp || match.nomor_hp,
-              foto: u.foto || match.foto
-            };
-          }
-        } else {
-          const match = jemaatList.find((j) => j.jemaat_id === u.jemaat_id);
-          if (match && (u.nama !== match.nama_lengkap || u.email !== match.email || u.foto !== match.foto)) {
-            return {
-              ...u,
-              nama: match.nama_lengkap || u.nama,
-              email: match.email || u.email,
-              no_hp: match.nomor_hp || u.no_hp,
-              foto: match.foto || u.foto
-            };
+        // Only link within the same tenant context to avoid cross-tenant profile corruption
+        const userTenant = normalizeTenantId(u.tenant_id);
+        if (userTenant === activeTenantId || userTenant === 'ALL' || activeTenantId === 'CHURCH-001') {
+          if (!u.jemaat_id) {
+            const match = jemaatList.find(
+              (j) =>
+                (j.jemaat_id && u.username && j.jemaat_id.toLowerCase() === u.username.toLowerCase()) ||
+                (j.nama_lengkap && u.nama && j.nama_lengkap.toLowerCase().trim() === u.nama.toLowerCase().trim()) ||
+                (j.email && u.email && j.email.toLowerCase().trim() === u.email.toLowerCase().trim())
+            );
+            if (match) {
+              return {
+                ...u,
+                jemaat_id: match.jemaat_id,
+                nama: u.nama || match.nama_lengkap,
+                email: u.email || match.email,
+                no_hp: u.no_hp || match.nomor_hp,
+                foto: u.foto || match.foto
+              };
+            }
+          } else {
+            const match = jemaatList.find((j) => j.jemaat_id === u.jemaat_id);
+            if (match) {
+              return {
+                ...u,
+                nama: u.nama || match.nama_lengkap,
+                email: u.email || match.email,
+                no_hp: u.no_hp || match.nomor_hp,
+                foto: u.foto || match.foto
+              };
+            }
           }
         }
       }

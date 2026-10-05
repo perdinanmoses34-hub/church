@@ -14,6 +14,7 @@ import { playNotificationChime } from './utils/soundHelper';
 import { getThemeClasses, isColorLight } from './utils/themeHelper';
 import { registerMessagingServiceWorker, listenToForegroundMessages } from './utils/firebaseMessaging';
 import { initOneSignalWebSDK } from './utils/pushNotificationService';
+import { pullAllFromCloud } from './utils/firebaseSync';
 
 import { DashboardView } from './components/DashboardView';
 import { JemaatView } from './components/views/JemaatView';
@@ -181,21 +182,11 @@ export default function App() {
       const freshTenant = StorageManager.checkTenantStatus();
       setTenantStatus((prev) => (prev.isLocked === freshTenant.isLocked && prev.tenant?.tenant_id === freshTenant.tenant?.tenant_id ? prev : freshTenant));
       const savedUser = StorageManager.getCurrentUser();
-      if (savedUser) {
-        // SECURITY GUARD: Only refresh current user if it is the EXACT same username.
-        // Never allow adding/syncing jemaat or storage events to switch the logged-in session to another user!
-        setCurrentUser((prev) => {
-          if (!prev) return savedUser;
-          if (
-            savedUser.username &&
-            prev.username &&
-            savedUser.username.toLowerCase() === prev.username.toLowerCase()
-          ) {
-            return JSON.stringify(prev) !== JSON.stringify(savedUser) ? savedUser : prev;
-          }
-          return prev;
-        });
-      }
+      setCurrentUser((prev) => {
+        if (!savedUser) return null;
+        if (!prev) return savedUser;
+        return JSON.stringify(prev) !== JSON.stringify(savedUser) ? savedUser : prev;
+      });
     };
 
     const unsubscribe = StorageManager.subscribe(handleSettingsSync);
@@ -383,16 +374,29 @@ export default function App() {
     window.open(downloadUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const handleLoginSuccess = (user: User) => {
+  const handleLoginSuccess = async (user: User) => {
     setCurrentUser(user);
     const targetTenant = (user.tenant_id && user.tenant_id !== 'ALL') ? user.tenant_id : 'CHURCH-001';
     StorageManager.setActiveTenantId(targetTenant);
     setActiveTenantId(targetTenant);
 
+    // Pull latest data specifically for this tenant & account immediately from cloud
+    try {
+      await pullAllFromCloud();
+    } catch (e) {}
+
     // Refresh settings and tenant status in state immediately so UI updates synchronously
     const freshSettings = StorageManager.getSettings();
     setSettings(freshSettings);
     setTenantStatus(StorageManager.checkTenantStatus());
+
+    // Sync custom theme hex color & dark mode to CSS variables immediately
+    const customHex = (freshSettings?.warna_tema || '#0d9488').trim();
+    if (/^#[0-9A-F]{6}$/i.test(customHex) || /^#[0-9A-F]{3}$/i.test(customHex)) {
+      document.documentElement.style.setProperty('--theme-custom-primary', customHex);
+      document.documentElement.style.setProperty('--theme-custom-border', `${customHex}90`);
+      document.documentElement.style.setProperty('--theme-custom-bg-alpha', `${customHex}18`);
+    }
 
     setIsLoginPageOpen(false);
 
@@ -405,7 +409,7 @@ export default function App() {
 
     // Dispatch sync events so all child components update immediately
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'user_login', user, tenantId: targetTenant } }));
+      window.dispatchEvent(new CustomEvent('cms_data_changed', { detail: { action: 'user_login', user, tenantId: targetTenant, settings: freshSettings } }));
     }
   };
 
@@ -849,6 +853,7 @@ export default function App() {
         isOpen={isSaaSPanelOpen}
         onClose={() => setIsSaaSPanelOpen(false)}
         onSelectTenant={(tenantId) => {
+          setActiveTenantId(tenantId);
           setSettings(StorageManager.getSettings());
           setTenantStatus(StorageManager.checkTenantStatus());
         }}
