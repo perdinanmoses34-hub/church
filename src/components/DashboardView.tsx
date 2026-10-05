@@ -1358,7 +1358,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </h2>
                 <p className="text-teal-100/90 text-xs sm:text-sm mt-0.5">
                   {settings.header_title || settings.nama_gereja} &bull;{' '}
-                  <span className="text-teal-200/80">{settings.header_subtitle || 'Portal Informasi Utama'}</span>
+                  <span className="text-teal-200/80">
+                    {isAdmin
+                      ? (settings.header_subtitle && !settings.header_subtitle.toLowerCase().includes('jemaat') ? settings.header_subtitle : 'Panel Administrasi & Manajemen Gereja')
+                      : (settings.header_subtitle || 'Portal Informasi Utama')}
+                  </span>
                 </p>
               </div>
             </div>
@@ -2032,7 +2036,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           )}
 
-          {settings.show_jemaat_quick_menu !== false && (
+          {!isAdmin && settings.show_jemaat_quick_menu !== false && (
             <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${
               isLightSystem
                 ? 'bg-white border border-slate-200/90 shadow-sm text-slate-800'

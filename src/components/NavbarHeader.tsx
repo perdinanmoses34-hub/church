@@ -76,6 +76,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   onOpenAndroidStudioModal
 }) => {
   const [timeStr, setTimeStr] = useState('');
+  const [mobileTimeStr, setMobileTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
@@ -123,9 +124,11 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setTimeStr(
-        now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB'
-      );
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      setMobileTimeStr(`${hours}:${minutes}:${seconds}`);
+      setTimeStr(`${hours}:${minutes}:${seconds} WIB`);
       setDateStr(
         now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
       );
@@ -335,7 +338,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                 {settings?.nama_gereja || 'Monapa Puriala'}
               </h1>
               <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 border whitespace-nowrap ${theme.navbar.pillClass}`}>
-                Portal Jemaat
+                {isAdmin ? 'Panel Admin' : 'Portal Jemaat'}
               </span>
             </div>
             <div className="flex items-center gap-1.5 min-w-0 mt-0.5">
@@ -345,22 +348,33 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
               >
                 Sistem Informasi Manajemen Gereja
               </p>
-              <span className={`sm:hidden inline-flex items-center text-[9px] font-bold px-1.5 py-0.2 rounded-md border shrink-0 ${theme.navbar.pillClass}`}>
-                Portal
+              {/* Jam Digital Kecil Proporsional Handphone / Mobile (Menggantikan tulisan Portal) */}
+              <span className="sm:hidden inline-flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-black/20 dark:bg-white/10 text-emerald-300 dark:text-emerald-400 border border-emerald-400/30 shrink-0 whitespace-nowrap shadow-2xs leading-none">
+                <Clock className="w-2.5 h-2.5 text-emerald-300 shrink-0" />
+                <span>{mobileTimeStr}</span>
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Middle section: Search Box */}
-      <div
-        className={`hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs w-44 lg:w-56 cursor-pointer transition-all ${theme.navbar.searchBoxClass}`}
-        style={theme.navbar.searchBoxStyle}
-      >
-        <Search className="w-3.5 h-3.5 opacity-70 shrink-0" />
-        <span className="truncate">Cari Cepat...</span>
-        <kbd className="ml-auto text-[10px] bg-black/10 dark:bg-white/20 border border-current/20 rounded px-1.5 py-0.5 opacity-70 font-mono">/</kbd>
+      {/* Middle section: Real-time Live Clock (Menggantikan Cari Cepat) */}
+      <div className="hidden sm:flex items-center gap-2.5 px-3 sm:px-4 py-1.5 rounded-full bg-black/20 dark:bg-white/10 border border-white/20 dark:border-white/15 shadow-inner backdrop-blur-md">
+        <div className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+          </span>
+          <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300 shrink-0" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs sm:text-sm font-black font-mono tracking-wider text-white">
+            {timeStr}
+          </span>
+          <span className="hidden lg:inline text-[11px] text-white/80 font-medium border-l border-white/25 pl-2">
+            {dateStr}
+          </span>
+        </div>
       </div>
 
       {/* Right section: Firebase Live Pill, Admin Pill, Notifications, Profile Dropdown */}
@@ -385,36 +399,6 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
             <Building2 className="w-3.5 h-3.5 text-amber-300" />
             <span className="hidden sm:inline">Panel SuperAdmin SaaS</span>
             <span className="sm:hidden">SaaS</span>
-          </button>
-        )}
-
-        {canInstallPWA && !isGuest && currentUser.role !== 'GUEST' && (
-          <button
-            onClick={onInstallPWA}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 text-xs font-semibold shadow-sm transition-all border border-emerald-500/30 cursor-pointer"
-            title="Download File APK Android (.apk)"
-          >
-            <Download className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Download APK</span>
-          </button>
-        )}
-
-        {/* Tombol Akses Cepat Konversi Android Studio & Download google-services.json (Khusus Admin) */}
-        {isAdmin && (
-          <button
-            onClick={() => {
-              if (onOpenAndroidStudioModal) {
-                onOpenAndroidStudioModal();
-              } else {
-                window.dispatchEvent(new CustomEvent('open_android_studio_modal'));
-              }
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 border border-emerald-400/40 cursor-pointer active:scale-95 transition-all"
-            title="Konversi Android Studio & Download google-services.json"
-          >
-            <Smartphone className="w-3.5 h-3.5 text-amber-300" />
-            <span className="hidden md:inline">📱 Android Studio &amp; FCM</span>
-            <span className="md:hidden">Android</span>
           </button>
         )}
 
