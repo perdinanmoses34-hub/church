@@ -207,11 +207,11 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'SUPER_ADMIN':
-        return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
+        return 'bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 border-purple-300 dark:border-purple-700 font-extrabold';
       case 'ADMIN':
-        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+        return 'bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border-blue-400 dark:border-blue-600 font-black';
       default:
-        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+        return 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700 font-bold';
     }
   };
 
@@ -566,30 +566,37 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                   setShowUserDropdown(!showUserDropdown);
                   setShowNotifDropdown(false);
                 }}
-                className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full hover:bg-slate-100 transition-all cursor-pointer border border-transparent hover:border-slate-200"
+                className={`flex items-center gap-2 p-1.5 pl-2 pr-3 rounded-full transition-all cursor-pointer border ${
+                  theme.navbar.isLight
+                    ? 'bg-slate-100/90 hover:bg-slate-200/90 border-slate-300/80 shadow-2xs'
+                    : 'bg-white/10 hover:bg-white/20 border-white/20 text-white shadow-2xs'
+                }`}
               >
-                <div className="w-8 h-8 rounded-full bg-[#00a859] flex items-center justify-center font-bold text-white text-xs shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-[#00a859] flex items-center justify-center font-bold text-white text-xs shadow-xs shrink-0">
                   {currentUser.nama.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="hidden lg:block text-left min-w-0">
-                  <p className="text-xs font-bold leading-tight text-slate-800 truncate max-w-[130px]">
+                  <p className={`text-xs font-bold leading-tight truncate max-w-[130px] ${theme.navbar.isLight ? 'text-slate-900' : 'text-white'}`}>
                     {currentUser.nama}
                   </p>
-                  <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5 truncate">
-                    {currentUser.role === 'ADMIN' ? 'Admin Gereja' : currentUser.role}
+                  <p className={`text-[10px] font-black leading-none mt-0.5 truncate ${theme.navbar.isLight ? 'text-teal-800' : 'text-teal-200'}`}>
+                    {currentUser.role === 'ADMIN' ? 'Admin Gereja' : currentUser.role === 'SUPER_ADMIN' ? 'Super Admin' : currentUser.role}
                   </p>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block" />
+                <ChevronDown className={`w-3.5 h-3.5 hidden lg:block ${theme.navbar.isLight ? 'text-slate-600' : 'text-slate-200'}`} />
               </button>
 
               {showUserDropdown && (
-                <div className="absolute right-0 mt-3 w-64 rounded-3xl bg-white/98 backdrop-blur-2xl border-2 border-teal-200/90 shadow-2xl p-2.5 z-50 text-slate-800 space-y-1">
-                  <div className="p-3 bg-teal-50/60 rounded-2xl mb-1 border border-teal-100">
-                    <p className="text-xs font-black text-slate-900 truncate">{currentUser.nama}</p>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">{currentUser.email}</p>
-                    <span className={`inline-block px-2 py-0.5 rounded-full border text-[10px] font-bold mt-1.5 ${getRoleBadge(currentUser.role)}`}>
-                      Role: {currentUser.role}
-                    </span>
+                <div className="absolute right-0 mt-3 w-68 rounded-3xl bg-white dark:bg-slate-900 backdrop-blur-2xl border-2 border-teal-200/90 dark:border-slate-700 shadow-2xl p-2.5 z-50 text-slate-800 dark:text-slate-100 space-y-1">
+                  <div className="p-3 bg-teal-50/80 dark:bg-slate-800/90 rounded-2xl mb-1.5 border border-teal-200/80 dark:border-slate-700">
+                    <p className="text-xs font-black text-slate-900 dark:text-white truncate">{currentUser.nama}</p>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5">{currentUser.email || 'Akun Administrator'}</p>
+                    <div className="mt-2">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-black shadow-2xs ${getRoleBadge(currentUser.role)}`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-90" />
+                        Role: {currentUser.role === 'ADMIN' ? 'ADMIN GEREJA' : currentUser.role === 'SUPER_ADMIN' ? 'SUPER ADMIN' : currentUser.role}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Kustom Warna Navbar (Khusus Admin) */}
@@ -603,9 +610,9 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                           setIsNavbarCustomizerOpen(true);
                         }
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-teal-800 hover:bg-teal-50 text-xs font-bold transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-teal-900 dark:text-teal-200 hover:bg-teal-50 dark:hover:bg-slate-800 text-xs font-bold transition-all text-left cursor-pointer border border-transparent hover:border-teal-200 dark:hover:border-slate-700"
                     >
-                      <Palette className="w-4 h-4 text-teal-600" />
+                      <Palette className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                       <span>Kustom Warna &amp; Tema Navbar</span>
                     </button>
                   )}
@@ -620,9 +627,9 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                           window.dispatchEvent(new CustomEvent('open_android_studio_modal'));
                         }
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-teal-800 hover:bg-teal-50 text-xs font-bold transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-teal-900 dark:text-teal-200 hover:bg-teal-50 dark:hover:bg-slate-800 text-xs font-bold transition-all text-left cursor-pointer border border-transparent hover:border-teal-200 dark:hover:border-slate-700"
                     >
-                      <Smartphone className="w-4 h-4 text-teal-600" />
+                      <Smartphone className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                       <span>📱 Android Studio &amp; FCM Pro</span>
                     </button>
                   )}
@@ -643,19 +650,21 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                       });
                       setIsSelfModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 text-xs font-semibold transition-all text-left cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-all text-left cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
                   >
-                    <KeyRound className="w-4 h-4 text-teal-600" />
+                    <KeyRound className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                     <span>Ubah Username &amp; Password</span>
                   </button>
 
-                  <button
-                    onClick={onLogout}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 text-xs font-bold transition-all text-left cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Keluar (Logout)</span>
-                  </button>
+                  <div className="pt-1 mt-1 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      onClick={onLogout}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition-all text-left cursor-pointer border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50"
+                    >
+                      <LogOut className="w-4 h-4 shrink-0" />
+                      <span>Keluar (Logout)</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </>
@@ -665,63 +674,63 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
 
       {/* Modal Self Profile & Password Update */}
       {isSelfModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl bg-white border-2 border-teal-200 p-6 text-slate-800 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <h3 className="text-base font-bold flex items-center gap-2 text-slate-900">
-                <KeyRound className="w-5 h-5 text-teal-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border-2 border-teal-200 dark:border-teal-700 p-6 text-slate-800 dark:text-slate-100 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-base font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+                <KeyRound className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                 <span>Pengaturan Kredensial Saya</span>
               </h3>
               <button
                 onClick={() => setIsSelfModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 font-bold p-1 rounded-lg hover:bg-slate-100 cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {selfError && (
-              <div className="p-3 bg-rose-500/20 border border-rose-500/30 text-rose-300 rounded-xl text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 rounded-xl text-xs flex items-center gap-2 font-medium">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
                 <span>{selfError}</span>
               </div>
             )}
 
             {selfSuccess && (
-              <div className="p-3 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-xl text-xs flex items-center gap-2">
-                <Check className="w-4 h-4 shrink-0" />
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-center gap-2 font-medium">
+                <Check className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{selfSuccess}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveSelfProfile} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-700 font-bold mb-1">Username Login *</label>
+                <label className="block text-slate-800 dark:text-slate-200 font-bold mb-1">Username Login *</label>
                 <input
                   type="text"
                   required
                   value={selfForm.username}
                   onChange={(e) => setSelfForm({ ...selfForm, username: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono font-bold focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-mono font-bold focus:bg-white dark:focus:bg-slate-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 dark:focus:ring-teal-900"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold mb-1">Nama Lengkap *</label>
+                <label className="block text-slate-800 dark:text-slate-200 font-bold mb-1">Nama Lengkap *</label>
                 <input
                   type="text"
                   required
                   value={selfForm.nama}
                   onChange={(e) => setSelfForm({ ...selfForm, nama: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 dark:focus:ring-teal-900"
                 />
               </div>
 
               {/* Password change box */}
-              <div className="p-4 rounded-2xl bg-teal-50/50 border border-teal-200/80 space-y-3">
+              <div className="p-4 rounded-2xl bg-teal-50/70 dark:bg-slate-800/80 border border-teal-200/90 dark:border-slate-700 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-teal-950 flex items-center gap-1.5">
-                    <KeyRound className="w-4 h-4 text-teal-600" />
+                  <span className="font-bold text-teal-950 dark:text-teal-200 flex items-center gap-1.5">
+                    <KeyRound className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <span>Ubah Password</span>
                   </span>
                   <button
@@ -735,9 +744,9 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                       setSelfForm({ ...selfForm, new_password: pass, confirm_password: pass });
                       setShowSelfPass(true);
                     }}
-                    className="text-[11px] text-teal-700 hover:text-teal-900 flex items-center gap-1 font-bold cursor-pointer"
+                    className="text-[11px] text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 flex items-center gap-1 font-bold cursor-pointer"
                   >
-                    <Wand2 className="w-3.5 h-3.5 text-teal-600" />
+                    <Wand2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                     <span>Acak Password</span>
                   </button>
                 </div>
@@ -749,12 +758,12 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                       placeholder="Password Baru (Kosongkan jika tidak diubah)"
                       value={selfForm.new_password}
                       onChange={(e) => setSelfForm({ ...selfForm, new_password: e.target.value })}
-                      className="w-full pr-8 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 font-mono focus:border-teal-500"
+                      className="w-full pr-8 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-mono focus:border-teal-500"
                     />
                     <button
                       type="button"
                       onClick={() => setShowSelfPass(!showSelfPass)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                     >
                       {showSelfPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -766,37 +775,37 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                       placeholder="Konfirmasi Password Baru"
                       value={selfForm.confirm_password}
                       onChange={(e) => setSelfForm({ ...selfForm, confirm_password: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 font-mono focus:border-teal-500"
+                      className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-mono focus:border-teal-500"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold mb-1">Email</label>
+                <label className="block text-slate-800 dark:text-slate-200 font-bold mb-1">Email</label>
                 <input
                   type="email"
                   value={selfForm.email}
                   onChange={(e) => setSelfForm({ ...selfForm, email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 dark:focus:ring-teal-900"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold mb-1">Nomor Handphone</label>
+                <label className="block text-slate-800 dark:text-slate-200 font-bold mb-1">Nomor Handphone</label>
                 <input
                   type="text"
                   value={selfForm.no_hp}
                   onChange={(e) => setSelfForm({ ...selfForm, no_hp: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 dark:focus:ring-teal-900"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsSelfModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold cursor-pointer transition-colors"
                 >
                   Batal
                 </button>
