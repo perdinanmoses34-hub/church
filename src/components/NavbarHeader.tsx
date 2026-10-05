@@ -3,6 +3,7 @@ import { User, AppSettings, NotificationItem } from '../types';
 import { StorageManager } from '../utils/storage';
 import { DEFAULT_CHURCH_LOGO } from '../data/initialData';
 import { getThemeClasses } from '../utils/themeHelper';
+import { alertDialog } from '../utils/confirmDialog';
 import {
   triggerStatusBarNotification,
   requestAndSaveFCMToken,
@@ -478,7 +479,7 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                     onClick={() => {
                       playNotificationChimeSound();
                       triggerStatusBarNotification(
-                        '🔔 Notifikasi GKFC CMS Pro',
+                        `🔔 Notifikasi ${settings.nama_gereja}`,
                         'Suara lonceng & notifikasi di status bar HP aktif! Notifikasi tetap muncul saat aplikasi ditutup.'
                       );
                     }}
@@ -493,9 +494,14 @@ export const NavbarHeader: React.FC<NavbarHeaderProps> = ({
                   onClick={async () => {
                     const token = await requestAndSaveFCMToken();
                     if (token) {
-                      alert('✅ Notifikasi Push HP (FCM) BERHASIL DIAKTIFKAN!\nToken Perangkat HP Anda telah terdaftar. Notifikasi akan muncul di atas bar HP dengan suara lonceng & getar.');
+                      alertDialog({
+                        title: 'Notifikasi Push HP (FCM)',
+                        message: `Notifikasi Push HP (FCM) BERHASIL DIAKTIFKAN!\nToken Perangkat HP Anda telah terdaftar untuk ${settings.nama_gereja}. Notifikasi warta dan jadwal ibadah akan muncul di status bar HP dengan suara lonceng & getar.`,
+                        type: 'success',
+                        confirmText: 'OKE'
+                      });
                     } else {
-                      triggerStatusBarNotification('GKFC Church Notification', 'Izin Notifikasi HP Aktif! Suara lonceng dan getar siap digunakan.');
+                      triggerStatusBarNotification(`${settings.nama_gereja} - Notifikasi`, 'Izin Notifikasi HP Aktif! Suara lonceng dan getar siap digunakan.');
                     }
                   }}
                   className="w-full py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-[10px] text-center transition-all cursor-pointer shadow-xs"

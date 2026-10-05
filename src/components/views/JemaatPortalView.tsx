@@ -3,6 +3,7 @@ import { User, Jemaat, AppSettings } from '../../types';
 import { StorageManager } from '../../utils/storage';
 import { DEFAULT_CHURCH_LOGO } from '../../data/initialData';
 import { getThemeClasses } from '../../utils/themeHelper';
+import { alertDialog } from '../../utils/confirmDialog';
 import { pullAllFromCloud, reconnectRealtimeCloudSync, isQuotaExhausted } from '../../utils/firebaseSync';
 import {
   UserCheck,
@@ -204,7 +205,11 @@ export const JemaatPortalView: React.FC<JemaatPortalViewProps> = ({ currentUser,
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert('Ukuran foto maksimal 2MB!');
+        alertDialog({
+          title: 'Ukuran File Terlalu Besar',
+          message: 'Ukuran foto maksimal adalah 2MB! Silakan pilih foto dengan ukuran lebih kecil.',
+          type: 'warning'
+        });
         return;
       }
       const reader = new FileReader();

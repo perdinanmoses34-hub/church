@@ -1,6 +1,7 @@
 import { getMessaging, getToken, onMessage, Messaging } from 'firebase/messaging';
 import { initializeApp, getApps } from 'firebase/app';
 import { getActiveFirebaseConfig, getFirestoreInstance, pushToCloud } from './firebaseSync';
+import { alertDialog } from './confirmDialog';
 
 let messagingInstance: Messaging | null = null;
 
@@ -75,7 +76,11 @@ export async function registerMessagingServiceWorker(): Promise<ServiceWorkerReg
  */
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (!('Notification' in window)) {
-    alert('Browser ini tidak mendukung Notifikasi HP');
+    alertDialog({
+      title: 'Notifikasi HP',
+      message: 'Browser / perangkat ini tidak mendukung Notifikasi HP langsung. Disarankan untuk menggunakan aplikasi APK Android gereja atau browser Google Chrome versi terbaru.',
+      confirmText: 'OKE'
+    });
     return 'denied';
   }
 

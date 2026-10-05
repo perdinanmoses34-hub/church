@@ -3,7 +3,7 @@ import { GalleryItem, User, FeaturedVideo } from '../../types';
 import { StorageManager } from '../../utils/storage';
 import { parseSocialVideoUrl } from '../../utils/videoHelper';
 import { broadcastContentNotification } from '../../utils/notificationBroadcast';
-import { confirmDialog } from '../../utils/confirmDialog';
+import { confirmDialog, alertDialog } from '../../utils/confirmDialog';
 import {
   Image as ImageIcon,
   Video,
@@ -83,7 +83,11 @@ export const GaleriView: React.FC<GaleriViewProps> = ({ currentUser, initialTab 
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Mohon pilih file gambar yang valid (JPG, PNG, WEBP, GIF)!');
+      alertDialog({
+        title: 'Format File Tidak Sesuai',
+        message: 'Mohon pilih file gambar yang valid (JPG, PNG, WEBP, GIF)!',
+        type: 'warning'
+      });
       return;
     }
 

@@ -3,7 +3,7 @@ import { User, AppSettings, ChatMessage, ChatTag, Jemaat } from '../../types';
 import { initialJemaat, initialChatMessages } from '../../data/initialData';
 import { StorageManager, normalizeTenantId } from '../../utils/storage';
 import { playNotificationChime } from '../../utils/soundHelper';
-import { confirmDialog } from '../../utils/confirmDialog';
+import { confirmDialog, alertDialog } from '../../utils/confirmDialog';
 import {
   MessageCircle,
   Send,
@@ -394,7 +394,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ currentUser, settings, onOpe
     if (!trimmed) return;
 
     if (isGuest) {
-      alert('Silakan Masuk / Login dengan akun yang terdaftar pada Manajemen User untuk mengirim pesan.');
+      alertDialog({
+        title: 'Akses Kirim Pesan',
+        message: 'Silakan Masuk / Login dengan akun yang terdaftar pada Manajemen User untuk mengirim pesan.',
+        type: 'warning'
+      });
       if (onOpenLogin) onOpenLogin();
       return;
     }
