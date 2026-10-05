@@ -555,7 +555,7 @@ export const NavbarCustomizerModal: React.FC<NavbarCustomizerModalProps> = ({
                           className={`text-xs font-extrabold truncate ${currentNavbarTheme.titleClass}`}
                           style={currentNavbarTheme.titleStyle}
                         >
-                          {form.nama_gereja || 'Jesus Kingdom Christ'}
+                          {form.nama_gereja || 'Monapa Puriala'}
                         </p>
                         <p
                           className={`text-[9px] font-bold leading-none ${currentNavbarTheme.subtextClass}`}

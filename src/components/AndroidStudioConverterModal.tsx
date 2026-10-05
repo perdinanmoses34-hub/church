@@ -112,7 +112,7 @@ export const AndroidStudioConverterModal: React.FC<AndroidStudioConverterModalPr
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
 
   // FCM Live Tester State
-  const [testTitle, setTestTitle] = useState('📢 Warta Ibadah Minggu - Jesus Kingdom Christ');
+  const [testTitle, setTestTitle] = useState('📢 Warta Ibadah Minggu - Monapa Puriala');
   const [testMessage, setTestMessage] = useState('Shalom Jemaat! Jadwal ibadah raya & renungan harian telah diperbarui.');
   const [testTargetUrl, setTestTargetUrl] = useState('https://tntimbu.github.io/jesuskingdomchrist/');
   const [testServerKey, setTestServerKey] = useState(settings?.firebase_fcm_server_key || '');

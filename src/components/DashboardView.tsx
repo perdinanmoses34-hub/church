@@ -2501,7 +2501,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div>
                     <span className={`text-[10px] ${isLightSystem ? 'text-slate-500' : 'text-slate-400'} font-semibold block`}>Atas Nama Rekening:</span>
                     <p className={`font-black ${isLightSystem ? 'text-slate-900' : 'text-slate-200'} text-sm mt-0.5`}>
-                      {settings.rekening_bank_atas_nama || settings.nama_gereja || 'Jesus Kingdom Christ'}
+                      {settings.rekening_bank_atas_nama || settings.nama_gereja || 'Monapa Puriala'}
                     </p>
                   </div>
                 </div>
@@ -2546,7 +2546,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     }`}>
                       <QrCode className={`w-14 h-14 sm:w-16 sm:h-16 ${isLightSystem ? 'text-teal-600' : 'text-emerald-600'} mb-2`} />
                       <span className="font-extrabold text-sm text-slate-900">QRIS Standar Nasional (QRIS)</span>
-                      <span className="text-xs text-slate-500 mt-1 font-medium">{settings.rekening_bank_atas_nama || settings.nama_gereja || 'Jesus Kingdom Christ'}</span>
+                      <span className="text-xs text-slate-500 mt-1 font-medium">{settings.rekening_bank_atas_nama || settings.nama_gereja || 'Monapa Puriala'}</span>
                     </div>
                   )}
 
@@ -3989,7 +3989,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             />
                             <div>
                               <h3 className="text-base font-black text-white leading-tight">
-                                {customForm.header_title || customForm.nama_gereja || 'Jesus Kingdom Christ'}
+                                {customForm.header_title || customForm.nama_gereja || 'Monapa Puriala'}
                               </h3>
                               <p className="text-xs text-teal-200/80">
                                 {customForm.header_subtitle || 'Portal Informasi Utama Gereja'} &bull; Shalom, Administrator
@@ -4074,7 +4074,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             />
                             <div className="truncate">
                               <h4 className="text-xs font-black truncate leading-tight">
-                                {customForm.header_title || customForm.nama_gereja || 'Jesus Kingdom Christ'}
+                                {customForm.header_title || customForm.nama_gereja || 'Monapa Puriala'}
                               </h4>
                               <p className="text-[9px] text-teal-200/80 truncate">
                                 {customForm.header_subtitle || 'Portal Gereja'}
@@ -4570,7 +4570,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           <input
                             type="text"
                             value={customForm.header_title || ''}
-                            placeholder="Jesus Kingdom Christ"
+                            placeholder="Monapa Puriala"
                             onChange={(e) => setCustomForm({ ...customForm, header_title: e.target.value })}
                             className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-semibold text-xs"
                           />
@@ -5205,7 +5205,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 QRIS RESMI GEREJA
               </span>
               <h3 className={`text-lg sm:text-xl font-extrabold ${isLightSystem ? 'text-slate-900' : 'text-white'} mt-2`}>
-                {settings.nama_gereja || 'Jesus Kingdom Christ'}
+                {settings.nama_gereja || 'Monapa Puriala'}
               </h3>
               <p className={`text-xs ${isLightSystem ? 'text-slate-600' : 'text-slate-400'}`}>
                 Pindai menggunakan aplikasi e-Wallet atau M-Banking apapun
@@ -5227,7 +5227,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="w-72 h-72 sm:w-96 sm:h-96 bg-white flex flex-col items-center justify-center text-slate-800 p-4 rounded-lg">
                   <QrCode className="w-24 h-24 text-teal-600 mb-2" />
                   <span className="font-extrabold text-base">QRIS DIGITAL GEREJA</span>
-                  <span className="text-xs text-slate-500 mt-1">{settings.rekening_bank_atas_nama || settings.nama_gereja || 'Jesus Kingdom Christ'}</span>
+                  <span className="text-xs text-slate-500 mt-1">{settings.rekening_bank_atas_nama || settings.nama_gereja || 'Monapa Puriala'}</span>
                 </div>
               )}
             </div>

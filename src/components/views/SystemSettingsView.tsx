@@ -1247,7 +1247,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <input
                     type="text"
                     value={metaForm.header_title || ''}
-                    placeholder="Jesus Kingdom Christ"
+                    placeholder="Monapa Puriala"
                     onChange={(e) => setMetaForm({ ...metaForm, header_title: e.target.value })}
                     className={inputClass}
                   />
@@ -1362,13 +1362,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
                             {metaForm.topbar_text && metaForm.topbar_text.trim()
                               ? metaForm.topbar_text.trim()
-                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                              : `${metaForm.nama_gereja || 'Monapa Puriala'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
                           </span>
                           <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
                           <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
                             {metaForm.topbar_text && metaForm.topbar_text.trim()
                               ? metaForm.topbar_text.trim()
-                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                              : `${metaForm.nama_gereja || 'Monapa Puriala'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
                           </span>
                           <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
                         </div>
@@ -1378,13 +1378,13 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                           <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
                             {metaForm.topbar_text && metaForm.topbar_text.trim()
                               ? metaForm.topbar_text.trim()
-                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                              : `${metaForm.nama_gereja || 'Monapa Puriala'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
                           </span>
                           <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
                           <span className="px-4 sm:px-6 text-[11px] sm:text-xs text-white/95 font-medium whitespace-nowrap">
                             {metaForm.topbar_text && metaForm.topbar_text.trim()
                               ? metaForm.topbar_text.trim()
-                              : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                              : `${metaForm.nama_gereja || 'Monapa Puriala'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
                           </span>
                           <span className="text-teal-400/60 select-none text-[9px] sm:text-[10px]">✦</span>
                         </div>
@@ -1393,7 +1393,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                       <span className="font-semibold tracking-wide truncate text-[11px] sm:text-xs text-white/95">
                         {metaForm.topbar_text && metaForm.topbar_text.trim()
                           ? metaForm.topbar_text.trim()
-                          : `${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                          : `${metaForm.nama_gereja || 'Monapa Puriala'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
                       </span>
                     )}
                   </div>
@@ -1458,7 +1458,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                 <input
                   type="text"
                   value={metaForm.topbar_text || ''}
-                  placeholder={`CMS GEREJA • ${metaForm.nama_gereja || 'Jesus Kingdom Christ'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
+                  placeholder={`CMS GEREJA • ${metaForm.nama_gereja || 'Monapa Puriala'} — ${metaForm.header_subtitle || 'Sistem Informasi Manajemen & Pelayanan Jemaat'}`}
                   onChange={(e) => setMetaForm({ ...metaForm, topbar_text: e.target.value })}
                   className={inputClass}
                 />
@@ -1544,7 +1544,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                   <label className={labelClass}>Atas Nama Rekening *</label>
                   <input
                     type="text"
-                    placeholder="Contoh: Jesus Kingdom Christ"
+                    placeholder="Contoh: Monapa Puriala"
                     value={metaForm.rekening_bank_atas_nama || ''}
                     onChange={(e) => setMetaForm({ ...metaForm, rekening_bank_atas_nama: e.target.value })}
                     className={inputClass}
@@ -2342,7 +2342,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                                   className={`text-xs font-extrabold truncate ${previewNb.titleClass}`}
                                   style={previewNb.titleStyle}
                                 >
-                                  {metaForm.nama_gereja || 'Jesus Kingdom Christ'}
+                                  {metaForm.nama_gereja || 'Monapa Puriala'}
                                 </p>
                                 <p
                                   className={`text-[9px] font-bold leading-none ${previewNb.subtextClass}`}

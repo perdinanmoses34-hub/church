@@ -75,6 +75,13 @@ export default function App() {
       setActiveTab(savedTab);
     }
 
+    // Pull from cloud immediately on app startup so visitor / guest / login screen has real admin data
+    pullAllFromCloud(() => {
+      const freshSettings = StorageManager.getSettings();
+      setSettings(freshSettings);
+      setTenantStatus(StorageManager.checkTenantStatus());
+    }).catch(() => {});
+
     // Register Service Worker for PWA & Offline Support
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
@@ -374,7 +381,7 @@ export default function App() {
     window.open(downloadUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const handleLoginSuccess = (user: User) => {
+  const handleLoginSuccess = (user: User, passedSettings?: AppSettings) => {
     const rawTenant = (user.tenant_id && user.tenant_id !== 'ALL') ? user.tenant_id : 'CHURCH-001';
     const targetTenant = rawTenant === 'CHURCH-004' ? 'CHURCH-001' : rawTenant;
     user.tenant_id = targetTenant;
@@ -382,8 +389,8 @@ export default function App() {
     StorageManager.setActiveTenantId(targetTenant);
     setActiveTenantId(targetTenant);
 
-    // Refresh settings and tenant status in state IMMEDIATELY (synchronously) before awaiting cloud sync!
-    const freshSettings = StorageManager.getSettings();
+    // Refresh settings and tenant status in state IMMEDIATELY with the real cloud-synced settings!
+    const freshSettings = passedSettings || StorageManager.getSettings();
     setSettings(freshSettings);
     setTenantStatus(StorageManager.checkTenantStatus());
 
@@ -393,6 +400,33 @@ export default function App() {
       document.documentElement.style.setProperty('--theme-custom-primary', customHex);
       document.documentElement.style.setProperty('--theme-custom-border', `${customHex}90`);
       document.documentElement.style.setProperty('--theme-custom-bg-alpha', `${customHex}18`);
+    }
+
+    const isDark =
+      freshSettings?.theme_preset === 'DARK_SLATE' ||
+      freshSettings?.theme_preset === 'MIDNIGHT_BLUE' ||
+      freshSettings?.theme_preset === 'DEEP_PURPLE' ||
+      freshSettings?.theme_preset === 'FOREST_GREEN' ||
+      freshSettings?.theme_preset === 'WARM_GOLD';
+
+    if (isDark) {
+      document.documentElement.classList.add('theme-dark');
+      let darkBg = '#020617';
+      if (freshSettings?.theme_preset === 'MIDNIGHT_BLUE') darkBg = '#030712';
+      else if (freshSettings?.theme_preset === 'DEEP_PURPLE') darkBg = '#090514';
+      else if (freshSettings?.theme_preset === 'FOREST_GREEN') darkBg = '#04120a';
+      else if (freshSettings?.theme_preset === 'WARM_GOLD') darkBg = '#140c03';
+      else if (freshSettings?.theme_preset === 'DARK_SLATE') darkBg = '#020617';
+      document.body.style.backgroundColor = darkBg;
+      document.documentElement.style.backgroundColor = darkBg;
+    } else {
+      document.documentElement.classList.remove('theme-dark');
+      document.body.style.backgroundColor = '#f4fbf9';
+      document.documentElement.style.backgroundColor = '#f4fbf9';
+    }
+
+    if (freshSettings?.nama_gereja && typeof document !== 'undefined') {
+      document.title = `${freshSettings.nama_gereja} - Portal & Sistem Manajemen Gereja`;
     }
 
     setCurrentUser(user);
@@ -411,16 +445,8 @@ export default function App() {
           detail: { action: 'user_login', user, tenantId: targetTenant, settings: freshSettings }
         })
       );
+      window.dispatchEvent(new Event('storage'));
     }
-
-    // Pull in background to update any newer deltas without blocking the initial UI transition
-    pullAllFromCloud()
-      .then(() => {
-        const updatedSettings = StorageManager.getSettings();
-        setSettings(updatedSettings);
-        setTenantStatus(StorageManager.checkTenantStatus());
-      })
-      .catch(() => {});
   };
 
   const handleCloseLoginPage = () => {
@@ -655,7 +681,7 @@ export default function App() {
 
           {activeTab === 'dashboard' && (
             <DashboardView
-              key={`${activeTenantId}_${effectiveUser.user_id || 'guest'}_dashboard`}
+              key={`${activeTenantId}_${effectiveUser.user_id || 'guest'}_${settings.nama_gereja || ''}_${settings.warna_tema || ''}_dashboard`}
               currentUser={effectiveUser}
               settings={settings}
               onNavigate={handleSelectTab}

@@ -285,7 +285,7 @@ export const CardMenuModal: React.FC<CardMenuModalProps> = ({
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#00a859]" />
             <span className="text-[11px] sm:text-xs">
-              {settings.nama_gereja || 'Jesus Kingdom Christ'} — Navigasi Modul Pelayanan Gereja
+              {settings.nama_gereja || 'Monapa Puriala'} — Navigasi Modul Pelayanan Gereja
             </span>
           </div>
           <button

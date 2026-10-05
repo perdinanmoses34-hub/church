@@ -21,7 +21,7 @@ import {
 
 interface LoginPageProps {
   settings: AppSettings;
-  onLoginSuccess: (user: User) => void;
+  onLoginSuccess: (user: User, freshSettings?: AppSettings) => void;
   onClose?: () => void;
   onInstallPWA?: () => void;
   canInstallPWA?: boolean;
@@ -56,77 +56,92 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     setIsLoading(true);
 
     try {
-      // Pull latest accounts from cloud immediately before matching
+      // 1. Pull latest accounts and church configurations from cloud immediately before matching
       await pullAllFromCloud();
     } catch {
       // offline fallback
     }
 
-    setTimeout(async () => {
-      const users = StorageManager.getUsers();
-      const inputName = username.trim().toLowerCase();
-      const inputPass = password.trim();
+    const users = StorageManager.getUsers();
+    const inputName = username.trim().toLowerCase();
+    const inputPass = password.trim();
 
-      const found = users.find((u) => {
-        if (!u || !u.username) return false;
+    const found = users.find((u) => {
+      if (!u || !u.username) return false;
 
-        const cleanUsername = u.username.trim().toLowerCase();
-        const cleanEmail = (u.email && typeof u.email === 'string') ? u.email.trim().toLowerCase() : '';
-        const cleanNama = (u.nama && typeof u.nama === 'string') ? u.nama.trim().toLowerCase() : '';
+      const cleanUsername = u.username.trim().toLowerCase();
+      const cleanEmail = (u.email && typeof u.email === 'string') ? u.email.trim().toLowerCase() : '';
+      const cleanNama = (u.nama && typeof u.nama === 'string') ? u.nama.trim().toLowerCase() : '';
 
-        // Exact match on username, email, or exact full name
-        const matchesName =
-          cleanUsername === inputName ||
-          (cleanEmail !== '' && cleanEmail === inputName) ||
-          (cleanNama !== '' && cleanNama === inputName);
+      // Exact match on username, email, or exact full name
+      const matchesName =
+        cleanUsername === inputName ||
+        (cleanEmail !== '' && cleanEmail === inputName) ||
+        (cleanNama !== '' && cleanNama === inputName);
 
-        const rawPass = (u.password_hash !== undefined && u.password_hash !== null && String(u.password_hash).trim() !== '')
-          ? String(u.password_hash).trim()
-          : (u.role === 'JEMAAT' ? 'jemaat123' : 'admin123');
+      const rawPass = (u.password_hash !== undefined && u.password_hash !== null && String(u.password_hash).trim() !== '')
+        ? String(u.password_hash).trim()
+        : (u.role === 'JEMAAT' ? 'jemaat123' : 'admin123');
 
-        return matchesName && rawPass === inputPass;
-      });
+      return matchesName && rawPass === inputPass;
+    });
 
-      if (found) {
-        if (found.status === 'Nonaktif') {
-          setErrorMessage('Akun Anda dinonaktifkan oleh Administrator.');
-          setIsLoading(false);
-          return;
-        }
-
-        const historyId = StorageManager.recordLogin(found.username);
-        StorageManager.logActivity(found.username, 'Login ke sistem CMS Pro', 'Auth');
-
-        // Switch active tenant to target church
-        const rawTenant = (found.tenant_id && found.tenant_id !== 'ALL') ? found.tenant_id : 'CHURCH-001';
-        const targetTenantId = rawTenant === 'CHURCH-004' ? 'CHURCH-001' : rawTenant;
-        found.tenant_id = targetTenantId;
-        StorageManager.setActiveTenantId(targetTenantId);
-
-        // Ensure user has jemaat_id linked from the correct church
-        if (found.role === 'JEMAAT' && !found.jemaat_id) {
-          const allJemaat = StorageManager.getJemaat();
-          const match = allJemaat.find(
-            (j) =>
-              (j.nama_lengkap && found.nama && j.nama_lengkap.toLowerCase().trim() === found.nama.toLowerCase().trim()) ||
-              (j.email && found.email && j.email.toLowerCase().trim() === found.email.toLowerCase().trim())
-          );
-          if (match) {
-            found.jemaat_id = match.jemaat_id;
-          }
-        }
-
-        // Save logged in user state
-        StorageManager.saveCurrentUser(found);
-        (window as any).__cms_history_id = historyId;
-
+    if (found) {
+      if (found.status === 'Nonaktif') {
+        setErrorMessage('Akun Anda dinonaktifkan oleh Administrator.');
         setIsLoading(false);
-        onLoginSuccess(found);
-      } else {
-        setErrorMessage('Username/Email atau Password tidak cocok. Silakan periksa kembali.');
-        setIsLoading(false);
+        return;
       }
-    }, 250);
+
+      const historyId = StorageManager.recordLogin(found.username);
+      StorageManager.logActivity(found.username, 'Login ke sistem CMS Pro', 'Auth');
+
+      // Switch active tenant to target church
+      const rawTenant = (found.tenant_id && found.tenant_id !== 'ALL') ? found.tenant_id : 'CHURCH-001';
+      const targetTenantId = rawTenant === 'CHURCH-004' ? 'CHURCH-001' : rawTenant;
+      found.tenant_id = targetTenantId;
+      StorageManager.setActiveTenantId(targetTenantId);
+
+      // Ensure user has jemaat_id linked from the correct church
+      if (found.role === 'JEMAAT' && !found.jemaat_id) {
+        const allJemaat = StorageManager.getJemaat();
+        const match = allJemaat.find(
+          (j) =>
+            (j.nama_lengkap && found.nama && j.nama_lengkap.toLowerCase().trim() === found.nama.toLowerCase().trim()) ||
+            (j.email && found.email && j.email.toLowerCase().trim() === found.email.toLowerCase().trim())
+        );
+        if (match) {
+          found.jemaat_id = match.jemaat_id;
+        }
+      }
+
+      // Save logged in user state
+      StorageManager.saveCurrentUser(found);
+      (window as any).__cms_history_id = historyId;
+
+      // 2. Ensure all data & settings for the active tenant are 100% pulled from cloud
+      try {
+        await pullAllFromCloud();
+      } catch {
+        // offline fallback
+      }
+
+      const freshSettings = StorageManager.getSettings();
+
+      // Immediately sync theme CSS variables globally before transition
+      const customHex = (freshSettings?.warna_tema || '#0d9488').trim();
+      if (/^#[0-9A-F]{6}$/i.test(customHex) || /^#[0-9A-F]{3}$/i.test(customHex)) {
+        document.documentElement.style.setProperty('--theme-custom-primary', customHex);
+        document.documentElement.style.setProperty('--theme-custom-border', `${customHex}90`);
+        document.documentElement.style.setProperty('--theme-custom-bg-alpha', `${customHex}18`);
+      }
+
+      setIsLoading(false);
+      onLoginSuccess(found, freshSettings);
+    } else {
+      setErrorMessage('Username/Email atau Password tidak cocok. Silakan periksa kembali.');
+      setIsLoading(false);
+    }
   };
 
   const handleResetPassword = (e: React.FormEvent) => {

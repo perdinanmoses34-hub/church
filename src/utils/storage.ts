@@ -145,6 +145,21 @@ const defaultDoa: Doa[] = [
   }
 ];
 
+export function isLegacyChurchName(name?: string | null): boolean {
+  if (!name || typeof name !== 'string') return false;
+  const clean = name.trim();
+  return (
+    /jesus/i.test(clean) ||
+    /kingdom/i.test(clean) ||
+    /kemenangan\s*faith/i.test(clean) ||
+    /gkfc/i.test(clean) ||
+    clean.toUpperCase() === 'SYSTEM MANAGEMENT CHURCH' ||
+    clean.toUpperCase() === 'SYSTEM MANAGEMEN CHURCH' ||
+    clean.toLowerCase() === 'gereja baru' ||
+    clean.toLowerCase() === 'gereja kemenangan'
+  );
+}
+
 export function normalizeTenantId(raw: any): string {
   if (!raw || typeof raw !== 'string') return 'CHURCH-001';
   let cleaned = raw.replace(/^[\\"'`]+|[\\"'`]+$/g, '').trim();
@@ -360,7 +375,7 @@ function sanitizeTenantDataIsolation(): void {
           try {
             const s = JSON.parse(rawSettings);
             let sChanged = false;
-            if (s.rekening_bank_nomor === '527-089-1122' || (s.rekening_bank_atas_nama && (s.rekening_bank_atas_nama.includes('Kemenangan Faith') || s.rekening_bank_atas_nama === 'Jesus Kingdom Christ'))) {
+            if (s.rekening_bank_nomor === '527-089-1122' || (s.rekening_bank_atas_nama && isLegacyChurchName(s.rekening_bank_atas_nama))) {
               s.rekening_bank_nama = '';
               s.rekening_bank_nomor = '';
               s.rekening_bank_atas_nama = t.nama_gereja || 'Monapa Puriala';
@@ -390,7 +405,7 @@ function sanitizeTenantDataIsolation(): void {
         tId = 'CHURCH-001';
         tenantsModified = true;
       }
-      if (t.nama_gereja && (t.nama_gereja.includes('Kemenangan Faith') || t.nama_gereja === 'Jesus Kingdom Christ')) {
+      if (t.nama_gereja && isLegacyChurchName(t.nama_gereja)) {
         tenantsModified = true;
         return {
           ...t,
@@ -416,19 +431,19 @@ function sanitizeTenantDataIsolation(): void {
       try {
         const s = JSON.parse(rawRootSettings);
         let sChanged = false;
-        if (s.nama_gereja && (s.nama_gereja.includes('Kemenangan Faith') || s.nama_gereja === 'Jesus Kingdom Christ')) {
+        if (s.nama_gereja && isLegacyChurchName(s.nama_gereja)) {
           s.nama_gereja = 'Monapa Puriala';
           sChanged = true;
         }
-        if (s.header_title && (s.header_title.includes('Kemenangan Faith') || s.header_title === 'Jesus Kingdom Christ')) {
+        if (s.header_title && isLegacyChurchName(s.header_title)) {
           s.header_title = 'Monapa Puriala';
           sChanged = true;
         }
-        if (s.rekening_bank_atas_nama && (s.rekening_bank_atas_nama.includes('Kemenangan Faith') || s.rekening_bank_atas_nama === 'Jesus Kingdom Christ')) {
+        if (s.rekening_bank_atas_nama && isLegacyChurchName(s.rekening_bank_atas_nama)) {
           s.rekening_bank_atas_nama = 'Monapa Puriala';
           sChanged = true;
         }
-        if (s.email === 'info@gkfc-cms.org' || s.email === 'info@jesuskingdomchrist.org' || s.email === 'admin@jesuskingdomchrist.org') {
+        if (s.email && (/jesuskingdomchrist/i.test(s.email) || s.email.includes('gkfc-cms.org'))) {
           s.email = 'admin_monapa@puriala.org';
           sChanged = true;
         }
@@ -600,7 +615,20 @@ export const StorageManager = {
 
   // --- SaaS Multi-Tenant & Buyer Church Management ---
   getTenants: (): ChurchTenant[] => {
-    const tenants = getItem<ChurchTenant[]>(KEYS.TENANTS, initialTenants);
+    const rawTenants = getItem<ChurchTenant[]>(KEYS.TENANTS, initialTenants);
+    const tenants = (Array.isArray(rawTenants) ? rawTenants : initialTenants).map((t) => {
+      if (t.tenant_id === 'CHURCH-001' && (isLegacyChurchName(t.nama_gereja) || !t.nama_gereja)) {
+        return {
+          ...t,
+          nama_gereja: 'Monapa Puriala',
+          kode_unik: 'GMP-01',
+          admin_username: 'admin_monapa',
+          admin_nama: 'Admin Monapa Puriala',
+          admin_email: 'admin_monapa@puriala.org'
+        };
+      }
+      return t;
+    });
     const activeTenantId = StorageManager.getActiveTenantId();
     const currentSettings = StorageManager.getSettings();
 
@@ -608,7 +636,7 @@ export const StorageManager = {
       let needsSync = false;
       const syncedTenants = tenants.map((t) => {
         if (t.tenant_id === 'CHURCH-001') {
-          if (t.nama_gereja !== currentSettings.nama_gereja) {
+          if (t.nama_gereja !== currentSettings.nama_gereja && !isLegacyChurchName(currentSettings.nama_gereja)) {
             needsSync = true;
             return {
               ...t,
@@ -850,28 +878,38 @@ export const StorageManager = {
       setItem(KEYS.SETTINGS, settings);
     }
     // Auto sanitize any stale legacy church name
-    if (settings.nama_gereja && (settings.nama_gereja.includes('Kemenangan Faith') || settings.nama_gereja === 'Jesus Kingdom Christ')) {
+    if (settings.nama_gereja && isLegacyChurchName(settings.nama_gereja)) {
       settings.nama_gereja = 'Monapa Puriala';
     }
-    if (settings.header_title && (settings.header_title.includes('Kemenangan Faith') || settings.header_title === 'Jesus Kingdom Christ')) {
+    if (settings.header_title && isLegacyChurchName(settings.header_title)) {
       settings.header_title = 'Monapa Puriala';
     }
-    if (settings.rekening_bank_atas_nama && (settings.rekening_bank_atas_nama.includes('Kemenangan Faith') || settings.rekening_bank_atas_nama === 'Jesus Kingdom Christ')) {
+    if (settings.rekening_bank_atas_nama && isLegacyChurchName(settings.rekening_bank_atas_nama)) {
       settings.rekening_bank_atas_nama = 'Monapa Puriala';
     }
-    if (settings.email === 'info@gkfc-cms.org' || settings.email === 'info@jesuskingdomchrist.org' || settings.email === 'admin@jesuskingdomchrist.org') {
+    if (settings.email && (/jesuskingdomchrist/i.test(settings.email) || settings.email.includes('gkfc-cms.org'))) {
       settings.email = 'admin_monapa@puriala.org';
     }
     if (settings.video_url && settings.video_url.includes('5qap5aO4i9A')) {
       settings.video_url = 'https://www.youtube.com/watch?v=wX2S6AebnI8';
     }
-    // Auto sanitize any accidental "Gereja Baru" placeholder church name
-    if (settings.nama_gereja === 'Gereja Baru' || !settings.nama_gereja) {
+    // Auto sanitize any accidental legacy or placeholder church name
+    if (isLegacyChurchName(settings.nama_gereja) || !settings.nama_gereja) {
       const activeTenant = StorageManager.getActiveTenant();
-      settings.nama_gereja = activeTenant?.nama_gereja || 'Monapa Puriala';
+      const tName = activeTenant?.nama_gereja;
+      settings.nama_gereja = (tName && !isLegacyChurchName(tName)) ? tName : 'Monapa Puriala';
     }
-    if (settings.header_title === 'Gereja Baru' || !settings.header_title) {
+    if (isLegacyChurchName(settings.header_title) || !settings.header_title) {
       settings.header_title = settings.nama_gereja;
+    }
+    if (settings.topbar_text && isLegacyChurchName(settings.topbar_text)) {
+      settings.topbar_text = 'CHURCH MANAGEMENT SYSTEM - MONAPA PURIALA - System Informasi Management & Portal Pelayanan';
+    }
+    if (settings.jemaat_banner_title && isLegacyChurchName(settings.jemaat_banner_title)) {
+      settings.jemaat_banner_title = 'Shalom & Selamat Datang';
+    }
+    if (settings.jemaat_banner_subtitle && isLegacyChurchName(settings.jemaat_banner_subtitle)) {
+      settings.jemaat_banner_subtitle = 'Portal Layanan Jemaat Resmi & Sistem Informasi Terpadu';
     }
 
     // Ensure navbar custom background uses admin configured color (default #0c400d) if white or missing

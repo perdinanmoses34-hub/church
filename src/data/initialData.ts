@@ -240,9 +240,9 @@ export const initialUsers: User[] = [
     user_id: 'USR-002',
     username: 'adminsekretariat',
     password_hash: 'admin123',
-    nama: 'Dkn. Maria Melani (Admin Sekretariat GKFC)',
+    nama: 'Dkn. Maria Melani (Sekretariat Gereja)',
     role: 'ADMIN',
-    email: 'admin@gkfc-cms.org',
+    email: 'admin@puriala.org',
     no_hp: '+62 812-9876-5432',
     status: 'Aktif',
     created_at: '2025-01-10 09:30',
@@ -533,8 +533,8 @@ export const initialBaptisan: Baptisan[] = [
     nama_jemaat: 'Grace Angelia',
     tanggal: '2025-04-20',
     pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
-    lokasi: 'Gedung Kolam Baptisan GKFC Pro',
-    nomor_surat: 'BAP/GKFC/2025/04/012'
+    lokasi: 'Gedung Kolam Baptisan Monapa Puriala',
+    nomor_surat: 'BAP/GMP/2025/04/012'
   },
   {
     baptisan_id: 'BAP-2024-089',
@@ -542,8 +542,8 @@ export const initialBaptisan: Baptisan[] = [
     nama_jemaat: 'Daniel Pratama',
     tanggal: '2024-12-15',
     pendeta: 'Pdt. Markus Iskandar, S.Th',
-    lokasi: 'Gedung Utama GKFC Pro',
-    nomor_surat: 'BAP/GKFC/2024/12/089'
+    lokasi: 'Gedung Utama Gereja Monapa Puriala',
+    nomor_surat: 'BAP/GMP/2024/12/089'
   }
 ];
 
@@ -554,7 +554,7 @@ export const initialSidi: Sidi[] = [
     nama_jemaat: 'Daniel Pratama',
     tanggal: '2024-12-22',
     pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
-    nomor_surat: 'SDI/GKFC/2024/12/045'
+    nomor_surat: 'SDI/GMP/2024/12/045'
   }
 ];
 
@@ -565,8 +565,8 @@ export const initialPernikahan: Pernikahan[] = [
     istri: 'Ibu Ruth Wijaya',
     tanggal: '2020-10-10',
     pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
-    lokasi: 'Sanctuary Main Hall GKFC Pro',
-    nomor_surat: 'NKH/GKFC/2020/10/018'
+    lokasi: 'Gedung Utama Gereja Monapa Puriala',
+    nomor_surat: 'NKH/GMP/2020/10/018'
   }
 ];
 
@@ -699,7 +699,7 @@ export const initialEvents: EventSchedule[] = [
   {
     event_id: 'EVT-2026-001',
     nama: 'KKR Kebangunan Rohani & Doa Kesembuhan Massal 2026',
-    lokasi: 'Sanctuary Main Hall Lt. 3 GKFC Pro',
+    lokasi: 'Gedung Utama Gereja Monapa Puriala',
     tanggal: '2026-08-15',
     jam: '18.00 - 21.00 WIB',
     kategori: 'Upcoming Special Event',
