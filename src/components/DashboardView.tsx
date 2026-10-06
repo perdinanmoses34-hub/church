@@ -882,6 +882,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return StorageManager.getKeluarga().length;
   }, [jemaatList]);
 
+  // Helper to neatly parse Majelis Bertugas into structured items without splitting academic degrees
+  const parseMajelisBertugas = (raw?: string): string[] => {
+    if (!raw) return [];
+    const lines = raw
+      .split(/[\n;•]+|(?=\b\d+[\.\)]\s+)/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const degreeRegex = /^\s*(S\.|M\.|D\.|B\.|Ph\.|Th\.|A\.Md|Drs?\b|Dra\b|Prof\b|Ir\b|Ak\b|CA\b|SH\b|SE\b|ST\b|SPd\b|MTh\b|STh\b|MPdK?\b)/i;
+    const result: string[] = [];
+
+    lines.forEach((line) => {
+      const parts = line.split(',').map((p) => p.trim()).filter(Boolean);
+      const merged: string[] = [];
+      parts.forEach((part) => {
+        if (merged.length > 0 && degreeRegex.test(part)) {
+          merged[merged.length - 1] = `${merged[merged.length - 1]}, ${part}`;
+        } else {
+          const cleaned = part.replace(/^(\d+[\.\)]\s*|[-•*]\s*)/, '').trim();
+          if (cleaned) merged.push(cleaned);
+        }
+      });
+      result.push(...merged);
+    });
+
+    return result.length > 0 ? result : [raw.trim()];
+  };
+
   // Single Latest Updates for Jemaat Focus Mode
   const latestRenungan = renunganList.length > 0 ? renunganList[0] : null;
   const latestPengumuman = pengumumanList.length > 0 ? pengumumanList[0] : null;
@@ -2242,31 +2270,69 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {latestEvent ? (
                     <div className="mt-3 space-y-2">
                       <h3 className={`font-black text-base ${isLightSystem ? 'text-slate-900' : 'text-white'} leading-snug`}>{latestEvent.nama}</h3>
-                      <div className={`space-y-1.5 text-xs ${isLightSystem ? 'text-slate-700 bg-slate-50 border border-slate-200/80 shadow-2xs' : 'text-slate-300 bg-white/5 border-white/5'} p-3 rounded-2xl`}>
-                        <div className="flex items-center gap-2">
-                          <Clock className={`w-3.5 h-3.5 ${isLightSystem ? 'text-amber-600' : 'text-amber-400'}`} />
-                          <span className="font-medium">Pukul {latestEvent.jam ? (latestEvent.jam.includes('WITA') || latestEvent.jam.includes('WIB') ? latestEvent.jam.replace('WIB', 'WITA') : `${latestEvent.jam} WITA`) : '09:00 WITA'}</span>
+                      <div className={`space-y-2 text-xs ${isLightSystem ? 'text-slate-700 bg-slate-50 border border-slate-200/80 shadow-2xs' : 'text-slate-300 bg-white/5 border border-white/10'} p-3.5 rounded-2xl`}>
+                        <div className="flex items-start gap-2">
+                          <Clock className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${isLightSystem ? 'text-amber-600' : 'text-amber-400'}`} />
+                          <span className="font-medium leading-snug">Pukul {latestEvent.jam ? (latestEvent.jam.includes('WITA') || latestEvent.jam.includes('WIB') ? latestEvent.jam.replace('WIB', 'WITA') : `${latestEvent.jam} WITA`) : '09:00 WITA'}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className={`w-3.5 h-3.5 ${isLightSystem ? 'text-teal-600' : 'text-indigo-400'}`} />
-                          <span>{latestEvent.lokasi}</span>
+                        <div className="flex items-start gap-2">
+                          <MapPin className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${isLightSystem ? 'text-teal-600' : 'text-indigo-400'}`} />
+                          <span className="leading-snug break-words">{latestEvent.lokasi}</span>
                         </div>
-                        {(latestEvent.pelayan_firman || latestEvent.pembicara) && (
-                          <div className={`flex items-center gap-1.5 pt-1 border-t ${isLightSystem ? 'border-slate-200/80 text-slate-800' : 'border-white/10 text-slate-200'}`}>
-                            <span className="font-semibold text-teal-600 dark:text-teal-400">📖 Pelayan Firman:</span>
-                            <strong className="font-bold">{latestEvent.pelayan_firman || latestEvent.pembicara}</strong>
-                          </div>
-                        )}
-                        {latestEvent.pelayan_liturgi && (
-                          <div className={`flex items-center gap-1.5 ${isLightSystem ? 'text-slate-700' : 'text-slate-300'}`}>
-                            <span className="font-semibold text-indigo-600 dark:text-indigo-400">🕊️ Pelayan Liturgi:</span>
-                            <strong className="font-bold">{latestEvent.pelayan_liturgi}</strong>
-                          </div>
-                        )}
-                        {latestEvent.majelis_bertugas && (
-                          <div className={`flex items-center gap-1.5 ${isLightSystem ? 'text-slate-700' : 'text-slate-300'}`}>
-                            <span className="font-semibold text-amber-600 dark:text-amber-400">⛪ Majelis Bertugas:</span>
-                            <strong className="font-bold">{latestEvent.majelis_bertugas}</strong>
+                        {(latestEvent.pelayan_firman || latestEvent.pembicara || latestEvent.pelayan_liturgi || latestEvent.majelis_bertugas) && (
+                          <div className={`pt-2.5 mt-1 border-t ${isLightSystem ? 'border-slate-200/80' : 'border-white/10'} space-y-2`}>
+                            {(latestEvent.pelayan_firman || latestEvent.pembicara) && (
+                              <div className={`p-2.5 rounded-xl ${isLightSystem ? 'bg-white border border-slate-200/80 shadow-2xs' : 'bg-slate-900/60 border border-white/10'} flex flex-col gap-0.5 text-left`}>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLightSystem ? 'text-teal-700' : 'text-teal-400'}`}>
+                                  <span className="shrink-0">📖</span>
+                                  <span>Pelayan Firman</span>
+                                </span>
+                                <strong className={`font-bold text-xs leading-snug break-words pl-5 ${isLightSystem ? 'text-slate-900' : 'text-white'}`}>
+                                  {latestEvent.pelayan_firman || latestEvent.pembicara}
+                                </strong>
+                              </div>
+                            )}
+                            {latestEvent.pelayan_liturgi && (
+                              <div className={`p-2.5 rounded-xl ${isLightSystem ? 'bg-white border border-slate-200/80 shadow-2xs' : 'bg-slate-900/60 border border-white/10'} flex flex-col gap-0.5 text-left`}>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLightSystem ? 'text-indigo-700' : 'text-indigo-400'}`}>
+                                  <span className="shrink-0">🕊️</span>
+                                  <span>Pelayan Liturgi</span>
+                                </span>
+                                <strong className={`font-bold text-xs leading-snug break-words pl-5 ${isLightSystem ? 'text-slate-900' : 'text-white'}`}>
+                                  {latestEvent.pelayan_liturgi}
+                                </strong>
+                              </div>
+                            )}
+                            {latestEvent.majelis_bertugas && (
+                              <div className={`p-2.5 rounded-xl ${isLightSystem ? 'bg-white border border-slate-200/80 shadow-2xs' : 'bg-slate-900/60 border border-white/10'} flex flex-col gap-1 text-left`}>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLightSystem ? 'text-amber-700' : 'text-amber-400'}`}>
+                                  <span className="shrink-0">⛪</span>
+                                  <span>Majelis yang Bertugas</span>
+                                </span>
+                                {(() => {
+                                  const majelisItems = parseMajelisBertugas(latestEvent.majelis_bertugas);
+                                  if (majelisItems.length <= 1) {
+                                    return (
+                                      <strong className={`font-bold text-xs leading-snug break-words pl-5 ${isLightSystem ? 'text-slate-900' : 'text-white'}`}>
+                                        {majelisItems[0] || latestEvent.majelis_bertugas}
+                                      </strong>
+                                    );
+                                  }
+                                  return (
+                                    <div className="pl-5 space-y-1 pt-0.5">
+                                      {majelisItems.map((item, idx) => (
+                                        <div key={idx} className="flex items-start gap-2 text-xs leading-snug">
+                                          <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${isLightSystem ? 'bg-amber-500' : 'bg-amber-400'}`} />
+                                          <strong className={`font-bold break-words ${isLightSystem ? 'text-slate-900' : 'text-white'}`}>
+                                            {item}
+                                          </strong>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -3642,34 +3708,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {eventsList.slice(0, 3).map((evt) => (
                       <div
                         key={evt.event_id}
-                        className={`p-3 sm:p-3.5 rounded-2xl ${isLightSystem ? 'bg-slate-50 border-slate-200 hover:border-emerald-300' : 'bg-white/5 border-white/10 hover:border-indigo-500/30'} border flex items-start justify-between gap-3 text-xs transition-all`}
+                        className={`p-3 sm:p-3.5 rounded-2xl ${isLightSystem ? 'bg-slate-50 border-slate-200 hover:border-emerald-300' : 'bg-white/5 border-white/10 hover:border-indigo-500/30'} border flex flex-col gap-1.5 text-xs transition-all`}
                       >
-                        <div>
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
                           <div className="flex items-center gap-2">
                             <span className={`px-2 py-0.5 rounded ${isLightSystem ? 'bg-indigo-100 text-indigo-800 border-indigo-200' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'} font-bold text-[10px] border`}>
                               {evt.kategori || 'Ibadah'}
                             </span>
                             <span className={`${isLightSystem ? 'text-slate-500' : 'text-slate-400'} text-[11px]`}>{evt.jam}</span>
                           </div>
-                          <h4 className={`font-bold ${isLightSystem ? 'text-slate-900' : 'text-slate-100'} text-sm mt-1`}>{evt.nama}</h4>
-                          <div className={`${isLightSystem ? 'text-slate-600' : 'text-slate-400'} mt-0.5 space-y-0.5`}>
-                            <p>📍 {evt.lokasi}</p>
-                            <div className="flex flex-wrap items-center gap-x-2 text-[11px]">
+                          <span className={`text-[10px] sm:text-[11px] font-semibold ${isLightSystem ? 'text-slate-700 bg-white border-slate-200' : 'text-slate-300 bg-white/5 border-white/10'} border px-2 py-0.5 rounded-lg shrink-0`}>
+                            {evt.tanggal}
+                          </span>
+                        </div>
+                        <h4 className={`font-bold ${isLightSystem ? 'text-slate-900' : 'text-slate-100'} text-sm leading-snug`}>{evt.nama}</h4>
+                        <div className={`${isLightSystem ? 'text-slate-600' : 'text-slate-400'} space-y-1`}>
+                          <p className="leading-snug break-words">📍 {evt.lokasi}</p>
+                          {(evt.pelayan_firman || evt.pembicara || evt.pelayan_liturgi || evt.majelis_bertugas) && (
+                            <div className={`pt-1.5 mt-1 border-t ${isLightSystem ? 'border-slate-200/80' : 'border-white/10'} flex flex-col gap-1 text-[11px]`}>
                               {(evt.pelayan_firman || evt.pembicara) && (
-                                <span>📖 Pelayan Firman: <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.pelayan_firman || evt.pembicara}</strong></span>
+                                <div className="leading-snug break-words">
+                                  <span className={`font-semibold ${isLightSystem ? 'text-teal-700' : 'text-teal-400'}`}>📖 Pelayan Firman:</span>{' '}
+                                  <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.pelayan_firman || evt.pembicara}</strong>
+                                </div>
                               )}
                               {evt.pelayan_liturgi && (
-                                <span>&bull; 🕊️ Liturgi: <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.pelayan_liturgi}</strong></span>
+                                <div className="leading-snug break-words">
+                                  <span className={`font-semibold ${isLightSystem ? 'text-indigo-700' : 'text-indigo-400'}`}>🕊️ Pelayan Liturgi:</span>{' '}
+                                  <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.pelayan_liturgi}</strong>
+                                </div>
                               )}
                               {evt.majelis_bertugas && (
-                                <span>&bull; ⛪ Majelis: <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.majelis_bertugas}</strong></span>
+                                <div className="leading-snug break-words">
+                                  <span className={`font-semibold ${isLightSystem ? 'text-amber-700' : 'text-amber-400'}`}>⛪ Majelis Bertugas:</span>{' '}
+                                  <strong className={isLightSystem ? 'text-slate-800' : 'text-slate-200'}>{evt.majelis_bertugas}</strong>
+                                </div>
                               )}
                             </div>
-                          </div>
+                          )}
                         </div>
-                        <span className={`text-[11px] font-semibold ${isLightSystem ? 'text-slate-700 bg-white border-slate-200' : 'text-slate-300 bg-white/5 border-white/10'} border px-2.5 py-1 rounded-lg shrink-0`}>
-                          {evt.tanggal}
-                        </span>
                       </div>
                     ))}
                   </div>
