@@ -45,10 +45,13 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
   } | null>(null);
 
   // Form states
+  const initialChurchSettings = StorageManager.getSettings();
+  const defaultPendetaName = initialChurchSettings.nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK';
+
   const [baptisForm, setBaptisForm] = useState({
     nama_jemaat: '',
     tanggal: new Date().toISOString().slice(0, 10),
-    pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
+    pendeta: defaultPendetaName,
     lokasi: 'Gedung Sanctuary Utama',
     file_surat_baptis: ''
   });
@@ -56,7 +59,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
   const [sidiForm, setSidiForm] = useState({
     nama_jemaat: '',
     tanggal: new Date().toISOString().slice(0, 10),
-    pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
+    pendeta: defaultPendetaName,
     file_surat_sidi: ''
   });
 
@@ -64,7 +67,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
     suami: '',
     istri: '',
     tanggal: new Date().toISOString().slice(0, 10),
-    pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
+    pendeta: defaultPendetaName,
     lokasi: 'Gedung Sanctuary Utama',
     file_surat_nikah: ''
   });
@@ -130,7 +133,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
     setBaptisForm({
       nama_jemaat: '',
       tanggal: new Date().toISOString().slice(0, 10),
-      pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
+      pendeta: settings.nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
       lokasi: 'Gedung Sanctuary Utama',
       file_surat_baptis: ''
     });
@@ -201,7 +204,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
     setSidiForm({
       nama_jemaat: '',
       tanggal: new Date().toISOString().slice(0, 10),
-      pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
+      pendeta: settings.nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
       file_surat_sidi: ''
     });
   };
@@ -230,7 +233,7 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
       suami: '',
       istri: '',
       tanggal: new Date().toISOString().slice(0, 10),
-      pendeta: 'Pdt. Dr. Herman Setyawan, M.Th',
+      pendeta: settings.nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
       lokasi: 'Gedung Sanctuary Utama',
       file_surat_nikah: ''
     });
@@ -296,15 +299,19 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
   // Helper Signatures Builder
   const getSakramenSignatures = (pendetaName?: string, tanggalText?: string): SignatureBlock => {
     const settings = StorageManager.getSettings();
+    const city =
+      settings.kota_surat?.trim() ||
+      (settings.alamat ? settings.alamat.split(',')[0].trim() : 'Puriala') ||
+      'Puriala';
     return {
-      mengetahuiText: 'Mengetahui,',
-      leftTitle: 'Pendeta Jemaat / Gembala',
-      leftName: pendetaName || 'Pdt. Dr. Herman Setyawan, M.Th',
-      leftRole: 'Pendeta Pelayan / Gembala Jemaat',
-      rightTitle: 'Ketua Majelis',
-      rightName: '....................................................',
-      rightRole: 'Ketua Majelis Jemaat',
-      dateCity: `Ditetapkan di ${settings.alamat ? settings.alamat.split(',')[0].trim() : 'Gereja'}, ${tanggalText || new Date().toISOString().slice(0, 10)}`
+      mengetahuiText: 'MENGETAHUI,',
+      leftTitle: 'Ketua Majelis Jemaat / Penanggung Jawab',
+      leftName: settings.nama_ketua_majelis || 'Dkn. Maria Melani',
+      leftRole: settings.jabatan_ketua_majelis || 'Ketua Majelis Jemaat',
+      rightTitle: 'Pendeta Jemaat',
+      rightName: pendetaName || settings.nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
+      rightRole: settings.jabatan_pendeta || 'Pelayan Firman / Gembala',
+      dateCity: `Ditetapkan di ${city}, ${tanggalText || new Date().toISOString().slice(0, 10)}`
     };
   };
 
@@ -1311,9 +1318,27 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
                     Mengetahui,
                   </div>
 
-                  {/* Dua Kolom: Sebelah Kiri & Sebelah Kanan */}
+                  {/* Dua Kolom: Sebelah Kiri (Ketua Majelis) & Sebelah Kanan (Pendeta Jemaat) */}
                   <div className="grid grid-cols-2 gap-4 text-center">
-                    {/* Sebelah Kiri: Pendeta Jemaat / Gembala */}
+                    {/* Sebelah Kiri: Ketua Majelis Jemaat */}
+                    <div className="flex flex-col items-center">
+                      <div className="text-xs font-bold text-slate-950 mb-1">
+                        Ketua Majelis Jemaat / Penanggung Jawab
+                      </div>
+                      <div className="w-full max-w-[200px] h-20 border border-dashed border-slate-300 rounded-lg my-2 flex items-center justify-center bg-slate-50/50">
+                        <span className="text-[10px] text-slate-400 italic">
+                          (Tanda Tangan &amp; Cap Majelis)
+                        </span>
+                      </div>
+                      <div className="font-bold text-xs text-slate-900 border-b border-slate-800 pb-0.5 min-w-[190px]">
+                        ( {StorageManager.getSettings().nama_ketua_majelis || 'Dkn. Maria Melani'} )
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-1">
+                        {StorageManager.getSettings().jabatan_ketua_majelis || 'Ketua Majelis Jemaat'}
+                      </div>
+                    </div>
+
+                    {/* Sebelah Kanan: Pendeta Jemaat / Gembala */}
                     <div className="flex flex-col items-center">
                       <div className="text-xs font-bold text-slate-950 mb-1">
                         Pendeta Jemaat / Gembala
@@ -1324,28 +1349,10 @@ export const AdministrasiView: React.FC<AdministrasiViewProps> = ({ currentUser 
                         </span>
                       </div>
                       <div className="font-bold text-xs text-slate-900 border-b border-slate-800 pb-0.5 min-w-[190px]">
-                        ( {selectedBeritaAcara.pendeta || 'Pdt. Dr. Herman Setyawan, M.Th'} )
+                        ( {selectedBeritaAcara.pendeta || StorageManager.getSettings().nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK'} )
                       </div>
                       <div className="text-[10px] text-slate-500 mt-1">
-                        Pendeta Pelayan / Gembala Jemaat
-                      </div>
-                    </div>
-
-                    {/* Sebelah Kanan: Ketua Majelis */}
-                    <div className="flex flex-col items-center">
-                      <div className="text-xs font-bold text-slate-950 mb-1">
-                        Ketua Majelis
-                      </div>
-                      <div className="w-full max-w-[200px] h-20 border border-dashed border-slate-300 rounded-lg my-2 flex items-center justify-center bg-slate-50/50">
-                        <span className="text-[10px] text-slate-400 italic">
-                          (Tanda Tangan &amp; Cap Majelis)
-                        </span>
-                      </div>
-                      <div className="font-bold text-xs text-slate-900 border-b border-slate-800 pb-0.5 min-w-[190px]">
-                        ( .................................................... )
-                      </div>
-                      <div className="text-[10px] text-slate-500 mt-1">
-                        Ketua Majelis Jemaat
+                        {StorageManager.getSettings().jabatan_pendeta || 'Pelayan Firman / Gembala'}
                       </div>
                     </div>
                   </div>

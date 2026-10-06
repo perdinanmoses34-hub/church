@@ -280,7 +280,10 @@ export interface AppSettings {
   website?: string;
   warna_tema?: string;
   nama_pendeta?: string;
+  jabatan_pendeta?: string;
   nama_ketua_majelis?: string;
+  jabatan_ketua_majelis?: string;
+  kota_surat?: string;
   // Social Media Video Feed Settings
   video_url?: string;
   video_title?: string;

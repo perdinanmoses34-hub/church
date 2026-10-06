@@ -22,17 +22,23 @@ export interface SignatureBlock {
  */
 export function getDefaultSignatures(settings?: AppSettings, custom?: SignatureBlock): Required<SignatureBlock> {
   const activeSettings = settings || StorageManager.getSettings();
-  const dateStr = custom?.dateCity || `Puriala, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  const defaultCity =
+    activeSettings?.kota_surat?.trim() ||
+    (activeSettings?.alamat ? activeSettings.alamat.split(',')[0].trim() : 'Puriala') ||
+    'Puriala';
+  const dateStr =
+    custom?.dateCity ||
+    `${defaultCity}, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
   return {
     mengetahuiText: custom?.mengetahuiText || 'MENGETAHUI,',
     dateCity: dateStr,
     leftTitle: custom?.leftTitle || 'Ketua Majelis Jemaat / Penanggung Jawab',
     leftName: custom?.leftName || activeSettings?.nama_ketua_majelis || 'Dkn. Maria Melani',
-    leftRole: custom?.leftRole || 'Ketua Majelis Jemaat',
+    leftRole: custom?.leftRole || activeSettings?.jabatan_ketua_majelis || 'Ketua Majelis Jemaat',
     rightTitle: custom?.rightTitle || 'Pendeta Jemaat',
     rightName: custom?.rightName || activeSettings?.nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
-    rightRole: custom?.rightRole || 'Pelayan Firman / Gembala'
+    rightRole: custom?.rightRole || activeSettings?.jabatan_pendeta || 'Pelayan Firman / Gembala'
   };
 }
 

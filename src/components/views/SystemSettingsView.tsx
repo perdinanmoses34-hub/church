@@ -1344,6 +1344,112 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({
                     className={inputClass}
                   />
                 </div>
+
+                {/* Sub-Section: Pejabat Pengesahan Surat & Laporan ("Mengetahui") */}
+                <div
+                  id="pejabat-pengesahan-section"
+                  className={`sm:col-span-2 p-4 sm:p-5 rounded-2xl border-2 space-y-4 transition-colors ${
+                    isLight
+                      ? 'bg-teal-50/60 border-teal-200 text-slate-800'
+                      : 'bg-slate-950/80 border-teal-800/60 text-slate-100'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-teal-200/70 dark:border-slate-800">
+                    <div>
+                      <h4 className={`text-xs sm:text-sm font-extrabold flex items-center gap-2 ${
+                        isLight ? 'text-teal-950' : 'text-teal-300'
+                      }`}>
+                        <UserCheck className="w-4 h-4 text-teal-600 shrink-0" />
+                        <span>Pejabat Pengesahan (&quot;Mengetahui&quot;) Surat &amp; Data Laporan</span>
+                      </h4>
+                      <p className={`text-[11px] mt-0.5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                        Nama Ketua Majelis Jemaat (Kiri) dan Pendeta Jemaat (Kanan) ini otomatis dicetak pada bagian tanda tangan pengesahan di seluruh dokumen <strong>Data Laporan (PDF, Excel, Cetak)</strong> dan <strong>Berita Acara Sakramen</strong>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className={`p-3.5 rounded-xl border space-y-3 ${
+                      isLight ? 'bg-white border-teal-200/80' : 'bg-slate-900 border-slate-800'
+                    }`}>
+                      <div className="text-xs font-extrabold text-teal-800 dark:text-teal-300 border-b border-slate-100 dark:border-slate-800 pb-1.5">
+                        Pihak Kiri: Ketua Majelis Jemaat / Penanggung Jawab
+                      </div>
+                      <div>
+                        <label className={labelClass}>Nama Lengkap &amp; Gelar Ketua Majelis *</label>
+                        <input
+                          type="text"
+                          value={metaForm.nama_ketua_majelis ?? 'Dkn. Maria Melani'}
+                          placeholder="Contoh: Dkn. Maria Melani"
+                          onChange={(e) => setMetaForm({ ...metaForm, nama_ketua_majelis: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Jabatan Baris Bawah Ketua Majelis</label>
+                        <input
+                          type="text"
+                          value={metaForm.jabatan_ketua_majelis ?? 'Ketua Majelis Jemaat'}
+                          placeholder="Contoh: Ketua Majelis Jemaat"
+                          onChange={(e) => setMetaForm({ ...metaForm, jabatan_ketua_majelis: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={`p-3.5 rounded-xl border space-y-3 ${
+                      isLight ? 'bg-white border-teal-200/80' : 'bg-slate-900 border-slate-800'
+                    }`}>
+                      <div className="text-xs font-extrabold text-teal-800 dark:text-teal-300 border-b border-slate-100 dark:border-slate-800 pb-1.5">
+                        Pihak Kanan: Pendeta Jemaat / Gembala Sidang
+                      </div>
+                      <div>
+                        <label className={labelClass}>Nama Lengkap &amp; Gelar Pendeta Jemaat *</label>
+                        <input
+                          type="text"
+                          value={metaForm.nama_pendeta ?? 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK'}
+                          placeholder="Contoh: Pdt. Ferdinan Moses Timbu, S.Th, M.PdK"
+                          onChange={(e) => setMetaForm({ ...metaForm, nama_pendeta: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Jabatan Baris Bawah Pendeta Jemaat</label>
+                        <input
+                          type="text"
+                          value={metaForm.jabatan_pendeta ?? 'Pelayan Firman / Gembala'}
+                          placeholder="Contoh: Pelayan Firman / Gembala"
+                          onChange={(e) => setMetaForm({ ...metaForm, jabatan_pendeta: e.target.value })}
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                    <div className="w-full sm:max-w-xs">
+                      <label className={labelClass}>Kota Penetapan Surat / Laporan (Titimangsa)</label>
+                      <input
+                        type="text"
+                        value={
+                          metaForm.kota_surat ??
+                          (metaForm.alamat ? metaForm.alamat.split(',')[0].trim() : 'Puriala')
+                        }
+                        placeholder="Contoh: Puriala"
+                        onChange={(e) => setMetaForm({ ...metaForm, kota_surat: e.target.value })}
+                        className={inputClass}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveMeta()}
+                      className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-teal-600/20 cursor-pointer transition-all active:scale-95 shrink-0"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Simpan Nama Pendeta &amp; Ketua Majelis</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
