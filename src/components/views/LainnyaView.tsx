@@ -201,8 +201,8 @@ export const LainnyaView: React.FC<LainnyaViewProps> = ({
     // 5. SISTEM & LAPORAN
     {
       id: 'laporan',
-      title: 'Laporan Keuangan & Statistik',
-      subtitle: 'Export laporan kas, neraca, rekapitulasi data jemaat ke PDF & Excel',
+      title: 'Data Laporan & Statistik',
+      subtitle: 'Export kompilasi laporan keuangan, jemaat, wilayah & sakramen ke PDF & Excel',
       group: 'Sistem & Laporan',
       icon: FileSpreadsheet,
       badge: 'Export PDF/Excel',

@@ -118,6 +118,8 @@ export const initialSettings: AppSettings = {
   email: 'admin_monapa@puriala.org',
   telepon: '+62 881-0363-58650',
   warna_tema: '#0d9488',
+  nama_pendeta: 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
+  nama_ketua_majelis: 'Dkn. Maria Melani',
   // Rekening Bank & QRIS Transfer Persembahan Digital
   rekening_bank_nama: 'Bank BCA',
   rekening_bank_nomor: '527-089-1122',

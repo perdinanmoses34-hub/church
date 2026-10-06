@@ -176,7 +176,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         },
         {
           id: 'laporan',
-          label: 'Laporan Keuangan',
+          label: 'Data Laporan',
           icon: FileSpreadsheet,
           roles: ['SUPER_ADMIN', 'ADMIN']
         },

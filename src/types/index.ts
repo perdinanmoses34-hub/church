@@ -279,6 +279,8 @@ export interface AppSettings {
   telepon: string;
   website?: string;
   warna_tema?: string;
+  nama_pendeta?: string;
+  nama_ketua_majelis?: string;
   // Social Media Video Feed Settings
   video_url?: string;
   video_title?: string;

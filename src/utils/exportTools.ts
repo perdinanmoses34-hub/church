@@ -4,25 +4,99 @@ import autoTable from 'jspdf-autotable';
 import { AppSettings } from '../types';
 import { StorageManager } from './storage';
 
-export function exportToExcel(data: any[], fileName: string = 'Laporan_CMS_Pro', settings?: AppSettings) {
+export interface SignatureBlock {
+  mengetahuiText?: string;
+  leftTitle?: string;
+  leftName?: string;
+  leftRole?: string;
+  rightTitle?: string;
+  rightName?: string;
+  rightRole?: string;
+  dateCity?: string;
+}
+
+/**
+ * Helper to get default official endorsement signatures:
+ * Kiri: Ketua Majelis Jemaat / Penanggung Jawab
+ * Kanan: Pendeta Jemaat
+ */
+export function getDefaultSignatures(settings?: AppSettings, custom?: SignatureBlock): Required<SignatureBlock> {
+  const activeSettings = settings || StorageManager.getSettings();
+  const dateStr = custom?.dateCity || `Puriala, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+  return {
+    mengetahuiText: custom?.mengetahuiText || 'MENGETAHUI,',
+    dateCity: dateStr,
+    leftTitle: custom?.leftTitle || 'Ketua Majelis Jemaat / Penanggung Jawab',
+    leftName: custom?.leftName || activeSettings?.nama_ketua_majelis || 'Dkn. Maria Melani',
+    leftRole: custom?.leftRole || 'Ketua Majelis Jemaat',
+    rightTitle: custom?.rightTitle || 'Pendeta Jemaat',
+    rightName: custom?.rightName || activeSettings?.nama_pendeta || 'Pdt. Ferdinan Moses Timbu, S.Th, M.PdK',
+    rightRole: custom?.rightRole || 'Pelayan Firman / Gembala'
+  };
+}
+
+/**
+ * Loads an image from URL or data URI safely for jsPDF embedding
+ */
+function loadImageSafely(url: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    if (!url || typeof window === 'undefined') return resolve(null);
+    try {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => {
+        // Fallback without crossOrigin (in case of data URI or same-origin)
+        try {
+          const fallback = new Image();
+          fallback.onload = () => resolve(fallback);
+          fallback.onerror = () => resolve(null);
+          fallback.src = url;
+        } catch {
+          resolve(null);
+        }
+      };
+      img.src = url;
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+/**
+ * Export data to Excel (.xlsx) with Centered Kop Surat Header & Signatures Block
+ */
+export function exportToExcel(
+  data: any[],
+  fileName: string = 'Data_Laporan_Gereja',
+  settings?: AppSettings,
+  signatures?: SignatureBlock
+) {
   if (!data || data.length === 0) {
     alert('Tidak ada data untuk diexport.');
     return;
   }
 
   const activeSettings = settings || StorageManager.getSettings();
-  const churchName = (activeSettings?.nama_gereja || 'SYSTEM MANAGEMENT CHURCH').trim();
-  const address = activeSettings?.alamat || '';
-  const email = activeSettings?.email || '';
-  const telepon = activeSettings?.telepon || '';
+  const churchName = (activeSettings?.nama_gereja || 'GEREJA JEMAAT MONAPA PURIALA').trim().toUpperCase();
+  const address = activeSettings?.alamat || 'Puriala, Sulawesi Tenggara';
+  const email = activeSettings?.email || '-';
+  const telepon = activeSettings?.telepon || '-';
+  const logoUrl = activeSettings?.logo || '';
+
+  const sig = getDefaultSignatures(activeSettings, signatures);
 
   // Prepare Kop Header rows for Excel sheet
-  const headerRows = [
-    [churchName.toUpperCase()],
+  const headerRows: any[][] = [
+    ['========================================================================================'],
+    [`KOP SURAT RESMI - ${churchName}`],
     [`Alamat: ${address}`],
-    [`Kontak: Email (${email}) | Telp (${telepon})`],
+    [`Kontak: Email (${email}) | Telp/WhatsApp (${telepon})`],
+    logoUrl ? [`Logo Gereja: ${logoUrl}`] : [],
     [`Dicetak pada: ${new Date().toLocaleString('id-ID')}`],
-    [] // Empty row separator
+    ['========================================================================================'],
+    [] // Row separator
   ];
 
   let fullDataRows: any[][] = [...headerRows];
@@ -35,132 +109,177 @@ export function exportToExcel(data: any[], fileName: string = 'Laporan_CMS_Pro',
     });
   }
 
+  // Official Endorsement Signatures at the bottom of Excel sheet
+  fullDataRows.push([]);
+  fullDataRows.push([]);
+  fullDataRows.push([`Ditetapkan di: ${sig.dateCity}`]);
+  fullDataRows.push([sig.mengetahuiText]);
+  fullDataRows.push([sig.leftTitle, '', '', sig.rightTitle]);
+  fullDataRows.push(['(Tanda Tangan & Cap Majelis)', '', '', '(Tanda Tangan & Cap Gereja)']);
+  fullDataRows.push([]);
+  fullDataRows.push([]);
+  fullDataRows.push([`( ${sig.leftName} )`, '', '', `( ${sig.rightName} )`]);
+  if (sig.leftRole || sig.rightRole) {
+    fullDataRows.push([sig.leftRole || '', '', '', sig.rightRole || '']);
+  }
+
   const worksheet = XLSX.utils.aoa_to_sheet(fullDataRows);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Data Laporan');
   XLSX.writeFile(workbook, `${fileName}_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
-export interface SignatureBlock {
-  mengetahuiText?: string;
-  leftTitle: string;
-  leftName?: string;
-  leftRole?: string;
-  rightTitle: string;
-  rightName?: string;
-  rightRole?: string;
-  dateCity?: string;
-}
-
-export function exportToPDF(
+/**
+ * Export data to PDF with Centered Kop Surat Header, Church Logo, Double Border & Signatures
+ */
+export async function exportToPDF(
   title: string,
   headers: string[],
   rows: (string | number)[][],
   settings?: AppSettings,
-  fileName: string = 'Dokumen_CMS_Pro',
+  fileName: string = 'Data_Laporan_Gereja',
   signatures?: SignatureBlock
 ) {
   const doc = new jsPDF();
   const activeSettings = settings || StorageManager.getSettings();
-  const churchName = (activeSettings?.nama_gereja || 'SYSTEM MANAGEMENT CHURCH').trim();
-  const address = activeSettings?.alamat || 'Gereja Management System';
+  const churchName = (activeSettings?.nama_gereja || 'GEREJA JEMAAT MONAPA PURIALA').trim();
+  const address = activeSettings?.alamat || 'Puriala, Sulawesi Tenggara';
   const email = activeSettings?.email || '-';
   const telepon = activeSettings?.telepon || '-';
+  const logoUrl = activeSettings?.logo || '';
 
-  // Header Kop Surat
-  doc.setFontSize(15);
+  const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
+  const centerX = pageWidth / 2; // 105mm
+
+  let currentY = 10;
+
+  // 1. Render Logo Gereja (Rata Tengah / Centered di Atas Kop Surat)
+  if (logoUrl) {
+    try {
+      const img = await loadImageSafely(logoUrl);
+      if (img) {
+        const logoSize = 18; // 18x18 mm
+        doc.addImage(img, 'PNG', centerX - (logoSize / 2), currentY, logoSize, logoSize);
+        currentY += logoSize + 4;
+      }
+    } catch (e) {
+      console.warn('Logo gereja tidak dapat dimuat di PDF:', e);
+    }
+  }
+
+  // 2. Header Kop Surat Resmi (Rata Tengah)
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.text(churchName.toUpperCase(), 14, 15);
+  doc.setTextColor(15, 23, 42);
+  doc.text(churchName.toUpperCase(), centerX, currentY, { align: 'center' });
+  currentY += 5;
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text(address, 14, 21);
-  doc.text(`Email: ${email} | Telp: ${telepon}`, 14, 26);
+  doc.setTextColor(51, 65, 85);
+  doc.text(address, centerX, currentY, { align: 'center' });
+  currentY += 4.5;
 
-  doc.setLineWidth(0.5);
-  doc.line(14, 29, 196, 29);
+  doc.setFontSize(8);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Email: ${email}  |  Telp / WhatsApp: ${telepon}`, centerX, currentY, { align: 'center' });
+  currentY += 4;
 
-  // Document Title
-  doc.setFontSize(13);
+  // 3. Garis Kop Surat Ganda Resmi (Garis Tebal & Tipis Rata Tengah)
+  doc.setDrawColor(15, 23, 42);
+  doc.setLineWidth(1.0);
+  doc.line(14, currentY, pageWidth - 14, currentY);
+  currentY += 1.2;
+  doc.setLineWidth(0.3);
+  doc.line(14, currentY, pageWidth - 14, currentY);
+  currentY += 7;
+
+  // 4. Judul Dokumen Laporan (Rata Tengah)
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text(title, 14, 38);
+  doc.setTextColor(15, 23, 42);
+  doc.text(title.toUpperCase(), centerX, currentY, { align: 'center' });
+  currentY += 5;
 
-  doc.setFontSize(9);
+  // 5. Tanggal Cetak (Rata Tengah)
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
-  doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 44);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, centerX, currentY, { align: 'center' });
+  currentY += 5;
 
-  // Table
+  // 6. Tabel Data Laporan
   autoTable(doc, {
-    startY: 48,
+    startY: currentY,
     head: [headers],
     body: rows,
     theme: 'grid',
-    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-    styles: { fontSize: 8, cellPadding: 3 },
-    alternateRowStyles: { fillColor: [248, 250, 252] }
+    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 },
+    styles: { fontSize: 8, cellPadding: 2.8 },
+    alternateRowStyles: { fillColor: [248, 250, 252] },
+    margin: { left: 14, right: 14 }
   });
 
-  // Tanda Tangan Mengetahui jika tersedia
-  if (signatures) {
-    let currentY = ((doc as any).lastAutoTable?.finalY || 120) + 14;
-    if (currentY > 220) {
-      doc.addPage();
-      currentY = 25;
-    }
+  // 7. Tanda Tangan Pengesahan (Pendeta Jemaat & Ketua Majelis / Yang Bertanggung Jawab)
+  const sig = getDefaultSignatures(activeSettings, signatures);
 
-    // Tanggal / Kota Ditetapkan
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(71, 85, 105);
-    const dateText = signatures.dateCity || `Ditetapkan pada: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-    doc.text(dateText, 196, currentY, { align: 'right' });
-    currentY += 8;
+  let sigY = ((doc as any).lastAutoTable?.finalY || 120) + 12;
+  if (sigY > 230) {
+    doc.addPage();
+    sigY = 25;
+  }
 
-    // Mengetahui
-    doc.setFontSize(10.5);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(15, 23, 42);
-    doc.text(signatures.mengetahuiText || 'Mengetahui,', 105, currentY, { align: 'center' });
-    currentY += 8;
+  // Tanggal / Kota Ditetapkan
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(71, 85, 105);
+  doc.text(sig.dateCity, pageWidth - 14, sigY, { align: 'right' });
+  sigY += 6;
 
-    // Jabatan / Role Titles
-    doc.setFontSize(9.5);
-    doc.setFont('helvetica', 'bold');
-    // Sebelah kiri: Pendeta jemaat/Gembala
-    doc.text(signatures.leftTitle || 'Pendeta Jemaat / Gembala', 55, currentY, { align: 'center' });
-    // Sebelah kanan: Ketua Majelis
-    doc.text(signatures.rightTitle || 'Ketua Majelis', 155, currentY, { align: 'center' });
+  // Mengetahui (Rata Tengah)
+  doc.setFontSize(9.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text(sig.mengetahuiText, centerX, sigY, { align: 'center' });
+  sigY += 7;
 
-    // Space untuk Tanda Tangan (tanda tangan & cap)
-    currentY += 12;
-    doc.setFontSize(7.5);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(148, 163, 184);
-    doc.text('(Tanda Tangan & Cap Gereja)', 55, currentY, { align: 'center' });
-    doc.text('(Tanda Tangan & Cap Majelis)', 155, currentY, { align: 'center' });
-    currentY += 16;
+  // Jabatan Kiri & Kanan
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text(sig.leftTitle, 55, sigY, { align: 'center' });
+  doc.text(sig.rightTitle, pageWidth - 55, sigY, { align: 'center' });
+  sigY += 6;
 
-    // Garis / Nama
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(15, 23, 42);
-    const leftNameStr = signatures.leftName ? `( ${signatures.leftName} )` : '( .................................................... )';
-    const rightNameStr = signatures.rightName ? `( ${signatures.rightName} )` : '( .................................................... )';
-    doc.text(leftNameStr, 55, currentY, { align: 'center' });
-    doc.text(rightNameStr, 155, currentY, { align: 'center' });
+  // Ruang Tanda Tangan & Cap
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(148, 163, 184);
+  doc.text('(Tanda Tangan & Cap Majelis)', 55, sigY, { align: 'center' });
+  doc.text('(Tanda Tangan & Cap Gereja)', pageWidth - 55, sigY, { align: 'center' });
+  sigY += 15;
 
-    if (signatures.leftRole || signatures.rightRole) {
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100, 116, 139);
-      if (signatures.leftRole) doc.text(signatures.leftRole, 55, currentY + 4, { align: 'center' });
-      if (signatures.rightRole) doc.text(signatures.rightRole, 155, currentY + 4, { align: 'center' });
-    }
+  // Garis Bawah Nama Pejabat
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text(`( ${sig.leftName} )`, 55, sigY, { align: 'center' });
+  doc.text(`( ${sig.rightName} )`, pageWidth - 55, sigY, { align: 'center' });
+
+  if (sig.leftRole || sig.rightRole) {
+    sigY += 4;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    if (sig.leftRole) doc.text(sig.leftRole, 55, sigY, { align: 'center' });
+    if (sig.rightRole) doc.text(sig.rightRole, pageWidth - 55, sigY, { align: 'center' });
   }
 
   doc.save(`${fileName}_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+/**
+ * Print preview document with Centered Kop Surat Header, Church Logo & Signatures
+ */
 export function printDocument(
   title: string,
   headers: string[],
@@ -169,10 +288,13 @@ export function printDocument(
   signatures?: SignatureBlock
 ) {
   const activeSettings = settings || StorageManager.getSettings();
-  const churchName = (activeSettings?.nama_gereja || 'SYSTEM MANAGEMENT CHURCH').trim();
-  const address = activeSettings?.alamat || 'Gereja Management System';
+  const churchName = (activeSettings?.nama_gereja || 'GEREJA JEMAAT MONAPA PURIALA').trim();
+  const address = activeSettings?.alamat || 'Puriala, Sulawesi Tenggara';
   const email = activeSettings?.email || '-';
   const telepon = activeSettings?.telepon || '-';
+  const logoUrl = activeSettings?.logo || '';
+
+  const sig = getDefaultSignatures(activeSettings, signatures);
 
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
@@ -180,46 +302,44 @@ export function printDocument(
     return;
   }
 
-  const signatureHtml = signatures
-    ? `
-      <div style="margin-top: 36px; page-break-inside: avoid;">
-        <div style="text-align: right; font-size: 11px; color: #475569; margin-bottom: 12px; font-style: italic;">
-          ${signatures.dateCity || `Ditetapkan pada: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`}
-        </div>
-        <div style="text-align: center; font-size: 12px; font-weight: bold; margin-bottom: 16px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
-          ${signatures.mengetahuiText || 'Mengetahui,'}
-        </div>
-        <table style="width: 100%; border: none; margin-top: 6px;">
-          <tr style="background: transparent;">
-            <td style="width: 50%; border: none; text-align: center; vertical-align: top; padding: 0 16px;">
-              <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-bottom: 8px;">
-                ${signatures.leftTitle || 'Pendeta Jemaat / Gembala'}
-              </div>
-              <div style="height: 65px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px; font-style: italic;">
-                (Space Tanda Tangan &amp; Cap Gereja)
-              </div>
-              <div style="font-weight: bold; font-size: 11px; color: #0f172a; border-top: 1px solid #94a3b8; display: inline-block; padding-top: 4px; min-width: 220px;">
-                (${signatures.leftName || '....................................................'})
-              </div>
-              ${signatures.leftRole ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${signatures.leftRole}</div>` : ''}
-            </td>
-            <td style="width: 50%; border: none; text-align: center; vertical-align: top; padding: 0 16px;">
-              <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-bottom: 8px;">
-                ${signatures.rightTitle || 'Ketua Majelis'}
-              </div>
-              <div style="height: 65px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px; font-style: italic;">
-                (Space Tanda Tangan &amp; Cap Majelis)
-              </div>
-              <div style="font-weight: bold; font-size: 11px; color: #0f172a; border-top: 1px solid #94a3b8; display: inline-block; padding-top: 4px; min-width: 220px;">
-                (${signatures.rightName || '....................................................'})
-              </div>
-              ${signatures.rightRole ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${signatures.rightRole}</div>` : ''}
-            </td>
-          </tr>
-        </table>
+  const signatureHtml = `
+    <div style="margin-top: 36px; page-break-inside: avoid;">
+      <div style="text-align: right; font-size: 11px; color: #475569; margin-bottom: 10px; font-style: italic;">
+        ${sig.dateCity}
       </div>
-    `
-    : '';
+      <div style="text-align: center; font-size: 12px; font-weight: bold; margin-bottom: 16px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
+        ${sig.mengetahuiText}
+      </div>
+      <table style="width: 100%; border: none; margin-top: 6px;">
+        <tr style="background: transparent;">
+          <td style="width: 50%; border: none; text-align: center; vertical-align: top; padding: 0 16px;">
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-bottom: 6px;">
+              ${sig.leftTitle}
+            </div>
+            <div style="height: 55px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px; font-style: italic;">
+              (Tanda Tangan &amp; Cap Majelis)
+            </div>
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; border-top: 1px solid #94a3b8; display: inline-block; padding-top: 4px; min-width: 220px;">
+              (${sig.leftName})
+            </div>
+            ${sig.leftRole ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${sig.leftRole}</div>` : ''}
+          </td>
+          <td style="width: 50%; border: none; text-align: center; vertical-align: top; padding: 0 16px;">
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-bottom: 6px;">
+              ${sig.rightTitle}
+            </div>
+            <div style="height: 55px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 10px; font-style: italic;">
+              (Tanda Tangan &amp; Cap Gereja)
+            </div>
+            <div style="font-weight: bold; font-size: 11px; color: #0f172a; border-top: 1px solid #94a3b8; display: inline-block; padding-top: 4px; min-width: 220px;">
+              (${sig.rightName})
+            </div>
+            ${sig.rightRole ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${sig.rightRole}</div>` : ''}
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
 
   const html = `
     <!DOCTYPE html>
@@ -229,14 +349,17 @@ export function printDocument(
         <title>${title}</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 25px; color: #1e293b; }
-          .kop { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
-          .kop h1 { margin: 0 0 6px 0; font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
-          .kop p { margin: 2px 0; font-size: 11px; color: #475569; }
-          .title { font-size: 15px; font-weight: bold; margin-bottom: 4px; color: #0f172a; }
-          .meta { font-size: 11px; color: #64748b; margin-bottom: 16px; font-style: italic; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+          .kop { text-align: center; border-bottom: 3px double #0f172a; padding-bottom: 14px; margin-bottom: 22px; }
+          .kop-logo { width: 68px; height: 68px; object-fit: contain; margin: 0 auto 8px auto; display: block; }
+          .kop h1 { margin: 0 0 4px 0; font-size: 19px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; color: #0f172a; }
+          .kop .alamat { margin: 2px 0; font-size: 12px; color: #334155; }
+          .kop .kontak { margin: 2px 0; font-size: 11px; color: #64748b; }
+          .doc-header { text-align: center; margin-bottom: 18px; }
+          .doc-title { font-size: 15px; font-weight: bold; text-transform: uppercase; color: #0f172a; letter-spacing: 0.3px; }
+          .doc-meta { font-size: 11px; color: #64748b; margin-top: 4px; font-style: italic; }
+          table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 11px; }
           th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
-          th { background: #f1f5f9; font-weight: bold; color: #0f172a; }
+          th { background: #0f172a; color: #ffffff; font-weight: bold; }
           tr:nth-child(even) { background: #f8fafc; }
           @media print {
             body { padding: 10px; }
@@ -246,19 +369,23 @@ export function printDocument(
       </head>
       <body>
         <div class="no-print" style="margin-bottom: 15px; display: flex; gap: 10px;">
-          <button onclick="window.print()" style="padding: 8px 16px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+          <button onclick="window.print()" style="padding: 8px 16px; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
             🖨️ Cetak / Print Sekarang
           </button>
-          <button onclick="window.close()" style="padding: 8px 16px; background: #64748b; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+          <button onclick="window.close()" style="padding: 8px 16px; background: #64748b; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
             Tutup Jendela
           </button>
         </div>
         <div class="kop">
+          ${logoUrl ? `<img src="${logoUrl}" alt="Logo Gereja" class="kop-logo" onerror="this.style.display='none'" />` : ''}
           <h1>${churchName}</h1>
-          <p>${address} | Email: ${email} | Telp: ${telepon}</p>
+          <p class="alamat">${address}</p>
+          <p class="kontak">Email: ${email}  |  Telp / WhatsApp: ${telepon}</p>
         </div>
-        <div class="title">${title}</div>
-        <div class="meta">Dicetak pada: ${new Date().toLocaleString('id-ID')}</div>
+        <div class="doc-header">
+          <div class="doc-title">${title}</div>
+          <div class="doc-meta">Dicetak pada: ${new Date().toLocaleString('id-ID')}</div>
+        </div>
         <table>
           <thead>
             <tr>${headers.map((h) => `<th>${h}</th>`).join('')}</tr>

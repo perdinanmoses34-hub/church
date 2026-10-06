@@ -131,50 +131,51 @@ export const LaporanView: React.FC<LaporanViewProps> = ({ currentUser }) => {
   };
 
   const handleGenerateExcel = (modId: string) => {
+    const settings = StorageManager.getSettings();
     switch (modId) {
       case 'JEMAAT':
-        exportToExcel(StorageManager.getJemaat(), 'Laporan_02_JEMAAT');
+        exportToExcel(StorageManager.getJemaat(), 'Data_Laporan_02_JEMAAT', settings);
         break;
       case 'KELUARGA':
-        exportToExcel(StorageManager.getKeluarga(), 'Laporan_03_KELUARGA');
+        exportToExcel(StorageManager.getKeluarga(), 'Data_Laporan_03_KELUARGA', settings);
         break;
       case 'WILAYAH':
-        exportToExcel(StorageManager.getWilayah(), 'Laporan_04_WILAYAH');
+        exportToExcel(StorageManager.getWilayah(), 'Data_Laporan_04_WILAYAH', settings);
         break;
       case 'PELAYANAN':
-        exportToExcel(StorageManager.getPelayanan(), 'Laporan_05_PELAYANAN');
+        exportToExcel(StorageManager.getPelayanan(), 'Data_Laporan_05_PELAYANAN', settings);
         break;
       case 'BAPTISAN':
-        exportToExcel(StorageManager.getBaptisan(), 'Laporan_06_BAPTISAN');
+        exportToExcel(StorageManager.getBaptisan(), 'Data_Laporan_06_BAPTISAN', settings);
         break;
       case 'SIDI':
-        exportToExcel(StorageManager.getSidi(), 'Laporan_07_SIDI');
+        exportToExcel(StorageManager.getSidi(), 'Data_Laporan_07_SIDI', settings);
         break;
       case 'PERNIKAHAN':
-        exportToExcel(StorageManager.getPernikahan(), 'Laporan_08_PERNIKAHAN');
+        exportToExcel(StorageManager.getPernikahan(), 'Data_Laporan_08_PERNIKAHAN', settings);
         break;
       case 'PERSEMBAHAN':
-        exportToExcel(StorageManager.getPersembahan(), 'Laporan_09_PERSEMBAHAN');
+        exportToExcel(StorageManager.getPersembahan(), 'Data_Laporan_09_PERSEMBAHAN', settings);
         break;
       case 'DONASI':
-        exportToExcel(StorageManager.getDonasi(), 'Laporan_10_DONASI');
+        exportToExcel(StorageManager.getDonasi(), 'Data_Laporan_10_DONASI', settings);
         break;
       case 'KAS':
-        exportToExcel(StorageManager.getKasPengeluaran(), 'Laporan_11_KAS_PENGELUARAN');
+        exportToExcel(StorageManager.getKasPengeluaran(), 'Data_Laporan_11_KAS_PENGELUARAN', settings);
         break;
       default:
         break;
     }
   };
 
-  const handleGeneratePDF = (modId: string) => {
+  const handleGeneratePDF = async (modId: string) => {
     const { title, headers, rows } = getModuleData(modId);
-    exportToPDF(title, headers, rows, undefined, `Laporan_${modId}`);
+    await exportToPDF(title, headers, rows, StorageManager.getSettings(), `Data_Laporan_${modId}`);
   };
 
   const handlePrintDirect = (modId: string) => {
     const { title, headers, rows } = getModuleData(modId);
-    printDocument(title, headers, rows);
+    printDocument(title, headers, rows, StorageManager.getSettings());
   };
 
   return (
@@ -186,10 +187,10 @@ export const LaporanView: React.FC<LaporanViewProps> = ({ currentUser }) => {
         </div>
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span>Pusat Cetak &amp; Generator Laporan (PDF &amp; Excel)</span>
+            <span>Data Laporan Gereja (Cetak PDF &amp; Excel)</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
-            Generate dokumen resmi laporan gereja dari database dengan sekali klik, siap simpan atau cetak langsung.
+            Generate dokumen resmi data laporan gereja (keuangan, ibadah per wilayah, sakramen, &amp; data jemaat) lengkap dengan kop surat resmi dan tanda tangan pengesahan.
           </p>
         </div>
       </div>

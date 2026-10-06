@@ -185,8 +185,8 @@ export const menuModules: MenuItem[] = [
   },
   {
     id: 'laporan',
-    title: 'Laporan PDF & Excel',
-    subtitle: 'Cetak Laporan Keuangan, Jemaat & Statistik Ibadah',
+    title: 'Data Laporan (PDF & Excel)',
+    subtitle: 'Cetak Data Laporan Keuangan, Jemaat, Wilayah & Statistik',
     category: 'LAPORAN SYSTEM',
     icon: FileSpreadsheet,
     gradient: 'from-blue-700 via-indigo-700 to-slate-800',

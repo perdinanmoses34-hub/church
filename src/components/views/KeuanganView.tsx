@@ -296,10 +296,10 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
   };
 
   const handleExportExcel = () => {
-    exportToExcel(persembahanList, 'Data_Persembahan_Keuangan');
+    exportToExcel(persembahanList, 'Data_Persembahan_Keuangan', StorageManager.getSettings());
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const headers = ['ID', 'Tanggal', 'Pengirim / Jenis', 'Metode', 'Status', 'Jumlah (Rp)'];
     const rows = persembahanList.map((p) => [
       p.persembahan_id,
@@ -309,7 +309,7 @@ export const KeuanganView: React.FC<KeuanganViewProps> = ({ currentUser }) => {
       p.status || 'TERVERIFIKASI',
       `Rp ${p.jumlah.toLocaleString('id-ID')}`
     ]);
-    exportToPDF('LAPORAN PERSEMBAHAN & KAS GEREJA', headers, rows, undefined, 'Laporan_Keuangan_Persembahan');
+    await exportToPDF('LAPORAN PERSEMBAHAN & KAS GEREJA', headers, rows, StorageManager.getSettings(), 'Laporan_Keuangan_Persembahan');
   };
 
   return (

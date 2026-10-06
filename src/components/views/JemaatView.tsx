@@ -273,10 +273,10 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
   };
 
   const handleExportExcel = () => {
-    exportToExcel(filteredJemaat, 'Data_Jemaat_Gereja');
+    exportToExcel(filteredJemaat, 'Data_Jemaat_Gereja', StorageManager.getSettings());
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const headers = ['ID', 'NIK', 'Nama Lengkap', 'JK', 'Wilayah', 'Komisi', 'No. HP', 'Status'];
     const rows = filteredJemaat.map((j) => [
       j.jemaat_id,
@@ -288,7 +288,7 @@ export const JemaatView: React.FC<JemaatViewProps> = ({ currentUser }) => {
       j.nomor_hp,
       j.status
     ]);
-    exportToPDF('LAPORAN MASTER DATA JEMAAT GEREJA', headers, rows, undefined, 'Data_Jemaat');
+    await exportToPDF('LAPORAN MASTER DATA JEMAAT GEREJA', headers, rows, StorageManager.getSettings(), 'Data_Jemaat');
   };
 
   return (
